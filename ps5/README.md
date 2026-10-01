@@ -4,7 +4,8 @@ Sascha Willems' Vulkan examples as one PS5 homebrew title, **PS5 Vulkan Samples*
 (`PPSA99130`), on RADV linked into the title. Launched from the home screen it shows a
 menu of samples; a test run draws a set number of frames of each sample, saves the
 last frame and checks klog. The title is a reference for writing Vulkan on the
-console, a driver test suite run beside the CTS after RADV changes, and a showcase.
+console, a driver test suite run beside the CTS after RADV changes, a showcase, and
+the foundation every new homebrew is made on (`tools/new-title.py`, below).
 
 ## The samples
 
@@ -12,7 +13,7 @@ A sample goes in the menu only once it has been proven on the console: it starts
 draws what the host reference draws, holds its frame rate, and ends cleanly. Until
 then test runs reach it and the menu does not (`src/samples.cpp`, the second field).
 
-All fifteen are proven, on 2026-10-01 with RADV 0b2d6d1 and SDK fork fa69d00: a test
+All sixteen are proven, on 2026-10-01 with RADV 0b2d6d1 and SDK fork fa69d00: a test
 run of 300 frames each, at 3840x2160 on the 119.88 Hz display. Each held 119.9 fps after
 its first 150 frames, its last frame differed from the host reference's by at most 4.5
 levels in 255 (the "from the host" column, a mean over the picture at 480x270), klog
@@ -21,6 +22,7 @@ menu itself passes the same run (`launcher`, 0.9 from the host).
 
 | Sample | What it shows | Assets | Console | From the host |
 | --- | --- | --- | --- | --- |
+| `starter` | the program a new homebrew grows from: a textured, lit glTF model with dynamic rendering, a settings window | Lantern | 119.9 fps | 0.6 |
 | `gltfloading` | a glTF scene: meshes, materials, textures, node hierarchy | Flight Helmet | 119.9 fps | 0.8 |
 | `texturemipmapgen` | a mip chain made at run time with blits, and the samplers that read it | a tunnel, Metal Plate | 119.9 fps | 0.9 |
 | `pbrtexture` | metal and roughness maps lit by an HDR environment (IBL) | Vintage Video Camera, Kloofendal sky | 119.9 fps | 2.1 |
@@ -150,15 +152,34 @@ The title's own parts:
 | `CMakeLists.txt` | the build: the payload SDK's CMake toolchain, the samples from `src/samples.cpp`, and the host reference variant |
 | `src/main.cpp` | the title: the menu loop, test runs, one sample's run |
 | `src/launcher.cpp` | the menu |
-| `src/samples.cpp` | the samples linked in, and which are in the menu |
+| `src/samples.cpp` | the samples linked in, and which are in the menu (one alone: the title is that program) |
 | `src/example_ps5.cpp` | the base class's console parts: pad, screenshot |
 | `src/platform.c`, `platform.h` | klog, the splash, the pad, the shell exit (from the ps5-homebrew skill's template) |
 | `src/platform_host.c` | the same on a PC, for the host reference |
 | `tools/build.sh`, `link-title.sh`, `setup-sdk.sh` | configure, compile, link with RADV, sign, package; the SDK pin |
+| `tools/new-title.py`, `compile-shaders.sh` | a new title on this foundation; a program's GLSL to the SPIR-V it loads |
 | `tools/build-assets.py`, `generate_assets.py`, `assets.json` | the assets and their notices |
 | `tools/deploy.sh`, `run.sh`, `run-without-klog.py`, `check-run.py` | the console: upload, test runs, verdicts |
 | `tools/contact-sheet.py`, `compare-run.py` | the pictures, together and beside the host's |
 | `tools/host-reference.sh`, `reference/` | the reference pictures (the host build links libc++ 18.1.8, as the console's SDK, so the samples' random scenes match) |
+
+## Starting a homebrew
+
+```bash
+python3 ps5/tools/new-title.py ../PS5_MyTitle --title-id PPSA99121 --name "My Title"
+```
+
+A new title is this foundation with one program: `base/` with its PS5 hooks,
+`external/`, the PS5 layer and its tools in `ps5/`, and the starter renamed to the
+title's own program (`examples/<id>/<id>.cpp`, `shaders/glsl/<id>/`), with its own
+`param.json`, icon and asset list. It is built, deployed, run and checked as the
+samples are, and a sample's technique copies into it as it stands, since both are
+classes on the same base. A title with one program starts it at once, with no menu;
+OPTIONS then shows and hides the settings window, and the program's Quit ends the
+title. The foundation is copied at this repository's last commit, so a fix to it is
+made here, where every sample tests it, and committed first. Proven on 2026-10-01:
+a title made this way built from nothing in 31 s and passed its test run on the
+console (119.9 fps, 0.6 from its host reference, a clean exit).
 
 ## Adding a sample
 

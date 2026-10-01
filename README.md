@@ -10,7 +10,9 @@ for the console with a PS5 winsys, linked into the title by
   unchanged but for its assets, on a base class that knows the console;
 - **a driver test suite**: a test run draws a set number of frames of every sample,
   saves the last frame and checks klog, and runs beside the Vulkan CTS after RADV changes;
-- **a showcase**, started from the home screen, with a menu driven by the pad.
+- **a showcase**, started from the home screen, with a menu driven by the pad;
+- **the foundation of every new homebrew**: `ps5/tools/new-title.py` makes a title of
+  this code with one program, grown from the starter sample.
 
 What the port adds and changes is in [`ps5/README.md`](ps5/README.md); the assets the
 title ships, all with clear licences, are in [`ps5/ASSETS.md`](ps5/ASSETS.md). The fork
