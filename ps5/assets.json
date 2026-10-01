@@ -1,0 +1,394 @@
+{
+  "comment": "The assets the PS5 title ships, each with its origin and licence (ps5/tools/build-assets.py; the notices in ps5/ASSETS.md are written from this file). Only assets with a clear licence are listed: the rest of the asset pack is not shipped, and samples that use such assets get replacements made or fetched here.",
+  "sources": {
+    "pack": "the assets submodule (SaschaWillems/Vulkan-Assets), at the revision this repository pins",
+    "generated": "ps5/tools/generate_assets.py: geometry and noise written there, or CC0 files it downloads (Poly Haven; Khronos's glTF-Sample-Assets at f36bfdabd1031c3cf6689a50570b8cdf3678b49c) at pinned SHA-256 hashes"
+  },
+  "assets": [
+    {
+      "path": "Roboto-Medium.ttf",
+      "from": "pack",
+      "source": "Roboto-Medium.ttf",
+      "used_by": [
+        "*"
+      ],
+      "title": "Roboto Medium",
+      "author": "Christian Robertson (Google Fonts)",
+      "licence": "Apache-2.0",
+      "url": "https://fonts.google.com/specimen/Roboto",
+      "licence_file": "licenses/Apache-2.0.txt"
+    },
+    {
+      "path": "models/FlightHelmet",
+      "from": "pack",
+      "source": "models/FlightHelmet",
+      "used_by": [
+        "gltfloading"
+      ],
+      "title": "Flight Helmet (glTF sample model)",
+      "author": "Microsoft, donated for glTF testing",
+      "licence": "CC0-1.0",
+      "url": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/FlightHelmet"
+    },
+    {
+      "path": "models/armor",
+      "from": "pack",
+      "source": "models/armor",
+      "used_by": [
+        "deferred"
+      ],
+      "title": "Knight",
+      "author": "piacenti (OpenGameArt)",
+      "licence": "CC-BY-3.0",
+      "url": "https://opengameart.org/content/knight-2",
+      "changes": "converted to glTF and KTX by Sascha Willems"
+    },
+    {
+      "path": "models/retroufo.gltf",
+      "from": "pack",
+      "source": "models/retroufo.gltf",
+      "used_by": [
+        "bloom"
+      ],
+      "title": "Retro UFO",
+      "author": "Sascha Willems",
+      "licence": "CC-BY-3.0",
+      "url": "https://github.com/SaschaWillems/Vulkan-Assets"
+    },
+    {
+      "path": "models/retroufo_glow.gltf",
+      "from": "pack",
+      "source": "models/retroufo_glow.gltf",
+      "used_by": [
+        "bloom"
+      ],
+      "title": "Retro UFO, glowing parts",
+      "author": "Sascha Willems",
+      "licence": "CC-BY-3.0",
+      "url": "https://github.com/SaschaWillems/Vulkan-Assets"
+    },
+    {
+      "path": "models/ps5/cube.gltf",
+      "from": "generated",
+      "generator": "cube",
+      "used_by": [
+        "bloom",
+        "pbrtexture"
+      ],
+      "title": "Skybox cube",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "textures/ps5/cubemap_space.ktx",
+      "from": "generated",
+      "generator": "space_cubemap",
+      "used_by": [
+        "bloom"
+      ],
+      "title": "Starfield cube map",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "models/ps5/tunnel.gltf",
+      "from": "generated",
+      "generator": "tunnel",
+      "used_by": [
+        "texturemipmapgen"
+      ],
+      "title": "Tunnel",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "textures/ps5/metalplate_nomips_rgba.ktx",
+      "from": "generated",
+      "generator": "metal_plate",
+      "used_by": [
+        "texturemipmapgen"
+      ],
+      "title": "Metal Plate",
+      "author": "Rob Tuytel (Poly Haven)",
+      "licence": "CC0-1.0",
+      "url": "https://polyhaven.com/a/metal_plate",
+      "changes": "1024x1024, one mip level, KTX"
+    },
+    {
+      "path": "models/ps5/videocamera",
+      "from": "generated",
+      "generator": "pbr_camera",
+      "used_by": [
+        "pbrtexture"
+      ],
+      "title": "Vintage Video Camera",
+      "author": "James Ray Cock, Jenelle van Heerden (Poly Haven)",
+      "licence": "CC0-1.0",
+      "url": "https://polyhaven.com/a/vintage_video_camera",
+      "changes": "centred and scaled, tangents added, maps at 1024x1024 as separate KTX files with mipmaps"
+    },
+    {
+      "path": "textures/ps5/hdr/kloofendal_cube.ktx",
+      "from": "generated",
+      "generator": "hdri_cube",
+      "used_by": [
+        "pbrtexture"
+      ],
+      "title": "Kloofendal 48d Partly Cloudy",
+      "author": "Greg Zaal (Poly Haven)",
+      "licence": "CC0-1.0",
+      "url": "https://polyhaven.com/a/kloofendal_48d_partly_cloudy",
+      "changes": "2k equirectangular HDR made into a 512x512 RGBA16F cube map with mipmaps"
+    },
+    {
+      "path": "models/ps5/shadowscene_columns.gltf",
+      "from": "generated",
+      "generator": "shadow_scenes",
+      "used_by": [
+        "shadowmapping",
+        "rayquery"
+      ],
+      "title": "Columns and a knot",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "models/ps5/shadowscene_shapes.gltf",
+      "from": "generated",
+      "generator": "shadow_scenes",
+      "used_by": [
+        "shadowmapping"
+      ],
+      "title": "Shapes on a floor",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "models/ps5/floor.gltf",
+      "from": "generated",
+      "generator": "deferred_floor",
+      "used_by": [
+        "deferred"
+      ],
+      "title": "Floor",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "textures/ps5/cobblestone_color_rgba.ktx",
+      "from": "generated",
+      "generator": "deferred_floor",
+      "used_by": [
+        "deferred"
+      ],
+      "title": "Cobblestone Floor 01, colour",
+      "author": "Rob Tuytel (Poly Haven)",
+      "licence": "CC0-1.0",
+      "url": "https://polyhaven.com/a/cobblestone_floor_01",
+      "changes": "KTX with mipmaps"
+    },
+    {
+      "path": "textures/ps5/cobblestone_normal_rgba.ktx",
+      "from": "generated",
+      "generator": "deferred_floor",
+      "used_by": [
+        "deferred"
+      ],
+      "title": "Cobblestone Floor 01, normals",
+      "author": "Rob Tuytel (Poly Haven)",
+      "licence": "CC0-1.0",
+      "url": "https://polyhaven.com/a/cobblestone_floor_01",
+      "changes": "KTX with mipmaps"
+    },
+    {
+      "path": "models/ps5/lantern",
+      "from": "generated",
+      "generator": "lantern",
+      "used_by": [
+        "multisampling",
+        "dynamicrendering"
+      ],
+      "title": "Lantern (glTF sample model)",
+      "author": "Microsoft (sbtron)",
+      "licence": "CC0-1.0",
+      "url": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/Lantern",
+      "changes": "parent nodes centre it and scale it to 5.5 and 8 tall, one .gltf for each sample"
+    },
+    {
+      "path": "models/ps5/rock.gltf",
+      "from": "generated",
+      "generator": "instancing",
+      "used_by": [
+        "instancing"
+      ],
+      "title": "Rock",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "models/ps5/planet.gltf",
+      "from": "generated",
+      "generator": "instancing",
+      "used_by": [
+        "instancing"
+      ],
+      "title": "Planet",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "textures/ps5/lavaplanet_rgba.ktx",
+      "from": "generated",
+      "generator": "instancing",
+      "used_by": [
+        "instancing"
+      ],
+      "title": "Lava planet surface",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "textures/ps5/texturearray_rocks_rgba.ktx",
+      "from": "generated",
+      "generator": "instancing",
+      "used_by": [
+        "instancing"
+      ],
+      "title": "Rock Boulder Dry, Rock Face, Aerial Rocks 02, Dry Riverbed Rock",
+      "author": "Dimitrios Savva, Rico Cilliers, Greg Zaal, Dario Barresi, Rob Tuytel, Amal Kumar (Poly Haven)",
+      "licence": "CC0-1.0",
+      "url": "https://polyhaven.com/textures",
+      "changes": "four colour maps at 512x512 in one KTX array with mipmaps"
+    },
+    {
+      "path": "models/ps5/plants.gltf",
+      "from": "generated",
+      "generator": "indirectdraw",
+      "used_by": [
+        "indirectdraw"
+      ],
+      "title": "Plants",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "models/ps5/ground_disc.gltf",
+      "from": "generated",
+      "generator": "indirectdraw",
+      "used_by": [
+        "indirectdraw"
+      ],
+      "title": "Ground disc",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "models/ps5/skysphere.gltf",
+      "from": "generated",
+      "generator": "indirectdraw",
+      "used_by": [
+        "indirectdraw"
+      ],
+      "title": "Sky sphere",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "textures/ps5/texturearray_plants_rgba.ktx",
+      "from": "generated",
+      "generator": "indirectdraw",
+      "used_by": [
+        "indirectdraw"
+      ],
+      "title": "Plant pictures",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "textures/ps5/ground_dry_rgba.ktx",
+      "from": "generated",
+      "generator": "indirectdraw",
+      "used_by": [
+        "indirectdraw"
+      ],
+      "title": "Dry Ground 01",
+      "author": "Rob Tuytel (Poly Haven)",
+      "licence": "CC0-1.0",
+      "url": "https://polyhaven.com/a/dry_ground_01",
+      "changes": "512x512 KTX with mipmaps"
+    },
+    {
+      "path": "textures/ps5/particle01_rgba.ktx",
+      "from": "generated",
+      "generator": "particles",
+      "used_by": [
+        "computeparticles"
+      ],
+      "title": "Particle sprite",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "textures/ps5/particle_gradient_rgba.ktx",
+      "from": "generated",
+      "generator": "particles",
+      "used_by": [
+        "computeparticles"
+      ],
+      "title": "Particle colour ramp",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "models/ps5/imgui_models.gltf",
+      "from": "generated",
+      "generator": "imgui_scene",
+      "used_by": [
+        "imgui"
+      ],
+      "title": "Shapes",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "models/ps5/imgui_background.gltf",
+      "from": "generated",
+      "generator": "imgui_scene",
+      "used_by": [
+        "imgui"
+      ],
+      "title": "Room",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "models/ps5/imgui_ring.gltf",
+      "from": "generated",
+      "generator": "imgui_scene",
+      "used_by": [
+        "imgui"
+      ],
+      "title": "Ring of lights",
+      "author": "made for this fork (ps5/tools/generate_assets.py)",
+      "licence": "MIT",
+      "url": "ps5/tools/generate_assets.py"
+    }
+  ]
+}

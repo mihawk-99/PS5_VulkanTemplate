@@ -1,3 +1,25 @@
+# PS5 Vulkan Samples
+
+**This is my fork of Sascha Willems' [Vulkan examples](https://github.com/SaschaWillems/Vulkan),
+ported to the PlayStation 5 as one homebrew title.** The examples run on RADV, Mesa's
+Vulkan driver, which my [PS5_Mesa](https://github.com/mihawk-99/PS5_Mesa) fork builds
+for the console with a PS5 winsys, linked into the title by
+[PS5_Vulkan](https://github.com/mihawk-99/PS5_Vulkan). The title is three things:
+
+- **a reference** for writing Vulkan on the console: each sample is the upstream example,
+  unchanged but for its assets, on a base class that knows the console;
+- **a driver test suite**: a test run draws a set number of frames of every sample,
+  saves the last frame and checks klog, and runs beside the Vulkan CTS after RADV changes;
+- **a showcase**, started from the home screen, with a menu driven by the pad.
+
+What the port adds and changes is in [`ps5/README.md`](ps5/README.md); the assets the
+title ships, all with clear licences, are in [`ps5/ASSETS.md`](ps5/ASSETS.md). The fork
+keeps upstream's history on `main`, reaches upstream through an `upstream` remote, and
+changes upstream's files as little as the port allows (each change is marked `PS5` or
+guarded by `VK_EXAMPLE_PS5`). Upstream's README follows unchanged.
+
+---
+
 # Vulkan C++ examples and demos
 
 A comprehensive collection of open source C++ examples for [Vulkan®](https://www.vulkan.org), the low-level graphics and compute API from Khronos.

@@ -245,3 +245,7 @@ libs/vulkan/*.so
 __pycache__**
 
 .idea/*
+
+# PS5 port: the title folder and console run captures
+dist/
+klog/
