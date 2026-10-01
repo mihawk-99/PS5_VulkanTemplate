@@ -8,7 +8,23 @@
  * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
  */
 
-#if defined(_WIN32)
+#if defined(VK_EXAMPLE_PS5)
+/*
+ * PlayStation 5 (ps5/README.md)
+ *
+ * Every sample is linked into one title, each in a namespace of its own
+ * (ps5/src/wrap.cpp.in), and the title's launcher creates them by name: a
+ * sample has no main of its own.
+ */
+#define VULKAN_EXAMPLE_MAIN()																		\
+VulkanExample *vulkanExample;																		\
+VulkanExampleBase *createExample()																	\
+{																									\
+	vulkanExample = new VulkanExample();															\
+	return vulkanExample;																			\
+}
+
+#elif defined(_WIN32)
 /*
  * Windows
  */

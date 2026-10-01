@@ -175,6 +175,12 @@ VkResult VulkanExampleBase::createInstance()
 	}
 
 	VkResult result = vkCreateInstance(&instanceCreateInfo, nullptr, &instance);
+#if defined(VK_EXAMPLE_PS5)
+	// The instance's commands come from the RADV linked into the title, through volk (ps5/src/main.cpp)
+	if (result == VK_SUCCESS) {
+		volkLoadInstance(instance);
+	}
+#endif
 
 	// If the debug utils extension is present we set up debug functions, so samples can label objects for debugging
 	if (std::find(supportedInstanceExtensions.begin(), supportedInstanceExtensions.end(), VK_EXT_DEBUG_UTILS_EXTENSION_NAME) != supportedInstanceExtensions.end()) {
@@ -522,6 +528,40 @@ void VulkanExampleBase::renderLoop()
 				updateView = camera.updatePad(gamePadState.axisLeft, gamePadState.axisRight, frameTimer);
 			}
 		}
+#elif defined(VK_EXAMPLE_PS5)
+	while (!quit)
+	{
+		ps5HandleInput();
+		auto tStart = std::chrono::high_resolution_clock::now();
+		render();
+		ps5.framesDrawn++;
+		frameCounter++;
+		auto tEnd = std::chrono::high_resolution_clock::now();
+		auto tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();
+		frameTimer = tDiff / 1000.0f;
+		camera.update(frameTimer);
+		// Convert to clamped timer value
+		if (!paused)
+		{
+			timer += timerSpeed * frameTimer;
+			if (timer > 1.0)
+			{
+				timer -= 1.0f;
+			}
+		}
+		float fpsTimer = std::chrono::duration<double, std::milli>(tEnd - lastTimestamp).count();
+		if (fpsTimer > 1000.0f)
+		{
+			lastFPS = (float)frameCounter * (1000.0f / fpsTimer);
+			frameCounter = 0;
+			lastTimestamp = tEnd;
+		}
+		// The overlay is updated in prepareFrame, before the frame that draws it
+		if (ps5.frameBudget && ps5.framesDrawn >= ps5.frameBudget)
+		{
+			quit = true;
+		}
+	}
 #elif defined(_DIRECT2DISPLAY)
 	while (!quit)
 	{
@@ -729,6 +769,17 @@ void VulkanExampleBase::updateOverlay()
 	io.MouseDown[1] = mouseState.buttons.right && ui.visible;
 	io.MouseDown[2] = mouseState.buttons.middle && ui.visible;
 
+#if defined(VK_EXAMPLE_PS5)
+	// The launcher's menu lays out its own windows
+	if (ps5.ownOverlay) {
+		ImGui::NewFrame();
+		OnUpdateUIOverlay(&ui);
+		ImGui::Render();
+		ui.update(currentBuffer);
+		return;
+	}
+#endif
+
 	ImGui::NewFrame();
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
 	ImGui::SetNextWindowPos(ImVec2(10 * ui.scale, 10 * ui.scale));
@@ -811,10 +862,17 @@ void VulkanExampleBase::submitFrame(bool skipQueueSubmit)
 		VK_CHECK_RESULT(vkQueueSubmit(queue, 1, &submitInfo, waitFences[currentBuffer]));
 	}
 
+	VkSemaphore presentWait = renderCompleteSemaphores[currentImageIndex];
+#if defined(VK_EXAMPLE_PS5)
+	// The last frame of a test run's budget is copied out before it is presented
+	if (!ps5.screenshotPath.empty() && ps5.frameBudget && ps5.framesDrawn + 1 == ps5.frameBudget) {
+		presentWait = ps5CaptureSwapchainImage(presentWait);
+	}
+#endif
 	VkPresentInfoKHR presentInfo{
 		.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		.waitSemaphoreCount = 1,
-		.pWaitSemaphores = &renderCompleteSemaphores[currentImageIndex],
+		.pWaitSemaphores = &presentWait,
 		.swapchainCount = 1,
 		.pSwapchains = &swapChain.swapChain,
 		.pImageIndices = &currentImageIndex
@@ -970,6 +1028,13 @@ VulkanExampleBase::VulkanExampleBase()
 	settings.validation = true;
 #endif
 
+#if defined(VK_EXAMPLE_PS5)
+	// The console's one display mode is 3840x2160; the overlay is scaled to stay readable from a couch
+	width = 3840;
+	height = 2160;
+	ui.scale = 2.5f;
+#endif
+
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 	// Vulkan library is loaded dynamically on Android
 	bool libLoaded = vks::android::loadVulkanLibrary();
@@ -1026,6 +1091,11 @@ VulkanExampleBase::~VulkanExampleBase()
 	if (settings.overlay) {
 		ui.freeResources();
 	}
+#if defined(VK_EXAMPLE_PS5)
+	if (ps5CaptureComplete != VK_NULL_HANDLE) {
+		vkDestroySemaphore(device, ps5CaptureComplete, nullptr);
+	}
+#endif
 	delete vulkanDevice;
 	if (settings.validation) {
 		vks::debug::freeDebugCallback(instance);
@@ -1165,6 +1235,9 @@ bool VulkanExampleBase::initVulkan()
 		return false;
 	}
 	device = vulkanDevice->logicalDevice;
+#if defined(VK_EXAMPLE_PS5)
+	volkLoadDevice(device);
+#endif
 
 	// Get a graphics queue from the device
 	vkGetDeviceQueue(device, vulkanDevice->queueFamilyIndices.graphics, 0, &queue);

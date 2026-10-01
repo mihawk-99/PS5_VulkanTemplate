@@ -357,7 +357,10 @@ namespace vks
             LOGE("Fatal error: %{public}s", message.c_str());
 #endif
 			std::cerr << message << "\n";
-#if !defined(__ANDROID__) && !defined(__OHOS__)
+#if defined(VK_EXAMPLE_PS5)
+			// A title never calls exit (the console reports it as a crash): the launcher catches this, ends the sample and reports it
+			throw std::runtime_error(message);
+#elif !defined(__ANDROID__) && !defined(__OHOS__)
 			exit(exitCode);
 #endif
 		}
@@ -464,6 +467,10 @@ namespace vks
 			else
 			{
 				std::cerr << "Error: Could not open shader file \"" << fileName << "\"" << "\n";
+#if defined(VK_EXAMPLE_PS5)
+				// A null module would reach the driver: end the sample instead
+				exitFatal(std::string("Could not open shader file ") + fileName, -1);
+#endif
 				return VK_NULL_HANDLE;
 			}
 		}

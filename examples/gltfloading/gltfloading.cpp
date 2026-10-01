@@ -17,8 +17,11 @@
  * If you are looking for a complete glTF implementation, check out https://github.com/SaschaWillems/Vulkan-glTF-PBR/
  */
 
+#if !defined(VK_EXAMPLE_PS5)
+// The PS5 title links every sample into one binary: tinygltf's and stb_image's code comes once, from base/VulkanglTFModel.cpp
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
+#endif
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
 #define TINYGLTF_ANDROID_LOAD_FROM_ASSETS

@@ -1575,7 +1575,7 @@ class TinyGLTF {
 
 #endif
 
-#elif !defined(__ANDROID__) && !defined(__OHOS__)
+#elif !defined(__ANDROID__) && !defined(__OHOS__) && !defined(__PROSPERO__)
 #include <wordexp.h>
 #endif
 
@@ -2564,8 +2564,9 @@ std::string ExpandFilePath(const std::string &filepath, void *) {
 #else
 
 #if defined(TARGET_OS_IPHONE) || defined(TARGET_IPHONE_SIMULATOR) || \
-    defined(__ANDROID__) || defined(__EMSCRIPTEN__) || defined(__OHOS__)
-  // no expansion
+    defined(__ANDROID__) || defined(__EMSCRIPTEN__) || defined(__OHOS__) || \
+    defined(__PROSPERO__)
+  // no expansion (the PS5, __PROSPERO__, has no wordexp)
   std::string s = filepath;
 #else
   std::string s;

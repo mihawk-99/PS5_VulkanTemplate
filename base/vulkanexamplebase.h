@@ -101,6 +101,10 @@ private:
 	void createCommandBuffers();
 	void destroyCommandBuffers();
 	std::string shaderDir = "glsl";
+#if defined(VK_EXAMPLE_PS5)
+	VkSemaphore ps5CaptureComplete{ VK_NULL_HANDLE };
+	VkSemaphore ps5CaptureSwapchainImage(VkSemaphore renderComplete);
+#endif
 protected:
 	// Returns the path to the root of the glsl, hlsl or slang shader directory.
 	std::string getShadersPath() const;
@@ -304,6 +308,24 @@ public:
 	screen_window_t screen_window = nullptr;
 	screen_event_t screen_event = nullptr;
 	bool quit = false;
+#endif
+
+#if defined(VK_EXAMPLE_PS5)
+	/** @brief PS5: how the launcher runs this sample (ps5/src/main.cpp); also in the host reference build (ps5/README.md) */
+	struct {
+		/** @brief Frames to draw before the sample ends itself; 0: until OPTIONS is pressed */
+		uint32_t frameBudget = 0;
+		/** @brief Where the last frame of the budget is saved (a PPM at half the display's size); empty: none */
+		std::string screenshotPath;
+		/** @brief Frames drawn so far */
+		uint32_t framesDrawn = 0;
+		/** @brief When half the budget had been drawn (steady_clock seconds), for the frame rate after start-up */
+		double halfwayTime = 0.0;
+		/** @brief The launcher's own menu: ImGui windows of its own instead of the sample's overlay window */
+		bool ownOverlay = false;
+	} ps5;
+	/** @brief Reads the pad: the sticks move the camera, the buttons drive the UI overlay, OPTIONS ends the sample */
+	void ps5HandleInput();
 #endif
 
 	/** @brief Default base class constructor */
