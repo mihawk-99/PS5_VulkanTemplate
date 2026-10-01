@@ -30,5 +30,8 @@ extern const size_t ps5SampleCount;
 struct pad &ps5_pad();
 
 /* The menu (launcher.cpp): returns the index in ps5Samples of the sample
- * chosen, or -1 for Quit. The last result's message is shown under the list. */
-int ps5_run_launcher(int selected, const std::string &message);
+ * chosen, or -1 for Quit. The last result's message is shown under the list.
+ * A test run's frame budget ends it after that many frames instead (-1), and
+ * its last frame is saved to screenshotPath when that is not empty. */
+int ps5_run_launcher(int selected, const std::string &message, uint32_t frameBudget = 0,
+	const std::string &screenshotPath = "");

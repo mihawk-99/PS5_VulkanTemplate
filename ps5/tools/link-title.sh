@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # PS5 Vulkan Samples - link the title and package its folder.
 #
-#   link-title.sh BUILD_DIR PS5_VULKAN_DIR OBJECT...
+#   link-title.sh BUILD_DIR PS5_VULKAN_DIR SDK OBJECT...
 #
 # Run by the build (ps5/CMakeLists.txt) once the objects are compiled. The link
 # is PS5_Vulkan's: its RADV release archive (RADV, ACO, NIR and Mesa's runtime,
-# built from PS5_Mesa), its link recipe (tools/radv-link.sh: the SDK fork's
-# platform layer, the heap and thread wraps, the libc names bound to ps5_*),
+# built from PS5_Mesa), its link recipe (tools/radv-link.sh: the platform layer
+# of this title's SDK pin, the heap and thread wraps, the libc names bound to ps5_*),
 # its CRT, its native tool (ELF -> the console's fake SELF) and its libc.prx,
 # as its CTS title links them. The title folder, dist/<TITLE_ID>/, gets the
 # signed eboot.bin, sce_sys/, the shaders of the samples linked in and the
@@ -18,12 +18,11 @@
 set -euo pipefail
 [[ -n ${LINK_TRACE:-} ]] && set -x
 
-work=$1 vulkan=$2
-shift 2
+work=$1 vulkan=$2 sdk=$3
+shift 3
 objects=("$@")
 ps5=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 root=$(dirname "$ps5")
-sdk="$vulkan/.deps/native/ps5-payload-sdk"
 archive=${RADV_ARCHIVE:-$vulkan/.deps/native/radv-release/lib/libvulkan_radeon.ps5.a}
 export PS5_CLANG=${PS5_CLANG:-$(command -v clang || true)}
 tool="$vulkan/build/host/ps5-native-tool"

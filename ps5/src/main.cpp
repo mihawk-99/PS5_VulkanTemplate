@@ -9,10 +9,13 @@
  *
  *   frames 300                   frames each sample draws
  *   screenshot                   save each sample's last frame in /app0/screenshots/<id>.ppm
- *   samples all                  every sample linked in ("menu": the menu's; or ids)
+ *   samples all                  every sample linked in ("menu": the menu's; or ids;
+ *                                "launcher": the menu itself, drawn for the budget)
  *
  * Each sample then runs in turn on a device of its own, and klog gets one line
  * for each ("sample <id>: ok, ..." or "sample <id>: FAILED, ...") and a summary.
+ * The same lines go to /app0/test-results.txt as they happen, for a run with
+ * no klog capture (ps5/tools/run.sh falls back to it).
  *
  * Copyright (C) 2026 Mihawk
  *
@@ -25,6 +28,7 @@
 #include <sys/stat.h>
 
 #include <chrono>
+#include <cstdarg>
 #include <fstream>
 #include <sstream>
 
@@ -40,6 +44,24 @@ extern "C" VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_icdGetInstanceProcAddr(Vk
 namespace {
 
 const char *const testRunPath = PS5_APP_ROOT "/test-run.txt";
+const char *const resultsPath = PS5_APP_ROOT "/test-results.txt";
+FILE *results = nullptr;
+
+/* A test run's line: to klog, and to the results file, flushed at once so a
+ * run that crashes keeps what came before. */
+__attribute__((format(printf, 1, 2))) void report(const char *format, ...)
+{
+	char line[512];
+	va_list args;
+	va_start(args, format);
+	vsnprintf(line, sizeof(line), format, args);
+	va_end(args);
+	say("%s", line);
+	if (results) {
+		fprintf(results, "%s\n", line);
+		fflush(results);
+	}
+}
 const char *const screenshotDir = PS5_APP_ROOT "/screenshots";
 
 struct TestRun {
@@ -101,7 +123,7 @@ Result runSample(const Ps5Sample &sample, uint32_t frameBudget, const std::strin
 {
 	Result result;
 	VulkanExampleBase *example = nullptr;
-	say("sample %s: starts", sample.id);
+	report("sample %s: starts", sample.id);
 	const double start = now();
 	try {
 		example = sample.create();
@@ -120,9 +142,11 @@ Result runSample(const Ps5Sample &sample, uint32_t frameBudget, const std::strin
 		const double end = now();
 		result.frames = example->ps5.framesDrawn;
 		result.seconds = end - start;
-		// The frame rate once the first frames (pipeline compiles, uploads) are behind it
-		if (example->ps5.halfwayTime > 0.0 && result.frames > 1) {
-			result.steadyFps = (result.frames - result.frames / 2) / (end - example->ps5.halfwayTime);
+		// The frame rate once the first frames (pipeline compiles, uploads) are
+		// behind it, up to the last frame (whose screenshot takes its time)
+		const auto &times = example->ps5;
+		if (times.halfwayTime > 0.0 && times.lastFrameTime > times.halfwayTime) {
+			result.steadyFps = (frameBudget - 1 - frameBudget / 2) / (times.lastFrameTime - times.halfwayTime);
 		} else if (end > loopStart) {
 			result.steadyFps = result.frames / (end - loopStart);
 		}
@@ -138,10 +162,10 @@ Result runSample(const Ps5Sample &sample, uint32_t frameBudget, const std::strin
 		delete example;
 	}
 	if (result.ok) {
-		say("sample %s: ok, %u frames in %.2f s, %.1f fps after the first half", sample.id, result.frames,
+		report("sample %s: ok, %u frames in %.2f s, %.1f fps after the first half", sample.id, result.frames,
 			result.seconds, result.steadyFps);
 	} else {
-		say("sample %s: FAILED after %.2f s: %s", sample.id, result.seconds, result.error.c_str());
+		report("sample %s: FAILED after %.2f s: %s", sample.id, result.seconds, result.error.c_str());
 	}
 	return result;
 }
@@ -149,6 +173,7 @@ Result runSample(const Ps5Sample &sample, uint32_t frameBudget, const std::strin
 int runTests(const TestRun &run)
 {
 	std::vector<const Ps5Sample *> chosen;
+	const bool launcher = std::find(run.samples.begin(), run.samples.end(), "launcher") != run.samples.end();
 	for (const std::string &id : run.samples) {
 		for (size_t i = 0; i < ps5SampleCount; i++) {
 			if (id == "all" || (id == "menu" && ps5Samples[i].inMenu) || id == ps5Samples[i].id) {
@@ -156,7 +181,7 @@ int runTests(const TestRun &run)
 			}
 		}
 	}
-	if (chosen.empty()) {
+	if (chosen.empty() && !launcher) {
 		say("test run: no sample matches");
 		return 1;
 	}
@@ -168,16 +193,31 @@ int runTests(const TestRun &run)
 			remove((std::string(screenshotDir) + "/" + sample->id + ".ppm").c_str());
 		}
 	}
-	say("test run: %zu samples, %u frames each%s", chosen.size(), run.frames,
+	results = fopen(resultsPath, "w");
+	if (results) {
+		chmod(resultsPath, 0666);
+	}
+	report("test run: %zu samples, %u frames each%s", chosen.size() + (launcher ? 1 : 0), run.frames,
 		run.screenshot ? ", a screenshot of each" : "");
 	int failed = 0;
+	if (launcher) {
+		// The menu as a launch by hand shows it, ended by the budget instead of the pad
+		report("sample launcher: starts");
+		const double start = now();
+		const std::string screenshot = run.screenshot ? std::string(screenshotDir) + "/launcher.ppm" : "";
+		if (run.screenshot) {
+			remove(screenshot.c_str());
+		}
+		ps5_run_launcher(-1, "", run.frames, screenshot);
+		report("sample launcher: ok, %u frames in %.2f s", run.frames, now() - start);
+	}
 	for (const Ps5Sample *sample : chosen) {
 		const std::string screenshot = run.screenshot ? std::string(screenshotDir) + "/" + sample->id + ".ppm" : "";
 		if (!runSample(*sample, run.frames, screenshot).ok) {
 			failed++;
 		}
 	}
-	say("samples: %zu ok, %d failed", chosen.size() - failed, failed);
+	report("samples: %zu ok, %d failed", chosen.size() + (launcher ? 1 : 0) - failed, failed);
 	return failed ? 1 : 0;
 }
 
@@ -222,6 +262,11 @@ int main()
 	} else {
 		runMenu();
 	}
-	say("ends: status %d", status);
+	if (results) {
+		report("ends: status %d", status);
+		fclose(results);
+	} else {
+		say("ends: status %d", status);
+	}
 	return status;
 }

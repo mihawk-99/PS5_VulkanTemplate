@@ -249,3 +249,4 @@ __pycache__**
 # PS5 port: the title folder and console run captures
 dist/
 klog/
+.deps/

@@ -49,10 +49,19 @@ PY
 else
     timeout=86400
 fi
-python3 "$vulkan/tools/run-title.py" "$title_id" \
-    --until '\[PS5 Vulkan Samples\] ends' --timeout "${RUN_TIMEOUT:-$timeout}" \
-    --echo '\[PS5 Vulkan Samples\] (sample|samples|test run|ends|screenshot)|fatal|FAILED|Fatal' \
-    --elf "$root/build/ps5/link/llvm-pie.elf" --output "$output"
+klog_port=$(python3 -c "import sys; sys.path.insert(0, sys.argv[1]); import ps5_console, socket; s = ps5_console.load_settings(); socket.create_connection((s['host'], s['klog_port']), 3).close(); print('open')" "$vulkan/tools" 2>/dev/null || true)
+if [[ $klog_port == open ]]; then
+    python3 "$vulkan/tools/run-title.py" "$title_id" \
+        --until '\[PS5 Vulkan Samples\] ends' --timeout "${RUN_TIMEOUT:-$timeout}" \
+        --echo '\[PS5 Vulkan Samples\] (sample|samples|test run|ends|screenshot)|fatal|FAILED|Fatal' \
+        --elf "$root/build/ps5/link/llvm-pie.elf" --output "$output"
+elif (( ${#samples[@]} )); then
+    echo "no klog capture on the console (port closed): following the title's own results file"
+    python3 "$ps5/tools/run-without-klog.py" "$run_dir" "${RUN_TIMEOUT:-$timeout}" || true
+else
+    echo "no klog capture on the console, and --menu has nothing else to follow" >&2
+    exit 2
+fi
 if (( ${#samples[@]} )); then
     exec python3 "$ps5/tools/check-run.py" --check "$run_dir" "${samples[@]}"
 fi

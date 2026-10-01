@@ -14,21 +14,21 @@
 #include "ps5_samples.h"
 
 #define PS5_SAMPLES                                                                                          \
-	SAMPLE(gltfloading, false, "glTF model loading", "A glTF scene: meshes, materials, textures, node hierarchy") \
-	SAMPLE(texturemipmapgen, false, "Mipmaps made at run time", "A texture's mip chain made with image blits, and how filtering uses it") \
-	SAMPLE(pbrtexture, false, "Physically based rendering", "Metal and roughness maps lit by an HDR environment (image based lighting)") \
-	SAMPLE(shadowmapping, false, "Shadow mapping", "A directional light's depth map, filtered with PCF") \
-	SAMPLE(deferred, false, "Deferred shading", "A G-buffer in several render targets, then many lights in one pass") \
-	SAMPLE(bloom, false, "Bloom", "Bright parts blurred in two separable passes and added back") \
-	SAMPLE(multisampling, false, "Multisampling (MSAA)", "Anti-aliasing with multisampled attachments resolved at the end of the pass") \
-	SAMPLE(instancing, false, "Instancing", "Thousands of rocks in one draw, each with data of its own") \
-	SAMPLE(indirectdraw, false, "Indirect drawing", "Draw calls read from a GPU buffer, many meshes and instances each") \
-	SAMPLE(computeparticles, false, "Compute particles", "A particle system moved by a compute shader and drawn as points") \
-	SAMPLE(descriptorindexing, false, "Bindless textures", "One descriptor array of textures, indexed per object in the shader") \
-	SAMPLE(dynamicrendering, false, "Dynamic rendering", "Rendering without render pass and framebuffer objects") \
-	SAMPLE(imgui, false, "On-screen UI", "Dear ImGui drawn over a 3D scene, with windows of its own") \
-	SAMPLE(meshshader, false, "Mesh shaders", "Geometry made by task and mesh shaders, with no vertex input") \
-	SAMPLE(rayquery, false, "Ray queries", "Shadows traced against an acceleration structure from a fragment shader")
+	SAMPLE(gltfloading, true, "glTF model loading", "A glTF scene: meshes, materials, textures, node hierarchy") \
+	SAMPLE(texturemipmapgen, true, "Mipmaps made at run time", "A texture's mip chain made with image blits, and how filtering uses it") \
+	SAMPLE(pbrtexture, true, "Physically based rendering", "Metal and roughness maps lit by an HDR environment (image based lighting)") \
+	SAMPLE(shadowmapping, true, "Shadow mapping", "A directional light's depth map, filtered with PCF") \
+	SAMPLE(deferred, true, "Deferred shading", "A G-buffer in several render targets, then many lights in one pass") \
+	SAMPLE(bloom, true, "Bloom", "Bright parts blurred in two separable passes and added back") \
+	SAMPLE(multisampling, true, "Multisampling (MSAA)", "Anti-aliasing with multisampled attachments resolved at the end of the pass") \
+	SAMPLE(instancing, true, "Instancing", "Thousands of rocks in one draw, each with data of its own") \
+	SAMPLE(indirectdraw, true, "Indirect drawing", "Draw calls read from a GPU buffer, many meshes and instances each") \
+	SAMPLE(computeparticles, true, "Compute particles", "A particle system moved by a compute shader and drawn as points") \
+	SAMPLE(descriptorindexing, true, "Bindless textures", "One descriptor array of textures, indexed per object in the shader") \
+	SAMPLE(dynamicrendering, true, "Dynamic rendering", "Rendering without render pass and framebuffer objects") \
+	SAMPLE(imgui, true, "On-screen UI", "Dear ImGui drawn over a 3D scene, with windows of its own") \
+	SAMPLE(meshshader, true, "Mesh shaders", "Geometry made by task and mesh shaders, with no vertex input") \
+	SAMPLE(rayquery, true, "Ray queries", "Shadows traced against an acceleration structure from a fragment shader")
 
 #define SAMPLE(id, menu, title, description) \
 	namespace sample_##id { VulkanExampleBase *createExample(); }

@@ -23,9 +23,33 @@ ninja=$(command -v ninja || echo "$HOME/.local/bin/ninja")
 title_id=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["titleId"])' "$ps5/sce_sys/param.json")
 [[ -d $root/dist/$title_id/assets ]] || { echo "no dist/$title_id/assets: run ps5/tools/build.sh first" >&2; exit 2; }
 
+# libc++ 18.1.8, as on the console (the payload SDK's is 18.1): the samples'
+# random scenes come from std:: distributions, which libstdc++ computes otherwise.
+# conda-forge's packages, at pinned hashes, unpacked in the build folder.
+libcxx="$build/libcxx/root"
+if [[ ! -f $libcxx/lib/libc++abi.so ]]; then
+    mkdir -p "$build/libcxx/dl" "$libcxx"
+    for package in "libcxx 18.1.8 libcxx-18.1.8-h719d109_8.conda 382b4d8208ba5d207a85697630effc92616d883ed7bff2b6b6b0ac686c3326b3" \
+            "libcxx-devel 18.1.8 libcxx-devel-18.1.8-h2c0bd0d_8.conda b9a6477ddd8f1dd388f2747a98847a61585a06a1eda0612eb30bc8e1dcda14be" \
+            "libcxxabi 18.1.8 libcxxabi-18.1.8-hc655929_8.conda 655f5b2e69cc7995e6d0e9d96da8d677ef71c56cdeedc65473d80da076a86aaa"; do
+        read -r name version file sha <<< "$package"
+        curl -sfL "https://api.anaconda.org/download/conda-forge/$name/$version/linux-64/$file" -o "$build/libcxx/dl/$file"
+        echo "$sha  $build/libcxx/dl/$file" | sha256sum -c --quiet
+        python3 - "$build/libcxx/dl/$file" "$libcxx" <<'PY'
+import subprocess, sys, zipfile
+with zipfile.ZipFile(sys.argv[1]) as conda:
+    for member in conda.namelist():
+        if member.startswith("pkg-") and member.endswith(".tar.zst"):
+            data = subprocess.run(["zstd", "-qdc"], input=conda.read(member), capture_output=True, check=True).stdout
+            subprocess.run(["tar", "-x", "-C", sys.argv[2]], input=data, check=True)
+PY
+    done
+fi
 if [[ ! -f $build/build.ninja ]]; then
     cmake -S "$ps5" -B "$build" -G Ninja -DCMAKE_MAKE_PROGRAM="$ninja" -DPS5_HOST_REFERENCE=ON \
         -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
+        -DCMAKE_CXX_FLAGS="-stdlib=libc++ -nostdinc++ -isystem $libcxx/include/c++/v1" \
+        -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -L$libcxx/lib -Wl,-rpath,$libcxx/lib" \
         -DPS5_HOST_APP_ROOT="$build/app" > "$build.configure.log" 2>&1 || { cat "$build.configure.log" >&2; exit 1; }
 fi
 "$ninja" -C "$build" ps5-samples-host | tail -1

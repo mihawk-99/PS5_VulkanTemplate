@@ -26,8 +26,18 @@ void VulkanExampleBase::ps5HandleInput()
 {
 	struct pad &pad = ps5_pad();
 	pad_poll(&pad);
-	if (ps5.frameBudget && ps5.framesDrawn == ps5.frameBudget / 2) {
-		ps5.halfwayTime = std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
+	// No imgui.ini: window positions are not kept between runs
+	ImGui::GetIO().IniFilename = nullptr;
+	if (ps5.frameBudget) {
+		const double now = std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
+		if (ps5.framesDrawn == ps5.frameBudget / 2) {
+			ps5.halfwayTime = now;
+		}
+		if (ps5.framesDrawn + 1 == ps5.frameBudget) {
+			ps5.lastFrameTime = now;
+		}
+		// A test run is the same whoever holds the pad
+		return;
 	}
 
 	// OPTIONS ends the sample and goes back to the launcher's menu
@@ -43,8 +53,6 @@ void VulkanExampleBase::ps5HandleInput()
 	// L1 and R1 change windows, L2 and R2 change a slider slower or faster. The
 	// current context is the overlay's, or the one a sample made itself (imgui)
 	ImGuiIO &io = ImGui::GetIO();
-	// No imgui.ini: window positions are not kept between runs
-	io.IniFilename = nullptr;
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 	io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
 	memset(io.NavInputs, 0, sizeof(io.NavInputs));

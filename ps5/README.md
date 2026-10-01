@@ -12,23 +12,30 @@ A sample goes in the menu only once it has been proven on the console: it starts
 draws what the host reference draws, holds its frame rate, and ends cleanly. Until
 then test runs reach it and the menu does not (`src/samples.cpp`, the second field).
 
-| Sample | What it shows | Assets | Menu |
-| --- | --- | --- | --- |
-| `gltfloading` | a glTF scene: meshes, materials, textures, node hierarchy | Flight Helmet | not yet |
-| `texturemipmapgen` | a mip chain made at run time with blits, and the samplers that read it | a tunnel, Metal Plate | not yet |
-| `pbrtexture` | metal and roughness maps lit by an HDR environment (IBL) | Vintage Video Camera, Kloofendal sky | not yet |
-| `shadowmapping` | a directional light's depth map, filtered with PCF | two scenes made here | not yet |
-| `deferred` | a G-buffer in several render targets, then the lights in one pass | Knight, Cobblestone Floor 01 | not yet |
-| `bloom` | bright parts blurred in two separable passes and added back | Retro UFO, a starfield made here | not yet |
-| `multisampling` | MSAA with resolve attachments, and sample-rate shading | Lantern | not yet |
-| `instancing` | thousands of rocks in one draw, with per-instance data | rocks and a planet made here | not yet |
-| `indirectdraw` | draws read from a GPU buffer, many meshes and instances each | plants and ground made here, Dry Ground 01 | not yet |
-| `computeparticles` | particles moved by a compute shader and drawn as points | sprites made here | not yet |
-| `descriptorindexing` | bindless textures: one descriptor array indexed per object | made by the sample | not yet |
-| `dynamicrendering` | rendering without render pass and framebuffer objects | Lantern | not yet |
-| `imgui` | Dear ImGui over a 3D scene, with windows of its own | shapes made here | not yet |
-| `meshshader` | geometry from task and mesh shaders, with no vertex input | none | not yet |
-| `rayquery` | shadows traced from a fragment shader against an acceleration structure | a scene made here | not yet |
+All fifteen are proven, on 2026-10-01 with RADV 0b2d6d1 and SDK fork fa69d00: a test
+run of 300 frames each, at 3840x2160 on the 119.88 Hz display. Each held 119.9 fps after
+its first 150 frames, its last frame differed from the host reference's by at most 4.5
+levels in 255 (the "from the host" column, a mean over the picture at 480x270), klog
+held no crash record, GPU fault or driver error, and the title exited on its own. The
+menu itself passes the same run (`launcher`, 0.9 from the host).
+
+| Sample | What it shows | Assets | Console | From the host |
+| --- | --- | --- | --- | --- |
+| `gltfloading` | a glTF scene: meshes, materials, textures, node hierarchy | Flight Helmet | 119.9 fps | 0.8 |
+| `texturemipmapgen` | a mip chain made at run time with blits, and the samplers that read it | a tunnel, Metal Plate | 119.9 fps | 0.9 |
+| `pbrtexture` | metal and roughness maps lit by an HDR environment (IBL) | Vintage Video Camera, Kloofendal sky | 119.9 fps | 2.1 |
+| `shadowmapping` | a directional light's depth map, filtered with PCF | two scenes made here | 119.9 fps | 0.7 |
+| `deferred` | a G-buffer in several render targets, then the lights in one pass | Knight, Cobblestone Floor 01 | 119.9 fps | 1.2 |
+| `bloom` | bright parts blurred in two separable passes and added back | Retro UFO, a starfield made here | 119.9 fps | 0.6 |
+| `multisampling` | MSAA with resolve attachments, and sample-rate shading | Lantern | 119.9 fps | 1.9 |
+| `instancing` | thousands of rocks in one draw, with per-instance data | rocks and a planet made here | 119.9 fps | 1.8 |
+| `indirectdraw` | draws read from a GPU buffer, many meshes and instances each | plants and ground made here, Dry Ground 01 | 119.9 fps | 3.4 |
+| `computeparticles` | particles moved by a compute shader and drawn as points | sprites made here | 119.9 fps | 4.5 |
+| `descriptorindexing` | bindless textures: one descriptor array indexed per object | made by the sample | 119.9 fps | 0.9 |
+| `dynamicrendering` | rendering without render pass and framebuffer objects | Lantern | 119.9 fps | 0.5 |
+| `imgui` | Dear ImGui over a 3D scene, with windows of its own | shapes made here | 119.9 fps | 0.5 |
+| `meshshader` | geometry from task and mesh shaders, with no vertex input | none | 119.9 fps | 0.5 |
+| `rayquery` | shadows traced from a fragment shader against an acceleration structure | a scene made here | 119.9 fps | 0.6 |
 
 The assets, their authors and licences: [`ASSETS.md`](ASSETS.md).
 
@@ -49,9 +56,11 @@ In the menu, the D-pad chooses and CROSS starts. In a sample:
 ## Building and running
 
 The title builds against my PS5 stack, checked out beside this repository:
-[PS5_Vulkan](https://github.com/mihawk-99/PS5_Vulkan) (its SDK fork installed in
-`.deps`, its RADV release archive, its native tool and `libc.prx`) and the Mesa fork
-it builds RADV from. The assets need Python with numpy and Pillow, and download their
+[PS5_Vulkan](https://github.com/mihawk-99/PS5_Vulkan) (its RADV release archive, its
+link recipe, its native tool and `libc.prx`), the Mesa fork it builds RADV from, and
+my [payload SDK fork](https://github.com/mihawk-99/PS5_PayloadSDK), which
+`tools/setup-sdk.sh` installs into `.deps/` at the revision it pins (fa69d00, the
+first with the platform layer's C-locale `localeconv`). The assets need Python with numpy and Pillow, and download their
 CC0 sources once (into `build/ps5/downloads/`, checked against pinned hashes).
 
 ```bash
@@ -61,6 +70,7 @@ ps5/tools/deploy.sh                 # upload what changed, over the console's FT
 ps5/tools/run.sh                    # a test run of every sample, 300 frames each
 ps5/tools/run.sh menu               # the samples in the menu
 ps5/tools/run.sh bloom deferred     # those two
+ps5/tools/run.sh launcher all       # the menu itself too
 ps5/tools/run.sh --menu             # no test: the menu, until Quit
 ```
 
@@ -76,7 +86,12 @@ a verdict for each sample. A sample passes when its klog line says `ok`, klog ho
 crash record, GPU fault or RADV error line, and its picture exists and is not one flat
 colour (and, when `reference/<id>.png` exists, is close to it). The run's klog, the
 pictures as PNG and `summary.txt` stay in `klog/<time>/`;
-`tools/contact-sheet.py klog/<time>` puts the pictures on a few sheets.
+`tools/contact-sheet.py klog/<time>` puts the pictures on a few sheets, and
+`tools/compare-run.py klog/<time> klog/host-<time>` sets them beside the host's with
+their difference. The title also writes its lines to `test-results.txt` in its folder as
+it goes: when the console has no klog capture, `run.sh` follows that file instead
+(`tools/run-without-klog.py`), and the verdicts say that crash records and driver
+messages went unchecked.
 
 **Test runs are deterministic.** The launcher sets `benchmark.active`, which upstream's
 samples read as "seed the random generators with 0", and the render loop steps time by
@@ -92,8 +107,14 @@ explain, one that it shows too is the sample's or the asset's. `--save` keeps th
 at 480x270, as `reference/<id>.png`, which `check-run.py` compares a 300-frame run's
 pictures with (a mean difference of 12 in 255 fails).
 
-**After a RADV change**, run every sample (`ps5/tools/run.sh`) with the CTS gate, and
-compare the frame rates with the table above and the pictures with the host's.
+**After a RADV change**, run every sample (`ps5/tools/run.sh launcher all`) with the
+CTS gate, and compare the frame rates with the table above and the pictures with the
+host's. The suite earns its place: its first console run drew three samples black
+where the host drew them in colour. The console's `localeconv()` reports an empty
+decimal point, and tinygltf's JSON parser, which builds numbers for `strtod` from it,
+read every glTF material colour of 0.62 as 0. The fix went where such gaps go, into
+the shared platform layer (SDK fork fa69d00) and PS5_Vulkan's link recipe, for every
+title that links them.
 
 ## How the port works
 
@@ -133,10 +154,11 @@ The title's own parts:
 | `src/example_ps5.cpp` | the base class's console parts: pad, screenshot |
 | `src/platform.c`, `platform.h` | klog, the splash, the pad, the shell exit (from the ps5-homebrew skill's template) |
 | `src/platform_host.c` | the same on a PC, for the host reference |
-| `tools/build.sh`, `link-title.sh` | configure, compile, link with RADV, sign, package |
+| `tools/build.sh`, `link-title.sh`, `setup-sdk.sh` | configure, compile, link with RADV, sign, package; the SDK pin |
 | `tools/build-assets.py`, `generate_assets.py`, `assets.json` | the assets and their notices |
-| `tools/deploy.sh`, `run.sh`, `check-run.py`, `contact-sheet.py` | the console: upload, test runs, verdicts |
-| `tools/host-reference.sh` | the reference pictures |
+| `tools/deploy.sh`, `run.sh`, `run-without-klog.py`, `check-run.py` | the console: upload, test runs, verdicts |
+| `tools/contact-sheet.py`, `compare-run.py` | the pictures, together and beside the host's |
+| `tools/host-reference.sh`, `reference/` | the reference pictures (the host build links libc++ 18.1.8, as the console's SDK, so the samples' random scenes match) |
 
 ## Adding a sample
 
@@ -148,7 +170,8 @@ The title's own parts:
    pinned hash), and the sample's path changes to it, with a note.
 3. `tools/host-reference.sh <id>`, and look at the picture.
 4. `tools/build.sh && tools/deploy.sh && tools/run.sh <id>`, and compare.
-5. Once it passes on the console, set its second field to `true`, and record it here.
+5. Once it passes on the console, set its second field to `true`, keep its reference
+   (`tools/host-reference.sh --save <id>`), and record it here.
 
 ## Licences
 

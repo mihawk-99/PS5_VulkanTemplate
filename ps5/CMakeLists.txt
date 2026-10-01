@@ -14,6 +14,7 @@ project(ps5_vulkan_samples C CXX)
 
 set(ROOT ${CMAKE_CURRENT_SOURCE_DIR}/..)
 set(PS5_VULKAN_DIR "${ROOT}/../PS5_Vulkan" CACHE PATH "the PS5_Vulkan checkout (RADV archive, link recipe, packaging)")
+# PS5_PAYLOAD_SDK: the SDK the toolchain file came from (tools/setup-sdk.sh's pin)
 # The host reference build: the same code on the PC's Vulkan driver, with a
 # headless surface, reading and writing in PS5_HOST_APP_ROOT (tools/host-reference.sh)
 option(PS5_HOST_REFERENCE "build for the PC, as a reference for the console's pictures" OFF)
@@ -113,7 +114,7 @@ endif()
 # Link, sign and package: the title folder in dist/<TITLE_ID>/
 add_custom_command(
 	OUTPUT ${CMAKE_BINARY_DIR}/eboot.elf
-	COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/tools/link-title.sh ${CMAKE_BINARY_DIR} ${PS5_VULKAN_DIR} "$<TARGET_OBJECTS:samples>"
+	COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/tools/link-title.sh ${CMAKE_BINARY_DIR} ${PS5_VULKAN_DIR} ${PS5_PAYLOAD_SDK} "$<TARGET_OBJECTS:samples>"
 	DEPENDS samples "$<TARGET_OBJECTS:samples>" ${CMAKE_CURRENT_SOURCE_DIR}/tools/link-title.sh
 	COMMAND_EXPAND_LISTS
 	VERBATIM)

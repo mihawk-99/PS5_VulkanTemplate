@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """PS5 Vulkan Samples - read a test run: klog, screenshots, a verdict per sample.
 
-    check-run.py --resolve all|menu|ID...      the sample ids a run covers
+    check-run.py --resolve all|menu|launcher|ID...   the sample ids a run covers
+                                               ("launcher": the menu itself)
     check-run.py --check RUN_DIR ID...         fetch the screenshots of the
                                                samples that ended well, check
                                                klog and the pictures, print a
@@ -30,7 +31,7 @@ ROOT = PS5.parent
 VULKAN = Path(__import__("os").environ.get("PS5_VULKAN_DIR", ROOT.parent / "PS5_Vulkan")).resolve()
 TITLE_ID = __import__("json").loads((PS5 / "sce_sys" / "param.json").read_text())["titleId"]
 
-SAMPLE_LINE = re.compile(r"\[PS5 Vulkan Samples\] sample (\w+): (ok|FAILED)(.*)")
+SAMPLE_LINE = re.compile(r"(?:\[PS5 Vulkan Samples\] |^)sample (\w+): (ok|FAILED)(.*)", re.M)
 CRASH = re.compile(r"A user thread receives a fatal signal|mDBG: Sending signal|GPU_FAULT|gpu fault", re.I)
 DRIVER_ERROR = re.compile(r"\bradv(/ps5)?: .*(error|fail)|MESA: error|amdgpu: .*fail|Fatal : VkResult", re.I)
 # Mean absolute difference (0..255 per channel) a screenshot may have from its reference
@@ -55,7 +56,7 @@ def resolve(words):
     for word in words:
         ids = built if word == "all" else samples_in_menu() if word == "menu" else [word]
         for sample in ids:
-            if sample not in built:
+            if sample not in built and sample != "launcher":  # "launcher": the menu itself
                 sys.exit(f"{sample} is not linked into the title (ps5/src/samples.cpp)")
             if sample not in chosen:
                 chosen.append(sample)
@@ -110,7 +111,11 @@ def picture_checks(sample, ppm, run_dir, compare):
 
 def check(run_dir, samples):
     run_dir = Path(run_dir)
-    log = (run_dir / "klog.log").read_text(errors="replace")
+    # klog, or without a klog capture the title's own test-results.txt
+    source = run_dir / "klog.log"
+    if not source.is_file() or not SAMPLE_LINE.search(source.read_text(errors="replace")):
+        source = run_dir / "test-results.txt"
+    log = source.read_text(errors="replace") if source.is_file() else ""
     results = {m.group(1): (m.group(2), m.group(3).strip(" ,:")) for m in SAMPLE_LINE.finditer(log)}
     budget = re.search(r"test run: \d+ samples, (\d+) frames each", log)
     # The references (tools/host-reference.sh --save) show frame 300 of each sample
@@ -143,7 +148,8 @@ def check(run_dir, samples):
         failed += 1
         lines += ["driver error lines in klog:"] + [f"  {e}" for e in driver_errors[:10]]
     lines.append(f"{len(samples) - sum(r.startswith('FAIL') for r in rows)} of {len(samples)} samples pass"
-                 + ("" if not (crashes or driver_errors) else ", klog is not clean"))
+                 + ("" if not (crashes or driver_errors) else ", klog is not clean")
+                 + ("" if source.name == "klog.log" else " (no klog capture: crash records and driver messages were not checked)"))
     text = "\n".join(lines)
     (run_dir / "summary.txt").write_text(text + "\n")
     print(text)

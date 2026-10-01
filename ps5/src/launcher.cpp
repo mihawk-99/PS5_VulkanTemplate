@@ -153,15 +153,18 @@ public:
 
 } // namespace
 
-int ps5_run_launcher(int selected, const std::string &message)
+int ps5_run_launcher(int selected, const std::string &message, uint32_t frameBudget,
+	const std::string &screenshotPath)
 {
 	Launcher *launcher = new Launcher(selected, message);
+	launcher->ps5.frameBudget = frameBudget;
+	launcher->ps5.screenshotPath = screenshotPath;
 	int chosen = -1;
 	try {
 		launcher->initVulkan();
 		launcher->prepare();
 		launcher->renderLoop();
-		chosen = launcher->chosen;
+		chosen = frameBudget ? -1 : launcher->chosen;
 	} catch (const std::exception &e) {
 		say("menu: %s", e.what());
 	}
