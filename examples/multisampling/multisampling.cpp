@@ -343,7 +343,8 @@ public:
 
 	void loadAssets()
 	{
-		model.loadFromFile(getAssetPath() + "models/voyager.gltf", vulkanDevice, queue, vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::FlipY);
+		// PS5 fork: assets with a clear licence replace the asset pack's here (ps5/ASSETS.md)
+		model.loadFromFile(getAssetPath() + "models/ps5/lantern/lantern_multisampling.gltf", vulkanDevice, queue, vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::FlipY);
 	}
 
 	void setupDescriptors()

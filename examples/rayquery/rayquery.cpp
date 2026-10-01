@@ -233,8 +233,9 @@ public:
 	void loadAssets()
 	{
 		vkglTF::memoryPropertyFlags = VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+		// PS5 fork: assets with a clear licence replace the asset pack's here (ps5/ASSETS.md)
 		const uint32_t glTFLoadingFlags = vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::PreMultiplyVertexColors | vkglTF::FileLoadingFlags::FlipY;
-		scene.loadFromFile(getAssetPath() + "models/vulkanscene_shadow.gltf", vulkanDevice, queue, glTFLoadingFlags);
+		scene.loadFromFile(getAssetPath() + "models/ps5/shadowscene_columns.gltf", vulkanDevice, queue, glTFLoadingFlags);
 	}
 
 	void setupDescriptors()

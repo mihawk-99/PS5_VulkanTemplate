@@ -267,9 +267,10 @@ public:
 	{
 		const uint32_t glTFLoadingFlags = vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::PreMultiplyVertexColors | vkglTF::FileLoadingFlags::FlipY;
 		scenes.resize(2);
-		scenes[0].loadFromFile(getAssetPath() + "models/vulkanscene_shadow.gltf", vulkanDevice, queue, glTFLoadingFlags);
-		scenes[1].loadFromFile(getAssetPath() + "models/samplescene.gltf", vulkanDevice, queue, glTFLoadingFlags);
-		sceneNames = {"Vulkan scene", "Teapots and pillars" };
+		// PS5 fork: assets with a clear licence replace the asset pack's here (ps5/ASSETS.md)
+		scenes[0].loadFromFile(getAssetPath() + "models/ps5/shadowscene_columns.gltf", vulkanDevice, queue, glTFLoadingFlags);
+		scenes[1].loadFromFile(getAssetPath() + "models/ps5/shadowscene_shapes.gltf", vulkanDevice, queue, glTFLoadingFlags);
+		sceneNames = {"Columns and a knot", "Shapes on a floor" };
 	}
 
 	void setupDescriptors()

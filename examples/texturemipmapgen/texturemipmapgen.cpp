@@ -362,8 +362,9 @@ public:
 
 	void loadAssets()
 	{
-		model.loadFromFile(getAssetPath() + "models/tunnel_cylinder.gltf", vulkanDevice, queue, vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::FlipY);
-		loadTextureAndGenerateMips(getAssetPath() + "textures/metalplate_nomips_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM);
+		// PS5 fork: assets with a clear licence replace the asset pack's here (ps5/ASSETS.md)
+		model.loadFromFile(getAssetPath() + "models/ps5/tunnel.gltf", vulkanDevice, queue, vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::FlipY);
+		loadTextureAndGenerateMips(getAssetPath() + "textures/ps5/metalplate_nomips_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM);
 	}
 
 	void setupDescriptors()

@@ -632,10 +632,11 @@ public:
 
 	void loadAssets()
 	{
+		// PS5 fork: assets with a clear licence replace the asset pack's here (ps5/ASSETS.md)
 		const uint32_t glTFLoadingFlags = vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::PreMultiplyVertexColors | vkglTF::FileLoadingFlags::FlipY;
-		models.models.loadFromFile(getAssetPath() + "models/vulkanscenemodels.gltf", vulkanDevice, queue, glTFLoadingFlags);
-		models.background.loadFromFile(getAssetPath() + "models/vulkanscenebackground.gltf", vulkanDevice, queue, glTFLoadingFlags);
-		models.logos.loadFromFile(getAssetPath() + "models/vulkanscenelogos.gltf", vulkanDevice, queue, glTFLoadingFlags);
+		models.models.loadFromFile(getAssetPath() + "models/ps5/imgui_models.gltf", vulkanDevice, queue, glTFLoadingFlags);
+		models.background.loadFromFile(getAssetPath() + "models/ps5/imgui_background.gltf", vulkanDevice, queue, glTFLoadingFlags);
+		models.logos.loadFromFile(getAssetPath() + "models/ps5/imgui_ring.gltf", vulkanDevice, queue, glTFLoadingFlags);
 	}
 
 	void prepareImGui()

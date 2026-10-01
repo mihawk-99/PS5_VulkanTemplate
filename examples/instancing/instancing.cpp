@@ -105,12 +105,13 @@ public:
 
 	void loadAssets()
 	{
+		// PS5 fork: assets with a clear licence replace the asset pack's here (ps5/ASSETS.md)
 		const uint32_t glTFLoadingFlags = vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::PreMultiplyVertexColors | vkglTF::FileLoadingFlags::FlipY;
-		models.rock.loadFromFile(getAssetPath() + "models/rock01.gltf", vulkanDevice, queue, glTFLoadingFlags);
-		models.planet.loadFromFile(getAssetPath() + "models/lavaplanet.gltf", vulkanDevice, queue, glTFLoadingFlags);
+		models.rock.loadFromFile(getAssetPath() + "models/ps5/rock.gltf", vulkanDevice, queue, glTFLoadingFlags);
+		models.planet.loadFromFile(getAssetPath() + "models/ps5/planet.gltf", vulkanDevice, queue, glTFLoadingFlags);
 
-		textures.planet.loadFromFile(getAssetPath() + "textures/lavaplanet_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
-		textures.rocks.loadFromFile(getAssetPath() + "textures/texturearray_rocks_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
+		textures.planet.loadFromFile(getAssetPath() + "textures/ps5/lavaplanet_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
+		textures.rocks.loadFromFile(getAssetPath() + "textures/ps5/texturearray_rocks_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
 	}
 
 	void setupDescriptors()

@@ -107,8 +107,9 @@ public:
 
 	void loadAssets()
 	{
-		textures.particle.loadFromFile(getAssetPath() + "textures/particle01_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
-		textures.gradient.loadFromFile(getAssetPath() + "textures/particle_gradient_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
+		// PS5 fork: assets with a clear licence replace the asset pack's here (ps5/ASSETS.md)
+		textures.particle.loadFromFile(getAssetPath() + "textures/ps5/particle01_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
+		textures.gradient.loadFromFile(getAssetPath() + "textures/ps5/particle_gradient_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
 	}
 
 	// Setup and fill the compute shader storage buffers containing the particles

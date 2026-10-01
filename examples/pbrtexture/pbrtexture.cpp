@@ -112,15 +112,16 @@ public:
 
 	void loadAssets()
 	{
+		// PS5 fork: assets with a clear licence replace the asset pack's here (ps5/ASSETS.md)
 		const uint32_t glTFLoadingFlags = vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::PreMultiplyVertexColors | vkglTF::FileLoadingFlags::FlipY;
-		models.skybox.loadFromFile(getAssetPath() + "models/cube.gltf", vulkanDevice, queue, glTFLoadingFlags);
-		models.object.loadFromFile(getAssetPath() + "models/cerberus/cerberus.gltf", vulkanDevice, queue, glTFLoadingFlags);
-		textures.environmentCube.loadFromFile(getAssetPath() + "textures/hdr/gcanyon_cube.ktx", VK_FORMAT_R16G16B16A16_SFLOAT, vulkanDevice, queue);
-		textures.albedoMap.loadFromFile(getAssetPath() + "models/cerberus/albedo.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
-		textures.normalMap.loadFromFile(getAssetPath() + "models/cerberus/normal.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
-		textures.aoMap.loadFromFile(getAssetPath() + "models/cerberus/ao.ktx", VK_FORMAT_R8_UNORM, vulkanDevice, queue);
-		textures.metallicMap.loadFromFile(getAssetPath() + "models/cerberus/metallic.ktx", VK_FORMAT_R8_UNORM, vulkanDevice, queue);
-		textures.roughnessMap.loadFromFile(getAssetPath() + "models/cerberus/roughness.ktx", VK_FORMAT_R8_UNORM, vulkanDevice, queue);
+		models.skybox.loadFromFile(getAssetPath() + "models/ps5/cube.gltf", vulkanDevice, queue, glTFLoadingFlags);
+		models.object.loadFromFile(getAssetPath() + "models/ps5/videocamera/videocamera.gltf", vulkanDevice, queue, glTFLoadingFlags);
+		textures.environmentCube.loadFromFile(getAssetPath() + "textures/ps5/hdr/kloofendal_cube.ktx", VK_FORMAT_R16G16B16A16_SFLOAT, vulkanDevice, queue);
+		textures.albedoMap.loadFromFile(getAssetPath() + "models/ps5/videocamera/albedo.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
+		textures.normalMap.loadFromFile(getAssetPath() + "models/ps5/videocamera/normal.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
+		textures.aoMap.loadFromFile(getAssetPath() + "models/ps5/videocamera/ao.ktx", VK_FORMAT_R8_UNORM, vulkanDevice, queue);
+		textures.metallicMap.loadFromFile(getAssetPath() + "models/ps5/videocamera/metallic.ktx", VK_FORMAT_R8_UNORM, vulkanDevice, queue);
+		textures.roughnessMap.loadFromFile(getAssetPath() + "models/ps5/videocamera/roughness.ktx", VK_FORMAT_R8_UNORM, vulkanDevice, queue);
 	}
 
 	void setupDescriptors()

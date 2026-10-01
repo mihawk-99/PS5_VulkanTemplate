@@ -127,12 +127,13 @@ public:
 
 	void loadAssets()
 	{
+		// PS5 fork: assets with a clear licence replace the asset pack's here (ps5/ASSETS.md)
 		const uint32_t glTFLoadingFlags = vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::PreMultiplyVertexColors | vkglTF::FileLoadingFlags::FlipY;
-		models.plants.loadFromFile(getAssetPath() + "models/plants.gltf", vulkanDevice, queue, glTFLoadingFlags);
-		models.ground.loadFromFile(getAssetPath() + "models/plane_circle.gltf", vulkanDevice, queue, glTFLoadingFlags);
-		models.skysphere.loadFromFile(getAssetPath() + "models/sphere.gltf", vulkanDevice, queue, glTFLoadingFlags);
-		textures.plants.loadFromFile(getAssetPath() + "textures/texturearray_plants_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
-		textures.ground.loadFromFile(getAssetPath() + "textures/ground_dry_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
+		models.plants.loadFromFile(getAssetPath() + "models/ps5/plants.gltf", vulkanDevice, queue, glTFLoadingFlags);
+		models.ground.loadFromFile(getAssetPath() + "models/ps5/ground_disc.gltf", vulkanDevice, queue, glTFLoadingFlags);
+		models.skysphere.loadFromFile(getAssetPath() + "models/ps5/skysphere.gltf", vulkanDevice, queue, glTFLoadingFlags);
+		textures.plants.loadFromFile(getAssetPath() + "textures/ps5/texturearray_plants_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
+		textures.ground.loadFromFile(getAssetPath() + "textures/ps5/ground_dry_rgba.ktx", VK_FORMAT_R8G8B8A8_UNORM, vulkanDevice, queue);
 	}
 
 	void setupDescriptors()

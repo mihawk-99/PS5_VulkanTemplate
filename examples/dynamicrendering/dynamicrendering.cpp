@@ -92,8 +92,9 @@ public:
 
 	void loadAssets()
 	{
+		// PS5 fork: assets with a clear licence replace the asset pack's here (ps5/ASSETS.md)
 		const uint32_t glTFLoadingFlags = vkglTF::FileLoadingFlags::PreTransformVertices | vkglTF::FileLoadingFlags::PreMultiplyVertexColors | vkglTF::FileLoadingFlags::FlipY;
-		model.loadFromFile(getAssetPath() + "models/voyager.gltf", vulkanDevice, queue, glTFLoadingFlags);
+		model.loadFromFile(getAssetPath() + "models/ps5/lantern/lantern_dynamicrendering.gltf", vulkanDevice, queue, glTFLoadingFlags);
 	}
 
 	void setupDescriptors()
