@@ -319,8 +319,10 @@ public:
 		std::string screenshotPath;
 		/** @brief Frames drawn so far */
 		uint32_t framesDrawn = 0;
-		/** @brief When half the budget had been drawn (steady_clock seconds), for the frame rate after start-up */
+		/** @brief When half the budget had been drawn, and when the last frame began (steady_clock seconds):
+		 *  the frame rate after start-up, without the last frame's screenshot */
 		double halfwayTime = 0.0;
+		double lastFrameTime = 0.0;
 		/** @brief The launcher's own menu: ImGui windows of its own instead of the sample's overlay window */
 		bool ownOverlay = false;
 	} ps5;
