@@ -325,6 +325,8 @@ public:
 		double lastFrameTime = 0.0;
 		/** @brief The launcher's own menu: ImGui windows of its own instead of the sample's overlay window */
 		bool ownOverlay = false;
+		/** @brief OPTIONS ends the sample, back to the menu; in a title with one program, it shows and hides the overlay */
+		bool optionsEnds = true;
 	} ps5;
 	/** @brief Reads the pad: the sticks move the camera, the buttons drive the UI overlay, OPTIONS ends the sample */
 	void ps5HandleInput();

@@ -211,6 +211,7 @@
       "from": "generated",
       "generator": "lantern",
       "used_by": [
+        "starter",
         "multisampling",
         "dynamicrendering"
       ],
@@ -218,7 +219,7 @@
       "author": "Microsoft (sbtron)",
       "licence": "CC0-1.0",
       "url": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/Lantern",
-      "changes": "parent nodes centre it and scale it to 5.5 and 8 tall, one .gltf for each sample"
+      "changes": "parent nodes centre it and scale it to 1.6, 5.5 and 8 tall, one .gltf for each sample"
     },
     {
       "path": "models/ps5/rock.gltf",

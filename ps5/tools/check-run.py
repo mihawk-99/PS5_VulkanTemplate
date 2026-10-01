@@ -31,7 +31,9 @@ ROOT = PS5.parent
 VULKAN = Path(__import__("os").environ.get("PS5_VULKAN_DIR", ROOT.parent / "PS5_Vulkan")).resolve()
 TITLE_ID = __import__("json").loads((PS5 / "sce_sys" / "param.json").read_text())["titleId"]
 
-SAMPLE_LINE = re.compile(r"(?:\[PS5 Vulkan Samples\] |^)sample (\w+): (ok|FAILED)(.*)", re.M)
+PARAM = __import__("json").loads((PS5 / "sce_sys" / "param.json").read_text())
+TITLE_NAME = PARAM["localizedParameters"]["en-US"]["titleName"]
+SAMPLE_LINE = re.compile(r"(?:\[" + re.escape(TITLE_NAME) + r"\] |^)sample (\w+): (ok|FAILED)(.*)", re.M)
 CRASH = re.compile(r"A user thread receives a fatal signal|mDBG: Sending signal|GPU_FAULT|gpu fault", re.I)
 DRIVER_ERROR = re.compile(r"\bradv(/ps5)?: .*(error|fail)|MESA: error|amdgpu: .*fail|Fatal : VkResult", re.I)
 # Mean absolute difference (0..255 per channel) a screenshot may have from its reference

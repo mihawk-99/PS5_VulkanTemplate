@@ -30,7 +30,7 @@ public:
 
 	Launcher(int selected, const std::string &message) : selected(selected), message(message)
 	{
-		title = "PS5 Vulkan Samples";
+		title = PS5_TITLE_NAME;
 		name = "ps5vulkansamples";
 		ps5.ownOverlay = true;
 		defaultClearColor = { { 0.035f, 0.04f, 0.06f, 1.0f } };
@@ -92,14 +92,14 @@ public:
 		ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(accent.x, accent.y, accent.z, 0.30f));
 		ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(accent.x, accent.y, accent.z, 0.45f));
 		ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(accent.x, accent.y, accent.z, 0.60f));
-		ImGui::Begin("PS5 Vulkan Samples", nullptr,
+		ImGui::Begin(PS5_TITLE_NAME, nullptr,
 			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings);
 
 		ImGui::SetWindowFontScale(1.6f);
-		ImGui::TextColored(accent, "PS5 Vulkan Samples");
+		ImGui::TextColored(accent, "%s", PS5_TITLE_NAME);
 		ImGui::SetWindowFontScale(1.0f);
-		ImGui::TextColored(dim, "Sascha Willems' Vulkan examples, on RADV on the console");
+		ImGui::TextColored(dim, "Vulkan on RADV, on the console");
 		ImGui::TextColored(dim, "%s, Vulkan %u.%u.%u, %ux%u", deviceProperties.deviceName,
 			VK_API_VERSION_MAJOR(deviceProperties.apiVersion), VK_API_VERSION_MINOR(deviceProperties.apiVersion),
 			VK_API_VERSION_PATCH(deviceProperties.apiVersion), width, height);

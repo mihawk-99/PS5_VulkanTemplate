@@ -67,6 +67,9 @@ def source_path(asset, manifest):
         if not path.exists():
             sys.exit(f"{path} is missing: git submodule update --init assets")
         return path
+    if kind == "file":
+        # Kept in the repository itself (a title made by new-title.py has no asset pack)
+        return ROOT / asset["source"]
     if kind == "generated":
         sys.path.insert(0, str(PS5 / "tools"))
         import generate_assets
@@ -122,7 +125,8 @@ def install(folder):
 
 
 def notices_text(assets):
-    lines = ["PS5 Vulkan Samples - the assets in this folder, their authors and licences.", ""]
+    name = json.loads((PS5 / "sce_sys" / "param.json").read_text())["localizedParameters"]["en-US"]["titleName"]
+    lines = [f"{name} - the assets in this folder, their authors and licences.", ""]
     for asset in assets:
         lines.append(f"{asset['path']}: {asset['title']}, {asset['author']}. {asset['licence']}. {asset['url']}")
         if asset.get("changes"):
@@ -131,17 +135,17 @@ def notices_text(assets):
             lines.append(f"    Licence text: LICENSES/{Path(asset['licence_file']).name}")
     lines += ["", "CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/",
               "CC-BY-3.0: https://creativecommons.org/licenses/by/3.0/",
-              "MIT: made for PS5 Vulkan Samples (github.com/mihawk-99/PS5_VulkanSamples), under its LICENSE.md"]
+              "MIT: made by ps5/tools/generate_assets.py (from PS5 Vulkan Samples, github.com/mihawk-99/PS5_VulkanSamples), under LICENSE.md"]
     return "\n".join(lines) + "\n"
 
 
 def write_notices():
     manifest = load_manifest()
     out = ["# Assets", "",
-           "The assets the PS5 title ships, written from `ps5/assets.json` by",
+           "The assets the title ships, written from `ps5/assets.json` by",
            "`ps5/tools/build-assets.py --notices`. Only assets with a clear licence are",
-           "shipped. The rest of the asset pack (the `assets` submodule) stays out of the",
-           "title, and the samples that use it get replacements, listed here.", "",
+           "shipped: in PS5 Vulkan Samples, the asset pack's other files (the `assets`",
+           "submodule) stay out, and the samples that use them get the replacements here.", "",
            "| Path under `/app0/assets/` | Asset | Author | Licence | Samples |",
            "| --- | --- | --- | --- | --- |"]
     for asset in manifest["assets"]:

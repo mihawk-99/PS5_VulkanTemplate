@@ -790,8 +790,9 @@ def world_bounds(gltf):
 
 
 def gen_lantern(out, download):
-    """Khronos's CC0 Lantern for multisampling and dynamicrendering, scaled to
-    what each one's camera frames (5.5 and 8 tall) and centred where it looks
+    """Khronos's CC0 Lantern for multisampling, dynamicrendering and the
+    starter, scaled to what each one's camera frames (5.5, 8 and 1.6 tall) and
+    centred where it looks
     (multisampling's camera is turned 90 degrees and offset by (2.5, 2.5): it
     looks through (0, 2.5, 2.5) in glTF's axes; dynamicrendering's through
     the origin). A parent node does both, in a .gltf of each sample's beside
@@ -807,7 +808,8 @@ def gen_lantern(out, download):
     center = (lo + hi) / 2
     # (multisampling's is turned a quarter so its camera sees the lantern beside the post)
     for name, height, target, turn in (("lantern_multisampling", 5.5, (0.0, 2.5, 2.5), math.pi / 2),
-                                       ("lantern_dynamicrendering", 8.0, (0.0, 0.0, 0.0), 0.0)):
+                                       ("lantern_dynamicrendering", 8.0, (0.0, 0.0, 0.0), 0.0),
+                                       ("lantern_starter", 1.6, (0.0, 0.0, 0.0), 0.0)):
         variant = json.loads(json.dumps(gltf))
         scale = height / (hi[1] - lo[1])
         c, s_ = math.cos(turn), math.sin(turn)

@@ -1,7 +1,9 @@
 /*
  * PS5 Vulkan Samples - the samples linked into the title.
  *
- * One line a sample: SAMPLE(id, in the menu, title, description). The build
+ * One line a sample: SAMPLE(id, in the menu, title, description). With one
+ * line only, the title is that program: it starts with no menu, and ends when
+ * the program does (ps5/tools/new-title.py makes such titles). The build
  * (ps5/CMakeLists.txt) compiles examples/<id>/<id>.cpp for every line here, in
  * a namespace of its own, and packages shaders/glsl/<id>/. A sample goes in the
  * menu only once it has been proven on the console (ps5/README.md); until then
@@ -14,6 +16,7 @@
 #include "ps5_samples.h"
 
 #define PS5_SAMPLES                                                                                          \
+	SAMPLE(starter, true, "Starter", "The program a new homebrew grows from: a textured, lit glTF model and a settings window") \
 	SAMPLE(gltfloading, true, "glTF model loading", "A glTF scene: meshes, materials, textures, node hierarchy") \
 	SAMPLE(texturemipmapgen, true, "Mipmaps made at run time", "A texture's mip chain made with image blits, and how filtering uses it") \
 	SAMPLE(pbrtexture, true, "Physically based rendering", "Metal and roughness maps lit by an HDR environment (image based lighting)") \

@@ -13,6 +13,10 @@ cmake_minimum_required(VERSION 3.20)
 project(ps5_vulkan_samples C CXX)
 
 set(ROOT ${CMAKE_CURRENT_SOURCE_DIR}/..)
+# The title's name, from its identity: klog's prefix and the menu's heading
+file(READ ${CMAKE_CURRENT_SOURCE_DIR}/sce_sys/param.json param_json)
+string(JSON PS5_TITLE_NAME GET "${param_json}" localizedParameters en-US titleName)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS sce_sys/param.json)
 set(PS5_VULKAN_DIR "${ROOT}/../PS5_Vulkan" CACHE PATH "the PS5_Vulkan checkout (RADV archive, link recipe, packaging)")
 # PS5_PAYLOAD_SDK: the SDK the toolchain file came from (tools/setup-sdk.sh's pin)
 # The host reference build: the same code on the PC's Vulkan driver, with a
@@ -82,6 +86,7 @@ add_library(samples OBJECT
 	${platform_source})
 target_compile_definitions(samples PRIVATE
 	VK_EXAMPLE_PS5
+	"PS5_TITLE_NAME=\"${PS5_TITLE_NAME}\""
 	${surface_platform}
 	VK_NO_PROTOTYPES
 	NDEBUG

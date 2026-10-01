@@ -40,12 +40,13 @@ void VulkanExampleBase::ps5HandleInput()
 		return;
 	}
 
-	// OPTIONS ends the sample and goes back to the launcher's menu
-	if ((pad.pressed & PAD_OPTIONS) && !ps5.ownOverlay) {
+	// OPTIONS ends the sample and goes back to the launcher's menu. In a title
+	// with one program there is no menu to go back to: it shows and hides the
+	// settings, as the touch pad's button does (F1 on a desktop)
+	if ((pad.pressed & PAD_OPTIONS) && !ps5.ownOverlay && ps5.optionsEnds) {
 		quit = true;
 	}
-	// The touch pad's button shows and hides the overlay, as F1 does on a desktop
-	if ((pad.pressed & PAD_TOUCH_PAD) && !ps5.ownOverlay) {
+	if ((pad.pressed & (ps5.optionsEnds ? PAD_TOUCH_PAD : PAD_TOUCH_PAD | PAD_OPTIONS)) && !ps5.ownOverlay) {
 		ui.visible = !ui.visible;
 	}
 

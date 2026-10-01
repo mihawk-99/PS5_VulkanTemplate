@@ -22,6 +22,8 @@ ps5=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 root=$(dirname "$ps5")
 vulkan=$(cd -- "${PS5_VULKAN_DIR:-$root/../PS5_Vulkan}" && pwd)
 title_id=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["titleId"])' "$ps5/sce_sys/param.json")
+# klog's prefix: the title's name, as a regular expression
+prefix=$(python3 -c 'import json,re,sys; print(re.escape("[" + json.load(open(sys.argv[1]))["localizedParameters"]["en-US"]["titleName"] + "]"))' "$ps5/sce_sys/param.json")
 run_dir="$root/klog/$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$run_dir"
 output="$run_dir/klog.log"
@@ -52,8 +54,8 @@ fi
 klog_port=$(python3 -c "import sys; sys.path.insert(0, sys.argv[1]); import ps5_console, socket; s = ps5_console.load_settings(); socket.create_connection((s['host'], s['klog_port']), 3).close(); print('open')" "$vulkan/tools" 2>/dev/null || true)
 if [[ $klog_port == open ]]; then
     python3 "$vulkan/tools/run-title.py" "$title_id" \
-        --until '\[PS5 Vulkan Samples\] ends' --timeout "${RUN_TIMEOUT:-$timeout}" \
-        --echo '\[PS5 Vulkan Samples\] (sample|samples|test run|ends|screenshot)|fatal|FAILED|Fatal' \
+        --until "$prefix ends" --timeout "${RUN_TIMEOUT:-$timeout}" \
+        --echo "$prefix (sample|samples|test run|ends|screenshot)|fatal|FAILED|Fatal" \
         --elf "$root/build/ps5/link/llvm-pie.elf" --output "$output"
 elif (( ${#samples[@]} )); then
     echo "no klog capture on the console (port closed): following the title's own results file"

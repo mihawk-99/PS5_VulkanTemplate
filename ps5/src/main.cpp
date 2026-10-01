@@ -2,7 +2,8 @@
  * PS5 Vulkan Samples - the title: the menu, the samples, and test runs.
  *
  * A launch by hand shows the menu (launcher.cpp) and runs the sample chosen
- * until OPTIONS is pressed, then shows the menu again.
+ * until OPTIONS is pressed, then shows the menu again. A title with one
+ * program (src/samples.cpp) runs it at once instead, until it ends itself.
  *
  * A test run is a launch that finds /app0/test-run.txt, which ps5/tools/run.sh
  * writes just before it and the launch deletes:
@@ -119,7 +120,8 @@ double now()
 /* One sample from start to end, on an instance and a device of its own. A
  * fatal error in it (vks::tools::exitFatal) arrives here as an exception: the
  * sample is ended and the title carries on. */
-Result runSample(const Ps5Sample &sample, uint32_t frameBudget, const std::string &screenshotPath)
+Result runSample(const Ps5Sample &sample, uint32_t frameBudget, const std::string &screenshotPath,
+	bool optionsEnds = true)
 {
 	Result result;
 	VulkanExampleBase *example = nullptr;
@@ -133,6 +135,7 @@ Result runSample(const Ps5Sample &sample, uint32_t frameBudget, const std::strin
 		example->benchmark.active = frameBudget > 0;
 		example->ps5.frameBudget = frameBudget;
 		example->ps5.screenshotPath = screenshotPath;
+		example->ps5.optionsEnds = optionsEnds;
 		if (!example->initVulkan()) {
 			throw std::runtime_error("initVulkan failed");
 		}
@@ -240,7 +243,7 @@ void runMenu()
 
 int main()
 {
-	platform_init("PS5 Vulkan Samples");
+	platform_init(PS5_TITLE_NAME);
 	// The samples report on std::cout and std::cerr: both reach klog
 	std::cout.rdbuf(std::cerr.rdbuf());
 	pad_open();
@@ -259,6 +262,9 @@ int main()
 	TestRun run;
 	if (readTestRun(run)) {
 		status = runTests(run);
+	} else if (ps5SampleCount == 1) {
+		// A title with one program: no menu, and the title ends with the program
+		status = runSample(ps5Samples[0], 0, "", false).ok ? 0 : 1;
 	} else {
 		runMenu();
 	}

@@ -1,9 +1,9 @@
 # Assets
 
-The assets the PS5 title ships, written from `ps5/assets.json` by
+The assets the title ships, written from `ps5/assets.json` by
 `ps5/tools/build-assets.py --notices`. Only assets with a clear licence are
-shipped. The rest of the asset pack (the `assets` submodule) stays out of the
-title, and the samples that use it get replacements, listed here.
+shipped: in PS5 Vulkan Samples, the asset pack's other files (the `assets`
+submodule) stay out, and the samples that use them get the replacements here.
 
 | Path under `/app0/assets/` | Asset | Author | Licence | Samples |
 | --- | --- | --- | --- | --- |
@@ -23,7 +23,7 @@ title, and the samples that use it get replacements, listed here.
 | `models/ps5/floor.gltf` | [Floor](ps5/tools/generate_assets.py) | made for this fork (ps5/tools/generate_assets.py) | MIT | deferred |
 | `textures/ps5/cobblestone_color_rgba.ktx` | [Cobblestone Floor 01, colour](https://polyhaven.com/a/cobblestone_floor_01) (KTX with mipmaps) | Rob Tuytel (Poly Haven) | CC0-1.0 | deferred |
 | `textures/ps5/cobblestone_normal_rgba.ktx` | [Cobblestone Floor 01, normals](https://polyhaven.com/a/cobblestone_floor_01) (KTX with mipmaps) | Rob Tuytel (Poly Haven) | CC0-1.0 | deferred |
-| `models/ps5/lantern` | [Lantern (glTF sample model)](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/Lantern) (parent nodes centre it and scale it to 5.5 and 8 tall, one .gltf for each sample) | Microsoft (sbtron) | CC0-1.0 | multisampling, dynamicrendering |
+| `models/ps5/lantern` | [Lantern (glTF sample model)](https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/Lantern) (parent nodes centre it and scale it to 1.6, 5.5 and 8 tall, one .gltf for each sample) | Microsoft (sbtron) | CC0-1.0 | starter, multisampling, dynamicrendering |
 | `models/ps5/rock.gltf` | [Rock](ps5/tools/generate_assets.py) | made for this fork (ps5/tools/generate_assets.py) | MIT | instancing |
 | `models/ps5/planet.gltf` | [Planet](ps5/tools/generate_assets.py) | made for this fork (ps5/tools/generate_assets.py) | MIT | instancing |
 | `textures/ps5/lavaplanet_rgba.ktx` | [Lava planet surface](ps5/tools/generate_assets.py) | made for this fork (ps5/tools/generate_assets.py) | MIT | instancing |
