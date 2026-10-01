@@ -9,7 +9,9 @@
 
 A sample passes when its klog line says "ok", klog holds no crash record, no
 GPU fault and no RADV error line, its screenshot exists and is not one flat
-colour, and, when ps5/reference/<id>.png exists, the screenshot is close to it.
+colour, and, when ps5/reference/<id>.png exists (the host reference's picture
+of frame 300, tools/host-reference.sh --save) and the run drew 300 frames, the
+screenshot is close to it.
 The table goes to RUN_DIR/summary.txt too.
 
 Copyright (C) 2026 Mihawk
@@ -80,8 +82,9 @@ def fetch(names, run_dir):
     return fetched
 
 
-def picture_checks(sample, ppm, run_dir):
-    """Flatness and, when there is one, the distance from the reference."""
+def picture_checks(sample, ppm, run_dir, compare):
+    """Flatness and, when there is one and the run's frame budget is the
+    references' (300), the distance from the reference."""
     try:
         from PIL import Image, ImageStat
     except ImportError:
@@ -95,7 +98,7 @@ def picture_checks(sample, ppm, run_dir):
         problems.append(f"flat picture (stddev {stddev:.1f})")
     note = f"stddev {stddev:.0f}"
     reference = PS5 / "reference" / f"{sample}.png"
-    if reference.is_file():
+    if reference.is_file() and compare:
         ref = Image.open(reference).convert("RGB")
         small = image.resize(ref.size, Image.BILINEAR)
         diff = sum(ImageStat.Stat(__import__("PIL.ImageChops", fromlist=["x"]).difference(small, ref)).mean) / 3
@@ -109,6 +112,9 @@ def check(run_dir, samples):
     run_dir = Path(run_dir)
     log = (run_dir / "klog.log").read_text(errors="replace")
     results = {m.group(1): (m.group(2), m.group(3).strip(" ,:")) for m in SAMPLE_LINE.finditer(log)}
+    budget = re.search(r"test run: \d+ samples, (\d+) frames each", log)
+    # The references (tools/host-reference.sh --save) show frame 300 of each sample
+    compare = bool(budget) and budget.group(1) == "300"
     crashes = [line for line in log.splitlines() if CRASH.search(line)]
     driver_errors = [line for line in log.splitlines() if DRIVER_ERROR.search(line)]
     fetched = fetch([s for s in samples if results.get(s, ("",))[0] == "ok"], run_dir)
@@ -122,7 +128,7 @@ def check(run_dir, samples):
             if sample not in fetched:
                 problems.append("no screenshot")
             else:
-                more, note = picture_checks(sample, fetched[sample], run_dir)
+                more, note = picture_checks(sample, fetched[sample], run_dir, compare)
                 problems += more
         fps = re.search(r"([\d.]+) fps", detail)
         verdict = "PASS" if not problems else "FAIL"

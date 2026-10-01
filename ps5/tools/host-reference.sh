@@ -2,6 +2,8 @@
 # PS5 Vulkan Samples - the reference pictures: the title's code on this PC.
 #
 #   ps5/tools/host-reference.sh [all|menu|ID...]     FRAMES=300 by default
+#   ps5/tools/host-reference.sh --save [samples]     also keep them as the references
+#                                                     (ps5/reference/<id>.png, 480x270)
 #
 # Builds the title's code for Linux (PS5_HOST_REFERENCE: the same samples, base
 # class, launcher and test runs, with a headless surface instead of the
@@ -31,6 +33,12 @@ mkdir -p "$build/app"
 ln -sfn "$root/dist/$title_id/assets" "$build/app/assets"
 ln -sfn "$root/shaders" "$build/app/shaders"
 
+save=false
+if [[ ${1:-} == --save ]]; then
+    save=true
+    shift
+    [[ ${FRAMES:-300} == 300 ]] || { echo "references are made at 300 frames, the test runs' default" >&2; exit 2; }
+fi
 (( $# )) || set -- all
 mapfile -t samples < <(python3 "$ps5/tools/check-run.py" --resolve "$@")
 printf 'frames %s\nscreenshot\nsamples %s\n' "${FRAMES:-300}" "${samples[*]}" > "$build/app/test-run.txt"
@@ -41,7 +49,14 @@ status=0
 grep -q "ends: status 0" "$out/log.txt" || status=1
 for sample in "${samples[@]}"; do
     ppm="$build/app/screenshots/$sample.ppm"
-    [[ -f $ppm ]] && python3 -c 'import sys; from PIL import Image; Image.open(sys.argv[1]).save(sys.argv[2])' "$ppm" "$out/$sample.png"
+    [[ -f $ppm ]] || continue
+    python3 -c 'import sys; from PIL import Image; Image.open(sys.argv[1]).save(sys.argv[2])' "$ppm" "$out/$sample.png"
+    if $save; then
+        mkdir -p "$ps5/reference"
+        python3 -c 'import sys; from PIL import Image; Image.open(sys.argv[1]).convert("RGB").resize((480, 270), Image.LANCZOS).save(sys.argv[2], optimize=True)' \
+            "$ppm" "$ps5/reference/$sample.png"
+    fi
 done
+if $save; then echo "references: $ps5/reference/"; fi
 echo "pictures: $out/*.png"
 exit $status

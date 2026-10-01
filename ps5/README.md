@@ -78,11 +78,19 @@ colour (and, when `reference/<id>.png` exists, is close to it). The run's klog, 
 pictures as PNG and `summary.txt` stay in `klog/<time>/`;
 `tools/contact-sheet.py klog/<time>` puts the pictures on a few sheets.
 
+**Test runs are deterministic.** The launcher sets `benchmark.active`, which upstream's
+samples read as "seed the random generators with 0", and the render loop steps time by
+1/60 s a frame whatever the frame rate, so frame 300 shows the same moment on any
+driver. Two host runs differ by less than 2 levels in 255 (computeparticles, whose
+points scatter, by 4.4).
+
 **The host reference.** `ps5/tools/host-reference.sh [samples]` builds the same code for
 Linux, with a headless surface instead of the console's display and no pad, and runs a
 test run on the PC's Vulkan driver. Its pictures, in `klog/host-<time>/`, are what the
 console's should look like: a difference that the host does not show is RADV's to
-explain, one that it shows too is the sample's or the asset's.
+explain, one that it shows too is the sample's or the asset's. `--save` keeps them,
+at 480x270, as `reference/<id>.png`, which `check-run.py` compares a 300-frame run's
+pictures with (a mean difference of 12 in 255 fails).
 
 **After a RADV change**, run every sample (`ps5/tools/run.sh`) with the CTS gate, and
 compare the frame rates with the table above and the pictures with the host's.

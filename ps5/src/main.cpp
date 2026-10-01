@@ -105,6 +105,10 @@ Result runSample(const Ps5Sample &sample, uint32_t frameBudget, const std::strin
 	const double start = now();
 	try {
 		example = sample.create();
+		// A test run is deterministic: upstream's samples seed their random
+		// generators with 0 when benchmark.active is set, and the render loop
+		// steps time by 1/60 s a frame (base/vulkanexamplebase.cpp)
+		example->benchmark.active = frameBudget > 0;
 		example->ps5.frameBudget = frameBudget;
 		example->ps5.screenshotPath = screenshotPath;
 		if (!example->initVulkan()) {

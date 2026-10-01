@@ -242,7 +242,9 @@ void VulkanExampleBase::prepare()
 	setupRenderPass();
 	createPipelineCache();
 	setupFrameBuffer();
+#if !defined(VK_EXAMPLE_PS5)
 	settings.overlay = settings.overlay && (!benchmark.active);
+#endif
 	if (settings.overlay) {
 		ui.maxConcurrentFrames = maxConcurrentFrames;
 		ui.device = vulkanDevice;
@@ -318,7 +320,8 @@ void VulkanExampleBase::renderLoop()
 {
 // SRS - for non-apple plaforms, handle benchmarking here within VulkanExampleBase::renderLoop()
 //     - for macOS, handle benchmarking within NSApp rendering loop via displayLinkOutputCb()
-#if !(defined(VK_USE_PLATFORM_IOS_MVK) || defined(VK_USE_PLATFORM_MACOS_MVK) || defined(VK_USE_PLATFORM_METAL_EXT))
+// PS5 - a test run sets benchmark.active for the samples' fixed random seeds, and runs its own loop below
+#if !(defined(VK_USE_PLATFORM_IOS_MVK) || defined(VK_USE_PLATFORM_MACOS_MVK) || defined(VK_USE_PLATFORM_METAL_EXT)) && !defined(VK_EXAMPLE_PS5)
 	if (benchmark.active) {
 #if defined(VK_USE_PLATFORM_WAYLAND_KHR)
 		while (!configured)
@@ -539,6 +542,12 @@ void VulkanExampleBase::renderLoop()
 		auto tEnd = std::chrono::high_resolution_clock::now();
 		auto tDiff = std::chrono::duration<double, std::milli>(tEnd - tStart).count();
 		frameTimer = tDiff / 1000.0f;
+		// A test run's animations advance 1/60 s a frame, whatever the frame rate,
+		// so its last frame shows the same moment on any driver
+		if (ps5.frameBudget)
+		{
+			frameTimer = 1.0f / 60.0f;
+		}
 		camera.update(frameTimer);
 		// Convert to clamped timer value
 		if (!paused)
