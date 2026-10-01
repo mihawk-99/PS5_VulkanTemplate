@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PS5 Vulkan Samples - a test run when the console has no klog capture.
+"""PS5 Vulkan Template - a test run when the console has no klog capture.
 
     run-without-klog.py RUN_DIR TIMEOUT
 

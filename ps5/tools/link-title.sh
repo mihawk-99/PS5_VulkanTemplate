@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PS5 Vulkan Samples - link the title and package its folder.
+# PS5 Vulkan Template - link the title and package its folder.
 #
 #   link-title.sh BUILD_DIR PS5_VULKAN_DIR SDK OBJECT...
 #
@@ -52,6 +52,15 @@ stub libSceAgcDriver vendor/ps5/sdk/stubs/agc_driver_canary_link_stub.c
 # shellcheck source=/dev/null
 source "$vulkan/tools/radv-link.sh"
 radv_link_recipe "$vulkan" "$sdk" "$archive" || exit 2
+# localeconv in the C locale, '.' the decimal point (the console's gives none, and
+# tinygltf's JSON parser then read 0.62 as 0): the platform layer's since SDK fork
+# fa69d00, bound by PS5_Vulkan's recipe since its 6a6dfa6. With an older recipe
+# the title binds it here, kept local as the recipe keeps its bound names.
+if "$sdk/bin/llvm-nm" --defined-only "$sdk/target/lib/libps5platform.a" 2>/dev/null | grep -q " T ps5_localeconv$" &&
+        [[ " ${radv_link_flags[*]} " != *" --defsym=localeconv=ps5_localeconv "* ]]; then
+    printf '{\n    local:\n        localeconv;\n};\n' > "$work/link/localeconv-local.map"
+    radv_link_flags+=(--defsym=localeconv=ps5_localeconv --version-script "$work/link/localeconv-local.map")
+fi
 "$sdk/bin/prospero-lld" "${radv_linker_script[@]}" --eh-frame-hdr "${radv_link_flags[@]}" \
     --version-script "$native/app-symbols.map" --exclude-libs=ALL \
     -e _start -o "$work/link/llvm-pie.elf" \

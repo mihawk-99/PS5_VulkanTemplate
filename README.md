@@ -1,557 +1,117 @@
-# PS5 Vulkan Samples
+# PS5 Vulkan Template
 
-**This is my fork of Sascha Willems' [Vulkan examples](https://github.com/SaschaWillems/Vulkan),
-ported to the PlayStation 5 as one homebrew title.** The examples run on RADV, Mesa's
-Vulkan driver, which my [PS5_Mesa](https://github.com/mihawk-99/PS5_Mesa) fork builds
-for the console with a PS5 winsys, linked into the title by
-[PS5_Vulkan](https://github.com/mihawk-99/PS5_Vulkan). The title is three things:
+**Everything needed to build a PlayStation 5 homebrew powered by Vulkan, in one
+repository.** Titles made from it render through RADV, Mesa's Vulkan driver, which my
+[PS5_Mesa](https://github.com/mihawk-99/PS5_Mesa) fork builds for the console with a
+PS5 winsys. RADV is linked into each title by [PS5_Vulkan](https://github.com/mihawk-99/PS5_Vulkan),
+on the platform layer of my [payload SDK fork](https://github.com/mihawk-99/PS5_PayloadSDK).
+On the console it reports Vulkan 1.4 and presents at 3840x2160, at 119.88 Hz when the
+TV allows it.
 
-- **a reference** for writing Vulkan on the console: each sample is the upstream example,
-  unchanged but for its assets, on a base class that knows the console;
-- **a driver test suite**: a test run draws a set number of frames of every sample,
-  saves the last frame and checks klog, and runs beside the Vulkan CTS after RADV changes;
-- **a showcase**, started from the home screen, with a menu driven by the pad;
-- **the foundation of every new homebrew**: `ps5/tools/new-title.py` makes a title of
-  this code with one program, grown from the starter sample.
+| What | Where |
+| --- | --- |
+| **A generator** that makes a new title, with its own program, ready to build, run and test on the console | [`ps5/tools/new-title.py`](ps5/tools/new-title.py) |
+| **The foundation** every title is made on: Sascha Willems' Vulkan example base class with its PS5 hooks, and the PS5 layer (launch, pad, klog, display, test runs, shell exit) | [`base/`](base), [`ps5/src/`](ps5/src) |
+| **Sixteen samples proven on the console**, one class each on the same base, built into one title, PS5 Vulkan Samples: glTF, mipmaps, PBR, shadows, deferred lighting, bloom, MSAA, instancing, indirect draws, compute particles, bindless textures, dynamic rendering, ImGui, mesh shaders, ray queries, and the starter | [`examples/`](examples), the table in [`ps5/README.md`](ps5/README.md) |
+| **A test suite** for titles and for the driver: each program for a set number of frames, its last frame compared with the same frame drawn by the PC's Vulkan driver, klog checked | [`ps5/tools/run.sh`](ps5/tools/run.sh), [`ps5/tools/host-reference.sh`](ps5/tools/host-reference.sh) |
+| **Agent skills** for this stack: starting and building titles, the console, porting, releases | [`skills/`](skills) |
+| **Build and console tools**: setup, build, deploy, run, verdicts | [`ps5/tools/`](ps5/tools) |
 
-What the port adds and changes is in [`ps5/README.md`](ps5/README.md); the assets the
-title ships, all with clear licences, are in [`ps5/ASSETS.md`](ps5/ASSETS.md). The fork
-keeps upstream's history on `main`, reaches upstream through an `upstream` remote, and
-changes upstream's files as little as the port allows (each change is marked `PS5` or
-guarded by `VK_EXAMPLE_PS5`). Upstream's README follows unchanged.
+## Start
 
----
+On a Linux PC (Arch or CachyOS are what I use), beside an empty folder for the stack:
 
-# Vulkan C++ examples and demos
-
-A comprehensive collection of open source C++ examples for [Vulkan®](https://www.vulkan.org), the low-level graphics and compute API from Khronos.
-
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BHXPMV6ZKPH9E)
-
-## Table of Contents
-+ [Official Khronos Vulkan Samples](#official-khronos-vulkan-samples)
-+ [Cloning](#Cloning)
-+ [Assets](#Assets)
-+ [Building](#Building)
-+ [Running](#Running)
-+ [Shaders](#Shaders)
-+ [A note on synchronization](#a-note-on-synchronization)
-+ [Examples](#Examples)
-    + [Basics](#Basics)
-    + [glTF](#glTF)
-    + [Advanced](#Advanced)
-    + [Performance](#Performance)
-    + [Physically Based Rendering](#physically-based-rendering)
-    + [Deferred](#Deferred)
-    + [Compute Shader](#compute-shader)
-    + [Geometry Shader](#geometry-shader)
-    + [Tessellation Shader](#tessellation-shader)
-    + [Hardware accelerated ray tracing](#hardware-accelerated-ray-tracing)
-    + [Headless](#Headless)
-    + [User Interface](#user-interface)
-    + [Effects](#Effects)
-    + [Extensions](#Extensions)
-    + [Misc](#Misc)
-+ [Credits and Attributions](#credits-and-attributions)
-
-## How to Vulkan in 2026
-
-For an introduction on how to use Vulkan for graphics in 2026, see [this repository](https://github.com/SaschaWillems/HowToVulkan). It's esp. helpful if you haven't done much with Vulkan (yet) and want to understand how Vulkan (and in turn these samples) work.
-
-## Official Khronos Vulkan Samples
-
-Khronos has made an official Vulkan Samples repository available to the public ([press release](https://www.khronos.org/blog/vulkan-releases-unified-samples-repository?utm_source=Khronos%20Blog&utm_medium=Twitter&utm_campaign=Vulkan%20Repository)).
-
-You can find this repository at https://github.com/KhronosGroup/Vulkan-Samples
-
-As I've been involved with getting the official repository up and running, I'll be mostly contributing to that repository from now, but may still add samples that don't fit there in here and I'll of course continue to maintain these samples.
-
-## Cloning
-This repository contains submodules for external dependencies and assets, so when doing a fresh clone you need to clone recursively:
-
-```
-git clone --recursive https://github.com/SaschaWillems/Vulkan.git
+```bash
+git clone https://github.com/mihawk-99/PS5_VulkanTemplate.git
+cd PS5_VulkanTemplate
+ps5/tools/bootstrap.sh --check     # what the host has, and what is missing
+ps5/tools/bootstrap.sh             # clone PS5_Vulkan, PS5_Mesa, PS5_PayloadSDK beside it, build what is missing
 ```
 
-Existing repositories can be updated manually:
+The bootstrap builds RADV once (a long build), PS5_Vulkan's native tool and `libc.prx`,
+the console's control payload, installs the pinned payload SDK and fetches glm. It never touches the
+console. Then give the console's address to the tools, in PS5_Vulkan's ignored `.env`:
 
+```bash
+printf 'PS5_HOST=<the console'"'"'s address>\n' >> ../PS5_Vulkan/.env
 ```
-git submodule init
-git submodule update
+
+**The console** needs a homebrew environment of its own (this repository does not set
+one up): an enabler such as [etaHEN](https://github.com/etaHEN/etaHEN),
+[ShadowMountPlus](https://github.com/drakmor/ShadowMountPlus) for titles in
+`/data/homebrew`, [ftpsrv](https://github.com/ps5-payload-dev/ftpsrv) on port 2121 and
+[klogsrv](https://github.com/ps5-payload-dev/klogsrv) on port 3232. Once per boot, load
+PS5_Vulkan's control payload, which launches and stops titles for the tools:
+
+```bash
+(cd ../PS5_Vulkan && python3 tools/ps5_console.py deploy-payload)   # then load it with the console's payload loader
 ```
 
-## Building
+## Make a homebrew
 
-The repository contains everything required to compile and build the examples on Windows, Android, iOS and macOS (using MoltenVK) using a C++ compiler that supports C++20.
-
-See [BUILD.md](BUILD.md) for details on how to build for the different platforms.
-
-## Running
-
-Once built, examples can be run from the bin directory. The list of available command line options can be brought up with `--help`:
+```bash
+python3 ps5/tools/new-title.py ../PS5_MyGame --title-id PPSA99121 --name "My Game"
+cd ../PS5_MyGame
+ps5/tools/build.sh && ps5/tools/deploy.sh && ps5/tools/run.sh
 ```
- --help: Show help
- -h, --height: Set window height
- -v, --validation: Enable validation layers
- -vs, --vsync: Enable V-Sync
- -f, --fullscreen: Start in fullscreen mode
- -w, --width: Set window width
- -s, --shaders: Select shader type to use (glsl, slang, hlsl)
- -g, --gpu: Select GPU to run on
- -gl, --listgpus: Display a list of available Vulkan devices
- -b, --benchmark: Run example in benchmark mode
- -bw, --benchwarmup: Set warmup time for benchmark mode in seconds
- -br, --benchruntime: Set duration time for benchmark mode in seconds
- -bf, --benchfilename: Set file name for benchmark results
- -bt, --benchframetimes: Save frame times to benchmark results file
- -bfs, --benchmarkframes: Only render the given number of frames
- -rp, --resourcepath: Set path for dir where assets and shaders folder is present
+
+The new title is the foundation with one program, `examples/mygame/mygame.cpp`, grown
+from the starter: a textured, lit glTF model, a camera on the sticks, a settings window
+on the pad. Launched from the home screen it starts at once; `ps5/tools/run.sh` runs it
+for 300 frames, brings its last frame back and checks klog. Replace the model, grow the
+class, and take whatever a sample shows: every sample is a class on the same base, so
+its code and shaders copy across as they stand. The new title's README says how it is
+laid out.
+
+The title id is `PPSA` and five digits, unique on the console; the generator refuses
+those my titles use.
+
+## Run the samples
+
+```bash
+ps5/tools/build.sh && ps5/tools/deploy.sh   # the PS5 Vulkan Samples title, PPSA99130
+ps5/tools/run.sh launcher all               # every sample and the menu: a verdict for each
+ps5/tools/host-reference.sh                 # the same frames on this PC's Vulkan driver
 ```
-Note that some examples require specific device features, and if you are on a multi-gpu system you might need to use the `-gl` and `-g` to select a gpu that supports them.
 
-## Shaders
-
-Vulkan consumes shaders in an intermediate representation called SPIR-V. This makes it possible to use different shader languages by compiling them to that bytecode format. The primary shader language used here is [GLSL](shaders/glsl), most samples also come with [slang](shaders/slang/) and [HLSL](shaders/hlsl) shader sources, making it easy to compare the differences between those shading languages. The [Rust GPU](https://rust-gpu.github.io/) project maintains [Rust](https://www.rust-lang.org/) shader sources in a [separate repo](https://github.com/Rust-GPU/VulkanShaderExamples/tree/master/shaders/rust).
-
-## Examples
-
-### Basics
-
-- [Basic triangle using Vulkan 1.0](examples/triangle/)
-
-    Basic and verbose example for getting a colored triangle rendered to the screen using Vulkan. This is meant as a starting point for learning Vulkan from the ground up. A huge part of the code is boilerplate that is abstracted away in later examples.
-
-- [Basic triangle using Vulkan 1.3](examples/trianglevulkan13//)
-
-    Vulkan 1.3 version of the basic and verbose example for getting a colored triangle rendered to the screen. This makes use of features like dynamic rendering simplifying api usage.
-
-- [Pipelines](examples/pipelines/)
-
-    Using pipeline state objects (pso) that bake state information (rasterization states, culling modes, etc.) along with the shaders into a single object, making it easy for an implementation to optimize usage (compared to OpenGL's dynamic state machine). Also demonstrates the use of pipeline derivatives.
-
-- [Descriptor sets](examples/descriptorsets)
-
-    Descriptors are used to pass data to shader binding points. Sets up descriptor sets, layouts, pools, creates a single pipeline based on the set layout and renders multiple objects with different descriptor sets.
-
-- [Dynamic uniform buffers](examples/dynamicuniformbuffer/)
-
-    Dynamic uniform buffers are used for rendering multiple objects with multiple matrices stored in a single uniform buffer object. Individual matrices are dynamically addressed upon descriptor binding time, minimizing the number of required descriptor sets.
-
-- [Push constants](examples/pushconstants/)
-
-    Uses push constants, small blocks of uniform data stored within a command buffer, to pass data to a shader without the need for uniform buffers.
-
-- [Specialization constants](examples/specializationconstants/)
-
-    Uses SPIR-V specialization constants to create multiple pipelines with different lighting paths from a single "uber" shader.
-
-- [Texture mapping](examples/texture/)
-
-    Loads a 2D texture from disk (including all mip levels), uses staging to upload it into video memory and samples from it using combined image samplers.
-
-- [Texture arrays](examples/texturearray/)
-
-    Loads a 2D texture array containing multiple 2D texture slices (each with its own mip chain) and renders multiple meshes each sampling from a different layer of the texture. 2D texture arrays don't do any interpolation between the slices.
-
-- [Cube map textures](examples/texturecubemap/)
-
-    Loads a cube map texture from disk containing six different faces. All faces and mip levels are uploaded into video memory, and the cubemap is displayed on a skybox as a backdrop and on a 3D model as a reflection.
-
-- [Cube map arrays](examples/texturecubemaparray/)
-
-    Loads an array of cube map textures from a single file. All cube maps are uploaded into video memory with their faces and mip levels, and the selected cubemap is displayed on a skybox as a backdrop and on a 3D model as a reflection.
-
-- [3D textures](examples/texture3d/)
-
-    Generates a 3D texture on the cpu (using perlin noise), uploads it to the device and samples it to render an animation. 3D textures store volumetric data and interpolate in all three dimensions.
-
-- [Input attachments](examples/inputattachments)
-
-    Uses input attachments to read framebuffer contents from a previous sub pass at the same pixel position within a single render pass. This can be used for basic post processing or image composition ([blog entry](https://www.saschawillems.de/tutorials/vulkan/input_attachments_subpasses)).
-
-- [Sub passes](examples/subpasses/)
-
-    Advanced example that uses sub passes and input attachments to write and read back data from framebuffer attachments (same location only) in single render pass. This is used to implement deferred render composition with added forward transparency in a single pass.
-
-- [Offscreen rendering](examples/offscreen/)
-
-    Basic offscreen rendering in two passes. First pass renders the mirrored scene to a separate framebuffer with color and depth attachments, second pass samples from that color attachment for rendering a mirror surface.
-
-- [CPU particle system](examples/particlesystem/)
-
-    Implements a simple CPU based particle system. Particle data is stored in host memory, updated on the CPU per-frame and synchronized with the device before it's rendered using pre-multiplied alpha.
-
-- [Stencil buffer](examples/stencilbuffer/)
-
-    Uses the stencil buffer and its compare functionality for rendering a 3D model with dynamic outlines.
-
-- [Vertex attributes](examples/vertexattributes/)
-
-    Demonstrates two different ways of passing vertices to the vertex shader using either interleaved or separate vertex attributes.
-
-### glTF
-
-These samples show how implement different features of the [glTF 2.0 3D format](https://www.khronos.org/gltf/) 3D transmission file format in detail.
-
-- [glTF model loading and rendering](examples/gltfloading/)
-
-    Shows how to load a complete scene from a [glTF 2.0](https://github.com/KhronosGroup/glTF) file. The structure of the glTF 2.0 scene is converted into the data structures required to render the scene with Vulkan.
-
-- [glTF vertex skinning](examples/gltfskinning/)
-
-    Demonstrates how to do GPU vertex skinning from animation data stored in a [glTF 2.0](https://github.com/KhronosGroup/glTF) model. Along with reading all the data structures required for doing vertex skinning, the sample also shows how to upload animation data to the GPU and how to render it using shaders.
-
-- [glTF scene rendering](examples/gltfscenerendering/)
-
-    Renders a complete scene loaded from an [glTF 2.0](https://github.com/KhronosGroup/glTF) file. The sample is based on the glTF model loading sample, and adds data structures, functions and shaders required to render a more complex scene using Crytek's Sponza model with per-material pipelines and normal mapping.
-
-### Advanced
-
-- [Multi sampling](examples/multisampling/)
-
-    Implements multisample anti-aliasing (MSAA) using a renderpass with multisampled attachments and resolve attachments that get resolved into the visible frame buffer.
-
-- [Alpha to coverage with multi sampling](examples/multisamplingalphatocoverage/)
-
-    Uses multisampling with alpha to coverage to implement an order-independent way of rendering overlapping transparent objects.
-
-- [High dynamic range](examples/hdr/)
-
-    Implements a high dynamic range rendering pipeline using 16/32 bit floating point precision for all internal formats, textures and calculations, including a bloom pass, manual exposure and tone mapping.
-
-- [Shadow mapping](examples/shadowmapping/)
-
-    Rendering shadows for a directional light source. First pass stores depth values from the light's pov, second pass compares against these to check if a fragment is shadowed. Uses depth bias to avoid shadow artifacts and applies a PCF filter to smooth shadow edges.
-
-- [Cascaded shadow mapping](examples/shadowmappingcascade/)
-
-    Uses multiple shadow maps (stored as a layered texture) to increase shadow resolution for larger scenes. The camera frustum is split up into multiple cascades with corresponding layers in the shadow map. Layer selection for shadowing depth compare is then done by comparing fragment depth with the cascades' depths ranges.
-
-- [Omnidirectional shadow mapping](examples/shadowmappingomni/)
-
-    Uses a dynamic floating point cube map to implement shadowing for a point light source that casts shadows in all directions. The cube map is updated every frame and stores distance to the light source for each fragment used to determine if a fragment is shadowed.
-
-- [Run-time mip-map generation](examples/texturemipmapgen/)
-
-    Generating a complete mip-chain at runtime instead of loading it from a file, by blitting from one mip level, starting with the actual texture image, down to the next smaller size until the lower 1x1 pixel end of the mip chain.
-
-- [Capturing screenshots](examples/screenshot/)
-
-    Capturing and saving an image after a scene has been rendered using blits to copy the last swapchain image from optimal device to host local linear memory, so that it can be stored into a ppm image.
-
-- [Order Independent Transparency](examples/oit)
-
-    Implements order independent transparency based on linked lists. To achieve this, the sample uses storage buffers in combination with image load and store atomic operations in the fragment shader.
-
-### Performance
-
-- [Multi threaded command buffer generation](examples/multithreading/)
-
-    Multi threaded parallel command buffer generation. Instead of prebuilding and reusing the same command buffers this sample uses multiple hardware threads to demonstrate parallel per-frame recreation of secondary command buffers that are executed and submitted in a primary buffer once all threads have finished.
-
-- [Instancing](examples/instancing/)
-
-    Uses the instancing feature for rendering many instances of the same mesh from a single vertex buffer with variable parameters and textures (indexing a layered texture). Instanced data is passed using a secondary vertex buffer.
-
-- [Indirect drawing](examples/indirectdraw/)
-
-    Rendering thousands of instanced objects with different geometry using one single indirect draw call instead of issuing separate draws. All draw commands to be executed are stored in a dedicated indirect draw buffer object (storing index count, offset, instance count, etc.) that is uploaded to the device and sourced by the indirect draw command for rendering.
-
-- [Occlusion queries](examples/occlusionquery/)
-
-    Using query pool objects to get number of passed samples for rendered primitives got determining on-screen visibility.
-
-- [Pipeline statistics](examples/pipelinestatistics/)
-
-    Using query pool objects to gather statistics from different stages of the pipeline like vertex, fragment shader and tessellation evaluation shader invocations depending on payload.
-
-### Physically Based Rendering
-
-Physical based rendering as a lighting technique that achieves a more realistic and dynamic look by applying approximations of bidirectional reflectance distribution functions based on measured real-world material parameters and environment lighting.
-
-- [PBR basics](examples/pbrbasic/)
-
-    Demonstrates a basic specular BRDF implementation with solid materials and fixed light sources on a grid of objects with varying material parameters, demonstrating how metallic reflectance and surface roughness affect the appearance of pbr lit objects.
-
-- [PBR image based lighting](examples/pbribl/)
-
-    Adds image based lighting from an hdr environment cubemap to the PBR equation, using the surrounding environment as the light source. This adds an even more realistic look the scene as the light contribution used by the materials is now controlled by the environment. Also shows how to generate the BRDF 2D-LUT and irradiance and filtered cube maps from the environment map.
-
-- [Textured PBR with IBL](examples/pbrtexture/)
-
-    Renders a model specially crafted for a metallic-roughness PBR workflow with textures defining material parameters for the PRB equation (albedo, metallic, roughness, baked ambient occlusion, normal maps) in an image based lighting environment.
-
-### Deferred
-
-These examples use a [deferred shading](https://en.wikipedia.org/wiki/Deferred_shading) setup.
-
-- [Deferred shading basics](examples/deferred/)
-
-    Uses multiple render targets to fill all attachments (albedo, normals, position, depth) required for a G-Buffer in a single pass. A deferred pass then uses these to calculate shading and lighting in screen space, so that calculations only have to be done for visible fragments independent of no. of lights.
-
-- [Deferred multi sampling](examples/deferredmultisampling/)
-
-    Adds multi sampling to a deferred renderer using manual resolve in the fragment shader.
-
-- [Deferred shading shadow mapping](examples/deferredshadows/)
-
-    Adds shadows from multiple spotlights to a deferred renderer using a layered depth attachment filled in one pass using multiple geometry shader invocations.
-
-- [Screen space ambient occlusion](examples/ssao/)
-
-    Adds ambient occlusion in screen space to a 3D scene. Depth values from a previous deferred pass are used to generate an ambient occlusion texture that is blurred before being applied to the scene in a final composition path.
-
-### Compute Shader
-
-All Vulkan implementations support compute shaders, a more generalized way of doing workloads on the GPU. These samples demonstrate how to use those compute shaders.
-
-- [Image processing](examples/computeshader/)
-
-    Uses a compute shader along with a separate compute queue to apply different convolution kernels (and effects) on an input image in realtime.
-
-- [GPU particle system](examples/computeparticles/)
-
-    Attraction based 2D GPU particle system using compute shaders. Particle data is stored in a shader storage buffer and only modified on the GPU using memory barriers for synchronizing compute particle updates with graphics pipeline vertex access.
-
-- [N-body simulation](examples/computenbody/)
-
-    N-body simulation based particle system with multiple attractors and particle-to-particle interaction using two passes separating particle movement calculation and final integration. Shared compute shader memory is used to speed up compute calculations.
-
-- [Ray tracing](examples/computeraytracing/)
-
-    Simple GPU ray tracer with shadows and reflections using a compute shader. No scene geometry is rendered in the graphics pass.
-
-- [ Cloth simulation](examples/computecloth/)
-
-    Mass-spring based cloth system on the GPU using a compute shader to calculate and integrate spring forces, also implementing basic collision with a fixed scene object.
-
-- [Cull and LOD](examples/computecullandlod/)
-
-    Purely GPU based frustum visibility culling and level-of-detail system. A compute shader is used to modify draw commands stored in an indirect draw commands buffer to toggle model visibility and select its level-of-detail based on camera distance, no calculations have to be done on and synced with the CPU.
-
-### Geometry Shader
-
-- [Normal debugging](examples/geometryshader/)
-
-    Visualizing per-vertex model normals (for debugging). First pass renders the plain model, second pass uses a geometry shader to generate colored lines based on per-vertex model normals,
-
-- [Viewport arrays](examples/viewportarray/)
-
-    Renders a scene to multiple viewports in one pass using a geometry shader to apply different matrices per viewport to simulate stereoscopic rendering (left/right). Requires a device with support for ```multiViewport```.
-
-### Tessellation Shader
-
-- [Displacement mapping](examples/displacement/)
-
-    Uses a height map to dynamically generate and displace additional geometric detail for a low-poly mesh.
-
-- [Dynamic terrain tessellation](examples/terraintessellation/)
-
-    Renders a terrain using tessellation shaders for height displacement (based on a 16-bit height map), dynamic level-of-detail (based on triangle screen space size) and per-patch frustum culling.
-
-- [Model tessellation](examples/tessellation/)
-
-    Uses curved PN-triangles ([paper](http://alex.vlachos.com/graphics/CurvedPNTriangles.pdf)) for adding details to a low-polygon model.
-
-### Hardware accelerated ray tracing
-
-Vulkan supports GPUs with dedicated hardware for ray tracing. These sampples show different parts of that functionality.
-
-- [Basic ray tracing](examples/raytracingbasic)
-
-    Basic example for doing hardware accelerated ray tracing using the ```VK_KHR_acceleration_structure``` and ```VK_KHR_ray_tracing_pipeline``` extensions. Shows how to setup acceleration structures, ray tracing pipelines and the shader binding table needed to do the actual ray tracing.
-
-- [Ray traced shadows](examples/raytracingshadows)
-
-    Adds ray traced shadows casting using the new ray tracing extensions to a more complex scene. Shows how to add multiple hit and miss shaders and how to modify existing shaders to add shadow calculations.
-
-- [Ray traced reflections](examples/raytracingreflections)
-
-    Renders a complex scene with reflective surfaces using the new ray tracing extensions. Shows how to do recursion inside of the ray tracing shaders for implementing real time reflections.
-
-- [Ray traced texture mapping](examples/raytracingtextures)
-
-    Renders a texture mapped quad with transparency using the new ray tracing extensions. Shows how to do texture mapping in a closes hit shader, how to cancel intersections for transparency in an any hit shader and how to access mesh data in those shaders using buffer device addresses.
-
-- [Callable ray tracing shaders](examples/raytracingcallable)
-
-    Callable shaders can be dynamically invoked from within other ray tracing shaders to execute different shaders based on dynamic conditions. The example ray traces multiple geometries, with each calling a different callable shader from the closest hit shader.
-
-- [Ray tracing intersection shaders](examples/raytracingintersection)
-
-    Uses an intersection shader for procedural geometry. Instead of using actual geometry, this sample on passes bounding boxes and object definitions. An intersection shader is then used to trace against the procedural objects.
-
-- [Ray traced glTF](examples/raytracinggltf/)
-
-    Renders a textured glTF model using ray traying instead of rasterization. Makes use of frame accumulation for transparency and anti aliasing.
-
-- [Ray query](examples/rayquery)
-
-    Ray queries add acceleration structure intersection functionality to non ray tracing shader stages. This allows for combining ray tracing with rasterization. This example makes uses ray queries to add ray casted shadows to a rasterized sample in the fragment shader.
-
-- [Position fetch](examples/raytracingpositionfetch/)
-
-    Uses the `VK_KHR_ray_tracing_position_fetch` extension to fetch vertex position data from the acceleration structure from within a shader, instead of having to manually unpack vertex information. 
-
-### Headless
-
-Examples that run one-time tasks and don't make use of visual output (no window system integration). These can be run in environments where no user interface is available ([blog entry](https://www.saschawillems.de/tutorials/vulkan/headless_examples)).
-
-- [Render](examples/renderheadless)
-
-    Renders a basic scene to a (non-visible) frame buffer attachment, reads it back to host memory and stores it to disk without any on-screen presentation, showing proper use of memory barriers required for device to host image synchronization.
-
-- [Compute](examples/computeheadless)
-
-    Only uses compute shader capabilities for running calculations on an input data set (passed via SSBO). A fibonacci row is calculated based on input data via the compute shader, stored back and displayed via command line.
-
-### User Interface
-
-- [Text rendering](examples/textoverlay/)
-
-    Load and render a 2D text overlay created from the bitmap glyph data of a [stb font file](https://nothings.org/stb/font/). This data is uploaded as a texture and used for displaying text on top of a 3D scene in a second pass.
-
-- [Distance field fonts](examples/distancefieldfonts/)
-
-    Uses a texture that stores signed distance field information per character along with a special fragment shader calculating output based on that distance data. This results in crisp high quality font rendering independent of font size and scale.
-
-- [ImGui overlay](examples/imgui/)
-
-    Generates and renders a complex user interface with multiple windows, controls and user interaction on top of a 3D scene. The UI is generated using [Dear ImGUI](https://github.com/ocornut/imgui) and updated each frame.
-
-### Extensions
-
-Vulkan is an extensible api with lots of functionality added by extensions. These samples demonstrate the usage of such extensions.
-
-**Note:** Certain extensions may become core functionality for newer Vulkan versions. The samples will still work with these.
-
-- [Conservative rasterization](examples/conservativeraster/) - `VK_EXT_conservative_rasterization`
-
-    Uses conservative rasterization to change the way fragments are generated by the gpu. The example enables overestimation to generate fragments for every pixel touched instead of only pixels that are fully covered ([blog post](https://www.saschawillems.de/tutorials/vulkan/conservative_rasterization)).
-
-- [Push descriptors](examples/pushdescriptors/) - `VK_KHR_push_descriptor`
-
-    Uses push descriptors apply the push constants concept to descriptor sets. Instead of creating per-object descriptor sets for rendering multiple objects, this example passes descriptors at command buffer creation time.
-
-- [Inline uniform blocks](examples/inlineuniformblocks/) - `VK_EXT_inline_uniform_block`
-
-    Makes use of inline uniform blocks to pass uniform data directly at descriptor set creation time and also demonstrates how to update data for those descriptors at runtime.
-
-- [Multiview rendering](examples/multiview/) - `VK_KHR_multiview`
-
-    Renders a scene to to multiple views (layers) of a single framebuffer to simulate stereoscopic rendering in one pass. Broadcasting to the views is done in the vertex shader using ```gl_ViewIndex```.
-
-- [Conditional rendering](examples/conditionalrender) - `VK_EXT_conditional_rendering`
-
-    Demonstrates the use of VK_EXT_conditional_rendering to conditionally dispatch render commands based on values from a dedicated buffer. This allows e.g. visibility toggles without having to rebuild command buffers ([blog post](https://www.saschawillems.de/tutorials/vulkan/conditional_rendering)).
-
-- [Debug shader printf](examples/debugprintf/) - `VK_KHR_shader_non_semantic_info`
-
-    Shows how to use printf in a shader to output additional information per invocation. This information can help debugging shader related issues in tools like RenderDoc.
-
-    **Note:**: This sample should be run from a graphics debugger like RenderDoc.
-
-- [Debug utils](examples/debugutils/) - `VK_EXT_debug_utils`
-
-    Shows how to use debug utils for adding labels and colors to Vulkan objects for graphics debuggers. This information helps to identify resources in tools like RenderDoc.
-
-    **Note:** This sample should be run from a graphics debugger like RenderDoc.
-
-- [Negative viewport height](examples/negativeviewportheight/) - `VK_KHR_Maintenance1` or `Vulkan 1.1`
-
-    Shows how to render a scene using a negative viewport height, making the Vulkan render setup more similar to other APIs like OpenGL. Also has several options for changing relevant pipeline state, and displaying meshes with OpenGL or Vulkan style coordinates. Details can be found in [this tutorial](https://www.saschawillems.de/tutorials/vulkan/flipping-viewport).
-
-- [Variable rate shading](examples/variablerateshading/) - `VK_KHR_fragment_shading_rate`
-
-    Uses a special image that contains variable shading rates to vary the number of fragment shader invocations across the framebuffer. This makes it possible to lower fragment shader invocations for less important/less noisy parts of the framebuffer.
-
-- [Descriptor indexing](examples/descriptorindexing/) - `VK_EXT_descriptor_indexing`
-
-    Demonstrates the use of VK_EXT_descriptor_indexing for creating descriptor sets with a variable size that can be dynamically indexed in a shader using `GL_EXT_nonuniform_qualifier` and `SPV_EXT_descriptor_indexing`.
-
-- [Dynamic rendering](examples/dynamicrendering/) - `VK_KHR_dynamic_rendering`
-
-    Shows usage of the VK_KHR_dynamic_rendering extension, which simplifies the rendering setup by no longer requiring render pass objects or framebuffers.
-
-- [Dynamic rendering local read](examples/dynamicrenderinglocalread/) - `VK_KHR_dynamic_rendering_local_read`
-
-    Shows usage of the VK_KHR_dynamic_rendering extension in combination with VK_KHR_dynamic_rendering_local_read to replace render passes and sub passes. Local read ensures that reads stay local on tile memory.
-
-- [Dynamic rendering with multi sampling](examples/dynamicrenderingmultisampling/) - `VK_KHR_dynamic_rendering`
-
-    Based on the dynamic rendering sample, this sample shows how to do implement multi sampling with dynamic rendering.
-
-- [Graphics pipeline library](./examples/graphicspipelinelibrary) - `VK_EXT_graphics_pipeline_library`
-    
-    Uses the graphics pipeline library extensions to improve run-time pipeline creation. Instead of creating the whole pipeline at once, this sample pre builds shared pipeline parts like like vertex input state and fragment output state. These are then used to create full pipelines at runtime, reducing build times and possible hick-ups.
-
-- [Mesh shaders](./examples/meshshader) - `VK_EXT_mesh_shader`
-
-    Basic sample demonstrating how to use the mesh shading pipeline as a replacement for the traditional vertex pipeline.
-
-- [Descriptor heap](./examples/descriptorheap/) - `VK_EXT_descriptor_heap`
-
-    Basic sample showing how to use descriptor heaps, which fully replace Vulkan's original descriptor system. [Khronos blog](https://www.khronos.org/blog/vulkan-introduces-roadmap-2026-and-new-descriptor-heap-extension#descriptor_heaps).
-
-- [Descriptor heap (untyped pointers)](./examples/descriptorheapuntyped/) - `VK_EXT_descriptor_heap` and `VK_KHR_shader_untyped_pointers`
-
-    Basic sample showing how to use descriptor heaps in combination with `VK_KHR_shader_untyped_pointers´ for a more direct way to access heap data.
-
-- [Descriptor buffers](./examples/descriptorbuffer/) - `VK_EXT_descriptor_buffer`
-
-    Basic sample showing how to use descriptor buffers to replace descriptor sets.
-
-    **Note:** Descriptor buffers have been superseded by descriptor heaps.
-
-- [Shader objects](./examples/shaderobjects/) - `VK_EXT_shader_object`
-
-    Basic sample showing how to use shader objects that can be used to replace pipeline state objects. Instead of baking all state in a PSO, shaders are explicitly loaded and bound as separate objects and state is set using dynamic state extensions. The sample also stores binary shader objets and loads them on consecutive runs.
-
-- [Host image copy](./examples/hostimagecopy/) - `VK_EXT_host_image_copy`
-
-    Shows how to do host image copies, which heavily simplify the host to device image process by fully skipping the staging process.
-
-- [Buffer device address](./examples/bufferdeviceaddress/) - `VK_KHR_buffer_device_addres`
-
-    Demonstrates the use of virtual GPU addresses to directly access buffer data in shader. Instead of e.g. using descriptors to access uniforms, with this extension you simply provide an address to the memory you want to read from in the shader and that address can be arbitrarily changed e.g. via a push constant.
-
-- [Timeline semaphores](./examples/timelinesemaphore/) - `VK_KHR_timeline_semaphore`
-
-    Shows how to use a new semaphore type that has a way of setting and identifying a given point on a timeline. Compared to the core binary semaphores, this simplifies synchronization as a single timeline semaphore can replace multiple binary semaphores.
-
-- [Fragment shader barycentrics](./examples/fragmentshaderbarycentrics/) - `VK_KHR_fragment_shader_barycentric`
-
-    Demonstrates how to access barycentric coordinates in a fragment shader to create a wireframe visual effect.
-
-### Effects
-
-Assorted samples showing graphical effects not special to Vulkan.
-
-- [Fullscreen radial blur](examples/radialblur/)
-
-    Demonstrates the basics of fullscreen shader effects. The scene is rendered into an offscreen framebuffer at lower resolution and rendered as a fullscreen quad atop the scene using a radial blur fragment shader.
-
-- [Bloom](examples/bloom/)
-
-    Advanced fullscreen effect example adding a bloom effect to a scene. Glowing scene parts are rendered to a low res offscreen framebuffer that is applied atop the scene using a two pass separated gaussian blur.
-
-- [Parallax mapping](examples/parallaxmapping/)
-
-    Implements multiple texture mapping methods to simulate depth based on texture information: Normal mapping, parallax mapping, steep parallax mapping and parallax occlusion mapping (best quality, worst performance).
-
-- [Spherical environment mapping](examples/sphericalenvmapping/)
-
-    Uses a spherical material capture texture array defining environment lighting and reflection information to fake complex lighting.
-
-### Misc
-
-- [Vulkan Gears](examples/gears/)
-
-    Vulkan interpretation of glxgears. Procedurally generates and animates multiple gears.
-
-- [Vulkan demo scene](examples/vulkanscene/)
-
-    Renders a Vulkan demo scene with logos and mascots. Not an actual example but more of a playground and showcase.
-
-## Credits and Attributions
-See [CREDITS.md](CREDITS.md) for additional credits and attributions.
+Launched from the home screen, PS5 Vulkan Samples shows a menu of them. On my console
+(2026-10-01, RADV 0b2d6d1) every one held 119.9 fps at 3840x2160 and drew its frame 300
+within 4.5 levels in 255 of the PC's. How the port works, its tools and how to add a
+sample: [`ps5/README.md`](ps5/README.md). The assets and their licences:
+[`ps5/ASSETS.md`](ps5/ASSETS.md).
+
+## With an agent
+
+The skills in [`skills/`](skills) teach an agent this stack: how a title is built and
+linked, the console's contracts (how a title ends, the display, the pad), the platform
+layer, running and debugging on the console, porting existing code, releases. Link them
+into the agent's skill folder:
+
+```bash
+for skill in ps5-homebrew ps5-console ps5-porting ps5-release; do
+    ln -sfn "$PWD/skills/$skill" ~/.claude/skills/$skill
+done
+```
+
+## Layout
+
+| Path | What it is |
+| --- | --- |
+| `base/` | Sascha Willems' example base class, with the PS5 hooks (`VK_EXAMPLE_PS5`) |
+| `examples/` | upstream's examples; the sixteen in `ps5/src/samples.cpp` build for the console, `examples/starter/` is the one new titles grow from |
+| `shaders/glsl/` | their GLSL and the SPIR-V they load (`ps5/tools/compile-shaders.sh <id>`) |
+| `external/` | glm, Dear ImGui, libktx, tinygltf, the Vulkan headers |
+| `ps5/` | the PS5 port: its sources, build, tools, assets, identity and README |
+| `skills/` | the agent skills |
+| `assets/` | upstream's asset pack, a submodule that is not needed: the title fetches the files it ships (those with a clear licence) at pinned hashes, and replaces the rest |
+| `README.upstream.md` | upstream's README: the examples, their credits |
+
+## Fork, credits, licences
+
+This is a fork of Sascha Willems' [Vulkan examples](https://github.com/SaschaWillems/Vulkan)
+(MIT), which keeps upstream's history on `main` and reaches it through an `upstream`
+remote. Upstream's files change as little as the port allows, each change marked `PS5`
+or guarded by `VK_EXAMPLE_PS5`; upstream's README is [`README.upstream.md`](README.upstream.md).
+Upstream's code and what I add are MIT (`LICENSE.md`). The assets keep their own
+licences (`ps5/ASSETS.md`). A built title links the PS5 platform layer, which is
+GPL-3.0, so a title as distributed is under GPL-3.0; RADV (Mesa) is MIT.

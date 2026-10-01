@@ -1,4 +1,4 @@
-"""PS5 Vulkan Samples - the assets made here: meshes, textures, conversions.
+"""PS5 Vulkan Template - the assets made here: meshes, textures, conversions.
 
 The asset pack's files whose licence is unclear are replaced by ones made by
 these functions, from geometry and noise written here or from CC0 sources
@@ -146,7 +146,7 @@ def write_gltf(path, meshes):
                           "primitives": [{"attributes": attributes, "indices": indices, "material": i}]})
         nodes.append({"name": mesh.get("name", f"node{i}"), "mesh": i})
     bin_name = path.with_suffix(".bin").name
-    gltf = {"asset": {"version": "2.0", "generator": "PS5 Vulkan Samples, ps5/tools/generate_assets.py"},
+    gltf = {"asset": {"version": "2.0", "generator": "PS5 Vulkan Template, ps5/tools/generate_assets.py"},
             "scene": 0, "scenes": [{"nodes": list(range(len(nodes)))}], "nodes": nodes,
             "meshes": gl_meshes, "materials": materials, "accessors": accessors, "bufferViews": views,
             "buffers": [{"uri": bin_name, "byteLength": len(blob)}]}

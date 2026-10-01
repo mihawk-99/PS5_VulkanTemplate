@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PS5 Vulkan Samples - a test run on the console: each sample draws N frames,
+# PS5 Vulkan Template - a test run on the console: each sample draws N frames,
 # its last frame comes back as a screenshot, and klog is checked.
 #
 #   ps5/tools/run.sh                      every sample linked in, 300 frames each

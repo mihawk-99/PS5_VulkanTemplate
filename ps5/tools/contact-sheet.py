@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PS5 Vulkan Samples - a run's pictures on a few sheets, to look at together.
+"""PS5 Vulkan Template - a run's pictures on a few sheets, to look at together.
 
     contact-sheet.py RUN_DIR      RUN_DIR/sheet-<n>.png, six pictures each, named
 

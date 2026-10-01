@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PS5 Vulkan Samples - make a new PS5 homebrew title on this foundation.
+"""PS5 Vulkan Template - make a new PS5 homebrew title on this foundation.
 
     ps5/tools/new-title.py DIRECTORY --title-id PPSA12345 --name "My Title" [--refresh 60] [--force]
 
@@ -169,7 +169,7 @@ def main():
     (target / "shaders/glsl/starter").rename(target / f"shaders/glsl/{pid}")
     program = target / f"examples/{pid}/{pid}.cpp"
     text = program.read_text()
-    text = text.replace(" * Starter - the program a new PS5 homebrew grows from.", f" * {args.name} - its program, made from the PS5 Vulkan Samples starter.")
+    text = text.replace(" * Starter - the program a new PS5 homebrew grows from.", f" * {args.name} - its program, made from the PS5 Vulkan Template starter.")
     text = text.replace('title = "Starter";', f'title = "{args.name}";')
     text = text.replace('"starter/model.', f'"{pid}/model.')
     program.write_text(text)
@@ -188,19 +188,17 @@ def main():
     (target / "ps5/sce_sys/param.json").write_text(json.dumps(param_json(args.title_id, args.name, args.refresh), indent=2) + "\n")
     icon(target / "ps5/sce_sys/icon0.png", args.name)
 
-    # Its assets: the font (kept in the repository) and the starter's model
+    # Its assets: the overlay's font and the starter's model, fetched or made at build time
     manifest = json.loads((PS5 / "assets.json").read_text())
     kept = []
     for asset in manifest["assets"]:
         if asset["path"] == "Roboto-Medium.ttf":
-            (target / "ps5/assets").mkdir(parents=True, exist_ok=True)
-            shutil.copy2(ROOT / "assets" / asset["source"], target / "ps5/assets/Roboto-Medium.ttf")
-            kept.append(dict(asset, **{"from": "file", "source": "ps5/assets/Roboto-Medium.ttf"}))
+            kept.append(asset)
         elif "starter" in asset["used_by"]:
             kept.append(dict(asset, used_by=[pid]))
     manifest["comment"] = (f"The assets {args.name} ships, each with its origin and licence (ps5/tools/build-assets.py). "
                            "Add each new one here, with its licence: only assets with a clear licence are shipped.")
-    manifest["sources"]["file"] = "a file kept in this repository"
+    manifest["sources"]["file"] = "a file kept in this repository (ps5/assets/)"
     manifest["assets"] = kept
     (target / "ps5/assets.json").write_text(json.dumps(manifest, indent=2) + "\n")
     (target / ".gitignore").write_text("build/\ndist/\nklog/\n.deps/\nimgui.ini\n")
@@ -212,8 +210,8 @@ def main():
     subprocess.run(["git", "init", "-q", "-b", "main", str(target)], check=True)
     subprocess.run(["git", "-C", str(target), "add", "-A"], check=True)
     subprocess.run(["git", "-C", str(target), "commit", "-q", "-m",
-                    f"{args.name}: a new title on the PS5 Vulkan Samples foundation\n\n"
-                    f"Made by ps5/tools/new-title.py from PS5_VulkanSamples {revision[:12]}: the base class,\n"
+                    f"{args.name}: a new title on the PS5 Vulkan Template foundation\n\n"
+                    f"Made by ps5/tools/new-title.py from PS5_VulkanTemplate {revision[:12]}: the base class,\n"
                     f"the PS5 layer and its tools, and the starter as the program ({pid})."], check=True)
     print(f"==> {args.name} ({args.title_id}) in {target}")
     print(f"    program: examples/{pid}/{pid}.cpp, shaders/glsl/{pid}/")
@@ -223,7 +221,7 @@ def main():
 README = """# {name}
 
 A PS5 homebrew title (`{title_id}`) on RADV, made from the
-[PS5 Vulkan Samples](https://github.com/mihawk-99/PS5_VulkanSamples) foundation at
+[PS5 Vulkan Template](https://github.com/mihawk-99/PS5_VulkanTemplate) foundation at
 `{short}`: Sascha Willems' Vulkan example base class with its PS5 hooks, the PS5 layer
 (the launch, the pad, klog, test runs, the build and the console tools), and one
 program, `examples/{pid}/{pid}.cpp`, grown from the starter sample.
@@ -251,15 +249,15 @@ change them, and its Quit ends the title.
 - **The program** is one class on the base class, `examples/{pid}/{pid}.cpp`, with its
   shaders in `shaders/glsl/{pid}/` (GLSL beside the SPIR-V it loads: after changing one,
   `ps5/tools/compile-shaders.sh {pid}`).
-- **A technique from PS5 Vulkan Samples** (shadows, deferred lighting, bloom, MSAA,
+- **A technique from the template's samples** (shadows, deferred lighting, bloom, MSAA,
   instancing, indirect draws, compute, bindless textures, mesh shaders, ray queries)
   copies across as it stands: every sample is a class on the same base.
 - **Assets** go in `ps5/assets.json`, each with its origin and licence; only assets
   with a clear licence are shipped (`ps5/ASSETS.md` is written from it).
 - **More programs**: another `SAMPLE(...)` line in `ps5/src/samples.cpp` turns the
   title into a menu of them, as PS5 Vulkan Samples is.
-- How the foundation works, its test runs and its tools: PS5 Vulkan Samples'
-  `ps5/README.md`.
+- How the foundation works, its test runs and its tools: PS5_VulkanTemplate's
+  `ps5/README.md`; the agent skills for this stack are in its `skills/`.
 
 ## Licences
 

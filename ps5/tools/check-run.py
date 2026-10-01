@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PS5 Vulkan Samples - read a test run: klog, screenshots, a verdict per sample.
+"""PS5 Vulkan Template - read a test run: klog, screenshots, a verdict per sample.
 
     check-run.py --resolve all|menu|launcher|ID...   the sample ids a run covers
                                                ("launcher": the menu itself)

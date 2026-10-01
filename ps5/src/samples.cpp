@@ -1,5 +1,5 @@
 /*
- * PS5 Vulkan Samples - the samples linked into the title.
+ * PS5 Vulkan Template - the samples linked into the title.
  *
  * One line a sample: SAMPLE(id, in the menu, title, description). With one
  * line only, the title is that program: it starts with no menu, and ends when

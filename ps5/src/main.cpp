@@ -1,5 +1,5 @@
 /*
- * PS5 Vulkan Samples - the title: the menu, the samples, and test runs.
+ * PS5 Vulkan Template - the title: the menu, its programs, and test runs.
  *
  * A launch by hand shows the menu (launcher.cpp) and runs the sample chosen
  * until OPTIONS is pressed, then shows the menu again. A title with one

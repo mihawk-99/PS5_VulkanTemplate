@@ -2,7 +2,7 @@
 
 The assets the title ships, written from `ps5/assets.json` by
 `ps5/tools/build-assets.py --notices`. Only assets with a clear licence are
-shipped: in PS5 Vulkan Samples, the asset pack's other files (the `assets`
+shipped: in PS5_VulkanTemplate, the asset pack's other files (the `assets`
 submodule) stay out, and the samples that use them get the replacements here.
 
 | Path under `/app0/assets/` | Asset | Author | Licence | Samples |

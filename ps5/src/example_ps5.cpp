@@ -1,5 +1,5 @@
 /*
- * PS5 Vulkan Samples - the base class's console parts: the pad and the screenshot.
+ * PS5 Vulkan Template - the base class's console parts: the pad and the screenshot.
  *
  * VulkanExampleBase calls these from its PS5 render loop and submitFrame
  * (base/vulkanexamplebase.cpp, VK_EXAMPLE_PS5).

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PS5 Vulkan Samples - build the title into dist/<TITLE_ID>/.
+# PS5 Vulkan Template - build the title into dist/<TITLE_ID>/.
 #
 #   ps5/tools/build.sh
 #

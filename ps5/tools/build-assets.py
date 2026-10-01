@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PS5 Vulkan Samples - the assets the title ships, and their notices.
+"""PS5 Vulkan Template - the assets the title ships, and their notices.
 
     build-assets.py --install dist/PPSA99130    lay the assets of the samples
                                                  linked in (build/ps5/samples.txt)
@@ -7,8 +7,8 @@
     build-assets.py --notices                   rewrite ps5/ASSETS.md
 
 Every asset comes from ps5/assets.json, which names its origin and licence:
-"pack" (the assets submodule, at the revision this repository pins),
-or "generated" (made by ps5/tools/generate_assets.py, deterministically,
+"download" (files at pinned URLs and SHA-256 hashes, among them the asset pack's
+whose licences are clear), "file" (kept in the repository), or "generated" (made by ps5/tools/generate_assets.py, deterministically,
 from geometry and noise written there or from CC0 files it downloads at pinned
 SHA-256 hashes into build/ps5/downloads/). The
 title's assets/NOTICES.txt lists what was installed, with the licences.
@@ -62,11 +62,16 @@ def download(url, sha256):
 
 def source_path(asset, manifest):
     kind = asset["from"]
-    if kind == "pack":
-        path = ROOT / "assets" / asset["source"]
-        if not path.exists():
-            sys.exit(f"{path} is missing: git submodule update --init assets")
-        return path
+    if kind == "download":
+        # One file ("" its name), or a folder's files by their paths in it
+        files = asset["files"]
+        if list(files) == [""]:
+            return download(*files[""])
+        folder = DOWNLOADS / "folders" / asset["path"]
+        for name, (url, sha256) in files.items():
+            (folder / name).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(download(url, sha256), folder / name)
+        return folder
     if kind == "file":
         # Kept in the repository itself (a title made by new-title.py has no asset pack)
         return ROOT / asset["source"]
@@ -135,7 +140,7 @@ def notices_text(assets):
             lines.append(f"    Licence text: LICENSES/{Path(asset['licence_file']).name}")
     lines += ["", "CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/",
               "CC-BY-3.0: https://creativecommons.org/licenses/by/3.0/",
-              "MIT: made by ps5/tools/generate_assets.py (from PS5 Vulkan Samples, github.com/mihawk-99/PS5_VulkanSamples), under LICENSE.md"]
+              "MIT: made by ps5/tools/generate_assets.py (from PS5 Vulkan Template, github.com/mihawk-99/PS5_VulkanTemplate), under LICENSE.md"]
     return "\n".join(lines) + "\n"
 
 
@@ -144,7 +149,7 @@ def write_notices():
     out = ["# Assets", "",
            "The assets the title ships, written from `ps5/assets.json` by",
            "`ps5/tools/build-assets.py --notices`. Only assets with a clear licence are",
-           "shipped: in PS5 Vulkan Samples, the asset pack's other files (the `assets`",
+           "shipped: in PS5_VulkanTemplate, the asset pack's other files (the `assets`",
            "submodule) stay out, and the samples that use them get the replacements here.", "",
            "| Path under `/app0/assets/` | Asset | Author | Licence | Samples |",
            "| --- | --- | --- | --- | --- |"]

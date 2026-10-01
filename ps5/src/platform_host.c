@@ -1,5 +1,5 @@
 /*
- * PS5 Vulkan Samples - platform.h on a Linux PC, for the host reference build.
+ * PS5 Vulkan Template - platform.h on a Linux PC, for the host reference build.
  *
  * The host reference build (ps5/tools/host-reference.sh) runs the title's code
  * on the PC's own Vulkan driver with a headless surface: no pad, messages on

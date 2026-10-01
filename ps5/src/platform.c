@@ -1,5 +1,5 @@
 /*
- * PS5 Vulkan Samples - the console: klog, the splash, the pad, time, the exit.
+ * PS5 Vulkan Template - the console: klog, the splash, the pad, time, the exit.
  *
  * Copyright (C) 2026 Mihawk
  *

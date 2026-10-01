@@ -1,5 +1,5 @@
 /*
- * PS5 Vulkan Samples - what every sample may include, at file scope.
+ * PS5 Vulkan Template - what every sample may include, at file scope.
  *
  * Each sample is compiled inside a namespace of its own (wrap.cpp.in), so two
  * samples' classes of the same name (VulkanExample, Vertex...) stay apart in

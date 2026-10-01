@@ -1,5 +1,5 @@
 /*
- * PS5 Vulkan Samples - the menu.
+ * PS5 Vulkan Template - the menu.
  *
  * The menu is itself an example on the base class: it brings Vulkan up, lists
  * the samples proven on the console in the overlay, and ends when one is

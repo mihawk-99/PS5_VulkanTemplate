@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PS5 Vulkan Samples - compile a program's GLSL shaders to the SPIR-V it loads.
+# PS5 Vulkan Template - compile a program's GLSL shaders to the SPIR-V it loads.
 #
 #   ps5/tools/compile-shaders.sh ID...     shaders/glsl/<id>/*.<stage> -> *.<stage>.spv
 #

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PS5 Vulkan Samples - upload dist/<TITLE_ID>/ to the console.
+# PS5 Vulkan Template - upload dist/<TITLE_ID>/ to the console.
 #
 #   ps5/tools/deploy.sh [--all]
 #

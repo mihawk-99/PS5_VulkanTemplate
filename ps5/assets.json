@@ -1,14 +1,13 @@
 {
   "comment": "The assets the PS5 title ships, each with its origin and licence (ps5/tools/build-assets.py; the notices in ps5/ASSETS.md are written from this file). Only assets with a clear licence are listed: the rest of the asset pack is not shipped, and samples that use such assets get replacements made or fetched here.",
   "sources": {
-    "pack": "the assets submodule (SaschaWillems/Vulkan-Assets), at the revision this repository pins",
+    "download": "files fetched at pinned SHA-256 hashes into build/ps5/downloads/: the asset pack's (SaschaWillems/Vulkan-Assets at a27c0e584434) whose licences are clear",
     "generated": "ps5/tools/generate_assets.py: geometry and noise written there, or CC0 files it downloads (Poly Haven; Khronos's glTF-Sample-Assets at f36bfdabd1031c3cf6689a50570b8cdf3678b49c) at pinned SHA-256 hashes"
   },
   "assets": [
     {
       "path": "Roboto-Medium.ttf",
-      "from": "pack",
-      "source": "Roboto-Medium.ttf",
+      "from": "download",
       "used_by": [
         "*"
       ],
@@ -16,24 +15,98 @@
       "author": "Christian Robertson (Google Fonts)",
       "licence": "Apache-2.0",
       "url": "https://fonts.google.com/specimen/Roboto",
-      "licence_file": "licenses/Apache-2.0.txt"
+      "licence_file": "licenses/Apache-2.0.txt",
+      "files": {
+        "": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/Roboto-Medium.ttf",
+          "8559132c89ad51d8a2ba5b171887a44a7ba93776e205f553573de228e64b45f8"
+        ]
+      }
     },
     {
       "path": "models/FlightHelmet",
-      "from": "pack",
-      "source": "models/FlightHelmet",
+      "from": "download",
       "used_by": [
         "gltfloading"
       ],
       "title": "Flight Helmet (glTF sample model)",
       "author": "Microsoft, donated for glTF testing",
       "licence": "CC0-1.0",
-      "url": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/FlightHelmet"
+      "url": "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/FlightHelmet",
+      "files": {
+        "glTF/FlightHelmet.bin": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet.bin",
+          "db97921fcb13f5d986b57bae086952c2bd84ffed584b9144f60c8913eaf107b4"
+        ],
+        "glTF/FlightHelmet.gltf": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet.gltf",
+          "b217452ad9ba6b5be51b33546783401b254e28383cb3da13088fc545b7c5511a"
+        ],
+        "glTF/FlightHelmet_baseColor.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_baseColor.png",
+          "8e5567daf7a3ac83f6ebc04605f3605ac17c19a153b6b8aadd2596690209c34c"
+        ],
+        "glTF/FlightHelmet_baseColor1.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_baseColor1.png",
+          "fd1207967131afbe2fa523c9f4bae1f6dbce1a8fdd0ebfad5ec0cf7ba6a66dc1"
+        ],
+        "glTF/FlightHelmet_baseColor2.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_baseColor2.png",
+          "7729882e59bc227554d1b26ffd6494bbd37357ee37ac959fad2932b16d586f79"
+        ],
+        "glTF/FlightHelmet_baseColor3.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_baseColor3.png",
+          "3c8bd17cfddecede5a3fa9e1933ac6f309ce4cc6bc85d4122b9ae39b0ba2b0d8"
+        ],
+        "glTF/FlightHelmet_baseColor4.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_baseColor4.png",
+          "7987620b2a90887fa1a0521bf72f84933a2eadca88965f47599204dd55dae62a"
+        ],
+        "glTF/FlightHelmet_normal.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_normal.png",
+          "7acaed3775bb6246c266c8e3dcd803391a08a528b727781bf11559f016752f61"
+        ],
+        "glTF/FlightHelmet_normal1.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_normal1.png",
+          "573a3d39db8a109352d16a421aff316d37faeb52f6abf01d0ca72db279bde7d9"
+        ],
+        "glTF/FlightHelmet_normal2.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_normal2.png",
+          "13e867927da090fe696248e0d884087a7d4e310dca8315cd8d4d686b95db7aef"
+        ],
+        "glTF/FlightHelmet_normal3.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_normal3.png",
+          "3506c43687bf4bd441eef301b157761574c2edecab6c8af6b8e6a85b772abe15"
+        ],
+        "glTF/FlightHelmet_normal4.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_normal4.png",
+          "c34919581290d71a541697454ef9200d3f693236e8e9ddac89b49fa83c3befd9"
+        ],
+        "glTF/FlightHelmet_occlusionRoughnessMetallic.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_occlusionRoughnessMetallic.png",
+          "7fe00edcc79fb3266f7fe61ddb3fbf08f425b731985af7543bc5b677414cbf19"
+        ],
+        "glTF/FlightHelmet_occlusionRoughnessMetallic1.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_occlusionRoughnessMetallic1.png",
+          "c6f75cb920285d4b0eb1f087bc79e70d31b1801c3df4edba294351516fa98953"
+        ],
+        "glTF/FlightHelmet_occlusionRoughnessMetallic2.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_occlusionRoughnessMetallic2.png",
+          "32afd5ae0da2f2880fc85753b993a6945da1993f4087e562f2f75e107ecbf2f3"
+        ],
+        "glTF/FlightHelmet_occlusionRoughnessMetallic3.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_occlusionRoughnessMetallic3.png",
+          "c15354b40ef4f79b83d16d6aaa37cfd7654a8e281ef5e5dc5a25934d55f16f7a"
+        ],
+        "glTF/FlightHelmet_occlusionRoughnessMetallic4.png": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/FlightHelmet/glTF/FlightHelmet_occlusionRoughnessMetallic4.png",
+          "c821ef0709398d8bc3cccfa311572fb45d4d9198514155f940936019ad0f32fd"
+        ]
+      }
     },
     {
       "path": "models/armor",
-      "from": "pack",
-      "source": "models/armor",
+      "from": "download",
       "used_by": [
         "deferred"
       ],
@@ -41,31 +114,59 @@
       "author": "piacenti (OpenGameArt)",
       "licence": "CC-BY-3.0",
       "url": "https://opengameart.org/content/knight-2",
-      "changes": "converted to glTF and KTX by Sascha Willems"
+      "changes": "converted to glTF and KTX by Sascha Willems",
+      "files": {
+        "armor.gltf": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/armor/armor.gltf",
+          "61096834b3b822a630a261230aada947fb68a33f09061463670f6e9d7c27654a"
+        ],
+        "colormap_rgba.ktx": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/armor/colormap_rgba.ktx",
+          "7d444d53c2d69d06b74e52641fa43cd25368102fbe8da67fbf1cb7285c683551"
+        ],
+        "license.txt": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/armor/license.txt",
+          "3a9e2ad7ce210179d4c04034d9882feef31642c9051d0132adb766a3d1d48aed"
+        ],
+        "normalmap_rgba.ktx": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/armor/normalmap_rgba.ktx",
+          "5f580e9c35b69d4ea009b26bc4485f2b8c680cc7da28ff6bd5e2cb784d78a328"
+        ]
+      }
     },
     {
       "path": "models/retroufo.gltf",
-      "from": "pack",
-      "source": "models/retroufo.gltf",
+      "from": "download",
       "used_by": [
         "bloom"
       ],
       "title": "Retro UFO",
       "author": "Sascha Willems",
       "licence": "CC-BY-3.0",
-      "url": "https://github.com/SaschaWillems/Vulkan-Assets"
+      "url": "https://github.com/SaschaWillems/Vulkan-Assets",
+      "files": {
+        "": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/retroufo.gltf",
+          "0d24e37b32156dc35a30923117178fc40481e85d25d747ce0ada4e3000e7b9e4"
+        ]
+      }
     },
     {
       "path": "models/retroufo_glow.gltf",
-      "from": "pack",
-      "source": "models/retroufo_glow.gltf",
+      "from": "download",
       "used_by": [
         "bloom"
       ],
       "title": "Retro UFO, glowing parts",
       "author": "Sascha Willems",
       "licence": "CC-BY-3.0",
-      "url": "https://github.com/SaschaWillems/Vulkan-Assets"
+      "url": "https://github.com/SaschaWillems/Vulkan-Assets",
+      "files": {
+        "": [
+          "https://raw.githubusercontent.com/SaschaWillems/Vulkan-Assets/a27c0e584434d59b7c7a714e9180eefca6f0ec4b/models/retroufo_glow.gltf",
+          "4632946ed1b8906f2aa8f74b72e1f6fd8bb38679844b00cbb4920d2417f13e81"
+        ]
+      }
     },
     {
       "path": "models/ps5/cube.gltf",

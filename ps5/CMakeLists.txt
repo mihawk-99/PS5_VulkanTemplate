@@ -1,4 +1,4 @@
-# PS5 Vulkan Samples - the title's build (ps5/tools/build.sh drives it).
+# PS5 Vulkan Template - the title's build (ps5/tools/build.sh drives it).
 #
 # Configured with the payload SDK's toolchain (toolchain/prospero.cmake), as
 # PS5_Vulkan builds the CTS for the console. It compiles the base class, the

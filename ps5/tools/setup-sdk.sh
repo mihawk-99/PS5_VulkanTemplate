@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PS5 Vulkan Samples - the payload SDK this title builds with, at a pinned revision.
+# PS5 Vulkan Template - the payload SDK this title builds with, at a pinned revision.
 #
 #   ps5/tools/setup-sdk.sh       install it into .deps/native/ps5-payload-sdk (once a revision)
 #

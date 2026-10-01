@@ -66,7 +66,7 @@ first with the platform layer's C-locale `localeconv`). The assets need Python w
 CC0 sources once (into `build/ps5/downloads/`, checked against pinned hashes).
 
 ```bash
-git submodule update --init         # glm, and the asset pack
+ps5/tools/bootstrap.sh              # once: PS5_Vulkan, PS5_Mesa, PS5_PayloadSDK beside it, glm
 ps5/tools/build.sh                  # dist/PPSA99130/: eboot.bin, sce_sys, shaders, assets
 ps5/tools/deploy.sh                 # upload what changed, over the console's FTP server
 ps5/tools/run.sh                    # a test run of every sample, 300 frames each

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PS5 Vulkan Samples - the reference pictures: the title's code on this PC.
+# PS5 Vulkan Template - the reference pictures: the title's code on this PC.
 #
 #   ps5/tools/host-reference.sh [all|menu|ID...]     FRAMES=300 by default
 #   ps5/tools/host-reference.sh --save [samples]     also keep them as the references

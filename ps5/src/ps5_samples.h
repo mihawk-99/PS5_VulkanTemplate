@@ -1,5 +1,5 @@
 /*
- * PS5 Vulkan Samples - what the title's parts share.
+ * PS5 Vulkan Template - what the title's parts share.
  *
  * Copyright (C) 2026 Mihawk
  *

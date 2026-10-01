@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PS5 Vulkan Samples - a console run's pictures beside the host reference's.
+"""PS5 Vulkan Template - a console run's pictures beside the host reference's.
 
     compare-run.py RUN_DIR HOST_DIR [ID...]    RUN_DIR/compare-<n>.png, three
                                                samples a sheet: console | host
