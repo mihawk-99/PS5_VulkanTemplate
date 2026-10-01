@@ -46,6 +46,7 @@ PY
     done
 fi
 if [[ ! -f $build/build.ninja ]]; then
+    mkdir -p "$build"
     cmake -S "$ps5" -B "$build" -G Ninja -DCMAKE_MAKE_PROGRAM="$ninja" -DPS5_HOST_REFERENCE=ON \
         -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
         -DCMAKE_CXX_FLAGS="-stdlib=libc++ -nostdinc++ -isystem $libcxx/include/c++/v1" \

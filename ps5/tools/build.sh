@@ -27,6 +27,7 @@ ninja=$(command -v ninja || echo "$HOME/.local/bin/ninja")
 export PS5_CLANG=${PS5_CLANG:-$(command -v clang || true)}
 
 if [[ ! -f $build/build.ninja ]]; then
+    mkdir -p "$build"
     cmake -S "$ps5" -B "$build" -G Ninja -DCMAKE_MAKE_PROGRAM="$ninja" \
         -DCMAKE_TOOLCHAIN_FILE="$sdk/toolchain/prospero.cmake" \
         -DPS5_VULKAN_DIR="$vulkan" -DCMAKE_BUILD_TYPE=Release -DCMAKE_VERBOSE_MAKEFILE=OFF > "$build.configure.log" 2>&1 \
