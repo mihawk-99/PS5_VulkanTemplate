@@ -10,7 +10,9 @@
  * This code is licensed under the MIT license (MIT) (http://opensource.org/licenses/MIT)
  */
 
+#define IMGUI_DEFINE_MATH_OPERATORS // ImVec2 arithmetic, for the navigation rectangle below
 #include "vulkanexamplebase.h"
+#include "imgui_internal.h" // SetNavIDWithRectRel: the menu hands ImGui the item the pad is on
 #include "ps5_samples.h"
 
 namespace {
@@ -38,6 +40,10 @@ public:
 			if (ps5Samples[i].inMenu) {
 				entries.push_back((int)i);
 			}
+		}
+		// Opened with no sample to go back to: the menu starts on its first entry
+		if (this->selected < 0 && !entries.empty()) {
+			this->selected = entries.front();
 		}
 	}
 
@@ -81,7 +87,12 @@ public:
 	{
 		const float s = overlay->scale;
 		ImGui::SetNextWindowPos(ImVec2(width * 0.5f, height * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-		ImGui::SetNextWindowSize(ImVec2(1100.0f * s, 0.0f), ImGuiCond_Always);
+		// A height of its own, two window paddings clear of the screen's edges: the
+		// sample list then scrolls inside the window (below) instead of the window
+		// growing past the display. A window that is measured on its first frame
+		// cannot hold a default focus or a scroll - ImGui drops both - which left
+		// the menu scrolled past its own title.
+		ImGui::SetNextWindowSize(ImVec2(1100.0f * s, height - 48.0f * s), ImGuiCond_Always);
 		if (!focusSet) {
 			ImGui::SetNextWindowFocus();
 		}
@@ -94,7 +105,7 @@ public:
 		ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(accent.x, accent.y, accent.z, 0.60f));
 		ImGui::Begin(PS5_TITLE_NAME, nullptr,
 			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings);
+			ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings);
 
 		ImGui::SetWindowFontScale(1.6f);
 		ImGui::TextColored(accent, "%s", PS5_TITLE_NAME);
@@ -109,17 +120,30 @@ public:
 		if (entries.empty()) {
 			ImGui::TextColored(dim, "No sample has been proven on the console yet.");
 		}
+		// The list scrolls in a region of its own, sized to leave the title above
+		// and the help below on the screen: the menu grows with every sample, and
+		// the display does not. Flattened so the D-pad walks straight into it.
+		const float helpHeight = ImGui::GetTextLineHeightWithSpacing() * (message.empty() ? 2.0f : 3.0f) + 40.0f;
+		ImGui::BeginChild("samples", ImVec2(0.0f, ImGui::GetContentRegionAvail().y - helpHeight), false,
+			ImGuiWindowFlags_NavFlattened);
 		for (int index : entries) {
 			const Ps5Sample &sample = ps5Samples[index];
 			ImGui::PushID(index);
 			if (ImGui::Selectable(sample.title, index == selected)) {
 				chosen = index;
 			}
+			// A default focus alone is not enough: until the pad has been used ImGui
+			// does not apply it, and the first D-pad press would start from the top
+			// of the list however far down the menu was. Tell it where the menu is.
 			if (!focusSet && index == selected) {
 				ImGui::SetItemDefaultFocus();
+				ImGui::SetNavIDWithRectRel(ImGui::GetID(sample.title), 0,
+					ImRect(ImGui::GetItemRectMin() - ImGui::GetWindowPos(),
+						ImGui::GetItemRectMax() - ImGui::GetWindowPos()));
 			}
 			if (ImGui::IsItemFocused()) {
 				selected = index;
+				focusSet = true;
 			}
 			ImGui::Indent(24.0f * s);
 			ImGui::TextColored(dim, "%s", sample.description);
@@ -130,10 +154,10 @@ public:
 		if (ImGui::Selectable("Quit", false)) {
 			chosen = -1;
 		}
-		if (!focusSet && (selected < 0 || entries.empty())) {
+		if (!focusSet && entries.empty()) {
 			ImGui::SetItemDefaultFocus();
 		}
-		focusSet = true;
+		ImGui::EndChild();
 
 		ImGui::Spacing();
 		ImGui::Separator();

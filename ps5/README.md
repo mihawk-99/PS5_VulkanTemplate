@@ -18,7 +18,8 @@ run of 300 frames each, at 3840x2160 on the 119.88 Hz display. Each held 119.9 f
 its first 150 frames, its last frame differed from the host reference's by at most 4.5
 levels in 255 (the "from the host" column, a mean over the picture at 480x270), klog
 held no crash record, GPU fault or driver error, and the title exited on its own. The
-menu itself passes the same run (`launcher`, 0.9 from the host).
+menu itself passes the same run (`launcher`, 1.4 from the host, measured on 2026-10-02 when
+its list became scrollable so that the menu fits the display).
 
 | Sample | What it shows | Assets | Console | From the host |
 | --- | --- | --- | --- | --- |
