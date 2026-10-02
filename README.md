@@ -1,7 +1,45 @@
 # PS5 Vulkan Template
 
 **Everything needed to build a PlayStation 5 homebrew powered by Vulkan, in one
-repository.** Titles made from it render through RADV, Mesa's Vulkan driver, which my
+repository.**
+
+![PS5 Vulkan Samples: the menu on the console, sixteen techniques in one title](ps5/screenshots/menu.jpg)
+
+*PS5 Vulkan Samples on my console, at 3840x2160: sixteen techniques, one class on the same
+base, each proven by a test run of its own. What they measured: [`ps5/README.md`](ps5/README.md).*
+
+## The samples
+
+Every picture below is the console's own last frame of a 300-frame run
+(`ps5/tools/run.sh launcher all`, 2026-10-02). All seventeen passed: 119.9 fps each at
+3840x2160, a last frame within 4.5 levels in 255 of this PC's driver's, no crash record,
+GPU fault or driver error in klog, and the title exited on its own. Run one with
+`ps5/tools/run.sh <name>`; the per-sample numbers are in [`ps5/README.md`](ps5/README.md).
+
+| | |
+| --- | --- |
+| [<img src="ps5/screenshots/starter.jpg" width="420" alt="The starter sample: a lit glTF lantern on a stone floor, with its settings window">](ps5/screenshots/starter.jpg) | [<img src="ps5/screenshots/gltfloading.jpg" width="420" alt="The glTF loading sample: a flight helmet on a wooden floor">](ps5/screenshots/gltfloading.jpg) |
+| **[Starter](examples/starter)** — the program a new homebrew grows from: a textured, lit glTF model and a settings window | **[glTF model loading](examples/gltfloading)** — a glTF scene: meshes, materials, textures, node hierarchy |
+| [<img src="ps5/screenshots/texturemipmapgen.jpg" width="420" alt="The mipmap sample: one texture tiled across the screen, sampled at every mip level">](ps5/screenshots/texturemipmapgen.jpg) | [<img src="ps5/screenshots/pbrtexture.jpg" width="420" alt="The PBR sample: a vintage camera model lit by an HDR environment">](ps5/screenshots/pbrtexture.jpg) |
+| **[Mipmaps made at run time](examples/texturemipmapgen)** — a texture's mip chain made with image blits, and how filtering uses it | **[Physically based rendering](examples/pbrtexture)** — metal and roughness maps lit by an HDR environment (image based lighting) |
+| [<img src="ps5/screenshots/shadowmapping.jpg" width="420" alt="The shadow mapping sample: a scene with hard shadows cast by a directional light">](ps5/screenshots/shadowmapping.jpg) | [<img src="ps5/screenshots/deferred.jpg" width="420" alt="The deferred shading sample: many lights over a G-buffer of a knight statue">](ps5/screenshots/deferred.jpg) |
+| **[Shadow mapping](examples/shadowmapping)** — a directional light's depth map, filtered with PCF | **[Deferred shading](examples/deferred)** — a G-buffer in several render targets, then many lights in one pass |
+| [<img src="ps5/screenshots/bloom.jpg" width="420" alt="The bloom sample: glowing spheres over a dark scene">](ps5/screenshots/bloom.jpg) | [<img src="ps5/screenshots/multisampling.jpg" width="420" alt="The MSAA sample: a scene drawn with multisampled attachments">](ps5/screenshots/multisampling.jpg) |
+| **[Bloom](examples/bloom)** — bright parts blurred in two separable passes and added back | **[Multisampling (MSAA)](examples/multisampling)** — anti-aliasing with multisampled attachments resolved at the end of the pass |
+| [<img src="ps5/screenshots/instancing.jpg" width="420" alt="The instancing sample: thousands of rocks in one draw">](ps5/screenshots/instancing.jpg) | [<img src="ps5/screenshots/indirectdraw.jpg" width="420" alt="The indirect drawing sample: many meshes drawn from a GPU buffer">](ps5/screenshots/indirectdraw.jpg) |
+| **[Instancing](examples/instancing)** — thousands of rocks in one draw, each with data of its own | **[Indirect drawing](examples/indirectdraw)** — draw calls read from a GPU buffer, many meshes and instances each |
+| [<img src="ps5/screenshots/computeparticles.jpg" width="420" alt="The compute particles sample: a particle system drawn as points">](ps5/screenshots/computeparticles.jpg) | [<img src="ps5/screenshots/descriptorindexing.jpg" width="420" alt="The bindless textures sample: one descriptor array indexed per object">](ps5/screenshots/descriptorindexing.jpg) |
+| **[Compute particles](examples/computeparticles)** — a particle system moved by a compute shader and drawn as points | **[Bindless textures](examples/descriptorindexing)** — one descriptor array of textures, indexed per object in the shader |
+| [<img src="ps5/screenshots/dynamicrendering.jpg" width="420" alt="The dynamic rendering sample: a scene drawn without render passes">](ps5/screenshots/dynamicrendering.jpg) | [<img src="ps5/screenshots/imgui.jpg" width="420" alt="The ImGui sample: a 3D scene with Dear ImGui windows over it">](ps5/screenshots/imgui.jpg) |
+| **[Dynamic rendering](examples/dynamicrendering)** — rendering without render pass and framebuffer objects | **[On-screen UI](examples/imgui)** — Dear ImGui drawn over a 3D scene, with windows of its own |
+| [<img src="ps5/screenshots/meshshader.jpg" width="420" alt="The mesh shader sample: geometry built by task and mesh shaders">](ps5/screenshots/meshshader.jpg) | [<img src="ps5/screenshots/rayquery.jpg" width="420" alt="The ray query sample: shadows traced against an acceleration structure">](ps5/screenshots/rayquery.jpg) |
+| **[Mesh shaders](examples/meshshader)** — geometry made by task and mesh shaders, with no vertex input | **[Ray queries](examples/rayquery)** — shadows traced against an acceleration structure from a fragment shader |
+
+---
+
+## What is in here
+
+Titles made from this template render through RADV, Mesa's Vulkan driver, which my
 [PS5_Mesa](https://github.com/mihawk-99/PS5_Mesa) fork builds for the console with a
 PS5 winsys. RADV is linked into each title by [PS5_Vulkan](https://github.com/mihawk-99/PS5_Vulkan),
 on the platform layer of my [payload SDK fork](https://github.com/mihawk-99/PS5_PayloadSDK).
@@ -12,7 +50,7 @@ TV allows it.
 | --- | --- |
 | **A generator** that makes a new title, with its own program, ready to build, run and test on the console | [`ps5/tools/new-title.py`](ps5/tools/new-title.py) |
 | **The foundation** every title is made on: Sascha Willems' Vulkan example base class with its PS5 hooks, and the PS5 layer (launch, pad, klog, display, test runs, shell exit) | [`base/`](base), [`ps5/src/`](ps5/src) |
-| **Sixteen samples proven on the console**, one class each on the same base, built into one title, PS5 Vulkan Samples: glTF, mipmaps, PBR, shadows, deferred lighting, bloom, MSAA, instancing, indirect draws, compute particles, bindless textures, dynamic rendering, ImGui, mesh shaders, ray queries, and the starter | [`examples/`](examples), the table in [`ps5/README.md`](ps5/README.md) |
+| **Sixteen samples proven on the console**, one class each on the same base, built into one title, PS5 Vulkan Samples | [`examples/`](examples), the pictures above |
 | **A test suite** for titles and for the driver: each program for a set number of frames, its last frame compared with the same frame drawn by the PC's Vulkan driver, klog checked | [`ps5/tools/run.sh`](ps5/tools/run.sh), [`ps5/tools/host-reference.sh`](ps5/tools/host-reference.sh) |
 | **Agent skills** for this stack: starting and building titles, the console, porting, releases | [`skills/`](skills) |
 | **Build and console tools**: setup, build, deploy, run, verdicts | [`ps5/tools/`](ps5/tools) |
@@ -44,7 +82,8 @@ one up): an enabler such as [etaHEN](https://github.com/etaHEN/etaHEN),
 PS5_Vulkan's control payload, which launches and stops titles for the tools:
 
 ```bash
-(cd ../PS5_Vulkan && python3 tools/ps5_console.py deploy-payload)   # then load it with the console's payload loader
+(cd ../PS5_Vulkan && python3 tools/ps5_console.py deploy-payload)
+# then load it on the console with the console's payload loader
 ```
 
 ## Make a homebrew
@@ -74,11 +113,9 @@ ps5/tools/run.sh launcher all               # every sample and the menu: a verdi
 ps5/tools/host-reference.sh                 # the same frames on this PC's Vulkan driver
 ```
 
-Launched from the home screen, PS5 Vulkan Samples shows a menu of them. On my console
-(2026-10-01, RADV 0b2d6d1) every one held 119.9 fps at 3840x2160 and drew its frame 300
-within 4.5 levels in 255 of the PC's. How the port works, its tools and how to add a
-sample: [`ps5/README.md`](ps5/README.md). The assets and their licences:
-[`ps5/ASSETS.md`](ps5/ASSETS.md).
+Launched from the home screen, PS5 Vulkan Samples shows the menu pictured at the top.
+How the port works, its tools and how to add a sample: [`ps5/README.md`](ps5/README.md).
+The assets and their licences: [`ps5/ASSETS.md`](ps5/ASSETS.md).
 
 ## With an agent
 
@@ -102,6 +139,7 @@ done
 | `shaders/glsl/` | their GLSL and the SPIR-V they load (`ps5/tools/compile-shaders.sh <id>`) |
 | `external/` | glm, Dear ImGui, libktx, tinygltf, the Vulkan headers |
 | `ps5/` | the PS5 port: its sources, build, tools, assets, identity and README |
+| `ps5/screenshots/` | the console's own frames, the pictures above (`ps5/tools/run.sh`) |
 | `skills/` | the agent skills |
 | `assets/` | upstream's asset pack, a submodule that is not needed: the title fetches the files it ships (those with a clear licence) at pinned hashes, and replaces the rest |
 | `README.upstream.md` | upstream's README: the examples, their credits |
