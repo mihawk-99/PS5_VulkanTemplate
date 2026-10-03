@@ -21,9 +21,33 @@ reading the system software.
 | `offload.h`, `ftp.h` | writing files through the console's own FTP server on 127.0.0.1. Once a title's write burst (about 1.3 GiB) is spent, its writes drop to about 2 MiB/s, while the server, another process, writes at about 7 MiB/s a connection and 22 MiB/s in all. |
 | `kernel.h` | the exported kernel functions the layer and its consumers call, declared once. |
 | `fdv.h` | open files past the console's per-process limit: `open()` fails with EMFILE after about 249 successes whatever the rlimit says, while descriptors made by `dup`, `socket` and a received descriptor are not counted. Idle files are parked behind placeholder descriptors and reopened by path when used. Consumers (Wine's runtime, a Java VM) call it through `--wrap`. |
-| `elevation.h` | `/data` for a sandboxed title: `ps5_elevation_request(PS5_ELEVATION_FILESYSTEM)` is the title's half of the Lapy owned-root daemon's cooperative contract (the request file, then a real write and read under `/data` as the proof). It needs the daemon running, and only `PS5_ELEVATION_OK` permits using `/data`; there is no helper ELF and no fallback. Call it once in single-threaded startup. `platform/docs/ELEVATION.md` has the contract, the daemon's two modes and the firmware caveat. It exists from platform revision adc8dd7; the template's pin (fa69d00) predates it, so a title that needs `/data` bumps the pin and re-runs its samples (PS5_Proton did). |
+| `elevation.h` | `/data` for a sandboxed title: `ps5_elevation_request(PS5_ELEVATION_FILESYSTEM)` is the title's half of the Lapy owned-root daemon's cooperative contract (the request file, then a real write and read under `/data` as the proof). It needs the daemon running, and only `PS5_ELEVATION_OK` permits using `/data`; there is no helper ELF and no fallback. Call it once in single-threaded startup. `platform/docs/ELEVATION.md` has the contract, the daemon's two modes and the firmware caveat. It exists from platform revision adc8dd7, which the template pins. No sample calls it: without a running daemon it waits ten seconds and fails, and the samples keep to `/app0`. A title that needs `/data` opts in (below). |
 | `agc.h`, `videoout.h` | the AGC and VideoOut functions the GPU drivers call. |
 | `probe.h` | the capability probe behind PROBE.md. |
+
+## `/data`, for a title that needs it
+
+A title sees `/app0` and `/download0` until it asks. It asks once, while it still has
+a single thread: in the template, at the top of `main`, before `platform_init`, whose
+klog capture starts a thread. Its `sce_sys/param.json` needs a positive
+`downloadDataSize`. Anything but `PS5_ELEVATION_OK` keeps the title in `/app0`:
+
+```c
+#include <ps5platform/elevation.h>
+
+int main()
+{
+	/* Blocks up to ten seconds when no Lapy daemon is waiting */
+	const enum ps5_elevation_status data = ps5_elevation_request(PS5_ELEVATION_FILESYSTEM);
+	platform_init(PS5_TITLE_NAME);
+	say("/data: %s", ps5_elevation_status_name(data));
+	const char *save_root = data == PS5_ELEVATION_OK ? "/data/my-title" : "/app0/save";
+	...
+```
+
+Never fall back on a helper ELF or any other way of elevating when it fails: the
+title goes on without `/data`, or stops and says why. `platform/docs/ELEVATION.md`
+has the rest (the daemon's modes, `daemon_held`).
 
 ## Measured facts a title designs around
 
