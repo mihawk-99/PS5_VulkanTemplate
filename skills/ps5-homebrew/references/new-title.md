@@ -25,6 +25,11 @@ ps5/tools/build.sh && ps5/tools/deploy.sh && ps5/tools/run.sh
   `.`, `_` or `-`. It is also klog's prefix (`[My Title] ...`).
 - **`--refresh 60`** leaves out the high-frame-rate bits in `param.json`. The default
   asks for 119.88 Hz (`title-packaging.md`).
+- **`--ui <design>`** makes a title whose face is one of the UI kit's designs (`--ui
+  list`): its program is the UI starter and its screen a copy of the design in
+  `examples/<id>/kit/screen.cpp`. Such a title carries the GPL-3.0 UI module and also
+  needs PS5_VKHomebrewUI beside it (or `PS5_VKHOMEBREWUI`; else the pin is fetched
+  from GitHub). `ui-kit.md` says how a screen is built.
 - **The foundation is copied at PS5_VulkanTemplate's last commit** (its README names the
   revision). Commit a change to the foundation there first if the new title should
   have it.

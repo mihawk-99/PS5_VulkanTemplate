@@ -118,3 +118,4 @@ with every round.
 | `references/toolchain.md` | setting up a build, flags, a miscompile |
 | `references/runtime-surface.md` | before the first deploy, or a call jumps to zero |
 | `references/driver-work.md` | RADV itself is wrong or missing something |
+| `references/ui-kit.md` | a title's interface with the UI kit (`ps5/ui/`, `new-title.py --ui`): menus, HUDs, themes, frosted glass |

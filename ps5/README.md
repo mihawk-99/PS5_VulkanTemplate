@@ -210,6 +210,13 @@ made here, where every sample tests it, and committed first. Proven on 2026-10-0
 a title made this way built from nothing in 31 s and passed its test run on the
 console (119.9 fps, 0.6 from its host reference, a clean exit).
 
+With `--ui <design>` (`--ui list` names the twenty), the program is the UI starter
+instead, and its screen is the title's own copy of the kit's design in
+`examples/<id>/kit/screen.cpp`; the title carries the GPL-3.0 UI module and the
+kit's assets. On 2026-10-03 a `--ui settings` title and a plain one, made from the
+working tree, built and passed their host references; the UI starter they grow
+from passed on the console (above), the generated `--ui` title has not been run
+there yet.
 
 ## Adding a sample
 

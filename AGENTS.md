@@ -18,6 +18,10 @@ with Vulkan 1.4, in one place:
 - **sixteen samples proven on the console**, built into one title, PS5 Vulkan
   Samples (`PPSA99130`), each a class on the same base: a library of techniques that
   copy into any title as they stand;
+- **a UI module**, `ps5/ui/` (GPL-3.0-or-later, opt-in): BlackBearReloaded's UI kit
+  (themes, components, twenty-one complete designs, sound) drawn with Vulkan through
+  my fork PS5_VKHomebrewUI, with three programs on it (`uikit`, `uioverlay`,
+  `uiscreen`) and `new-title.py --ui <design>` for a title whose face is a design;
 - **a test suite**: each program runs for a frame budget, its last frame is saved and
   compared with the same frame drawn by the PC's Vulkan driver, and klog is checked;
 - **agent skills** for this stack, in `skills/`;
@@ -46,7 +50,7 @@ comes up, and the reference files it names.
 
 | Skill | Read it before |
 | --- | --- |
-| [`skills/ps5-homebrew`](skills/ps5-homebrew/SKILL.md) | starting or building a title, linking RADV, packaging, the display, pad, audio, memory, threads, files, deciding which project a fix belongs in. References: `new-title.md`, `stack.md`, `vulkan-on-radv.md`, `platform-contracts.md`, `platform-layer.md`, `title-packaging.md`, `toolchain.md`, `runtime-surface.md`, `driver-work.md` |
+| [`skills/ps5-homebrew`](skills/ps5-homebrew/SKILL.md) | starting or building a title, linking RADV, packaging, the display, pad, audio, memory, threads, files, deciding which project a fix belongs in. References: `new-title.md`, `stack.md`, `vulkan-on-radv.md`, `platform-contracts.md`, `platform-layer.md`, `title-packaging.md`, `toolchain.md`, `runtime-surface.md`, `driver-work.md`, `ui-kit.md` |
 | [`skills/ps5-console`](skills/ps5-console/SKILL.md) | anything that touches the console: deploying, launching, klog, stopping a run, crashes, measuring, regression runs. References: `console-tools.md`, `test-runs.md`, `crash-reading.md` |
 | [`skills/ps5-porting`](skills/ps5-porting/SKILL.md) | bringing existing software over: forks and pins, cross-building, memory and JIT, files, loading code without `dlopen`. References: `forks.md`, `memory-and-jit.md`, `files-and-io.md`, `loading-code.md` |
 | [`skills/ps5-release`](skills/ps5-release/SKILL.md) | anything that leaves the machine as a release: licences, notices, what never ships, the build order, release notes. References: `licensing.md`, `release-notes.md` |
@@ -85,6 +89,12 @@ comes up, and the reference files it names.
 8. **Work on `main`; never rewrite published history or force-push.** Upstream's
    files change as little as the port allows: a PS5 change is guarded by
    `VK_EXAMPLE_PS5` or marked with a `PS5` comment, so upstream merges stay clean.
+9. **The UI kit stays a GPL-3.0 module.** It lives in `ps5/ui/`, the programs that
+   draw with it, and `.deps/hui` (re-exported from the pin in `ps5/ui/setup-kit.sh`,
+   never patched); kit files keep their SPDX headers. Nothing of it goes into the MIT
+   starter or the MIT foundation files, so a title made without `--ui` stays MIT at
+   source. A kit fix goes to PS5_VKHomebrewUI, then a new pin.
+   (`skills/ps5-homebrew/references/ui-kit.md`)
 
 ## Setting up (once per machine)
 
@@ -124,6 +134,7 @@ never change the console's settings or system software.
 
 ```bash
 python3 ps5/tools/new-title.py ../PS5_MyGame --title-id PPSA99121 --name "My Game" [--refresh 60]
+python3 ps5/tools/new-title.py ../PS5_MyApp --title-id PPSA99122 --name "My App" --ui settings   # a UI title
 cd ../PS5_MyGame
 ps5/tools/build.sh && ps5/tools/deploy.sh && ps5/tools/run.sh
 ```
@@ -136,6 +147,12 @@ ps5/tools/build.sh && ps5/tools/deploy.sh && ps5/tools/run.sh
   `_`, `-`) and klog's prefix (`[My Game] ...`).
 - **`--refresh 60`** leaves out the 120 Hz bits in `param.json`; the default asks for
   119.88 Hz (the display falls back to 59.94 Hz by itself where it must).
+- **`--ui <design>`** starts from the UI module instead of the 3D starter: the
+  program is the UI starter (`examples/uiscreen`) and its screen is the title's own
+  copy of one of the kit's designs (`--ui list` names the twenty), in
+  `examples/<id>/kit/screen.cpp`. The title then has `ps5/ui/` and the kit's assets
+  and is GPL-3.0-or-later at source (`ps5/ui/README.md`); ask before choosing it for
+  someone who has not.
 - **The foundation is copied from this repository's last commit** (`git archive
   HEAD`). Commit a foundation change here first if the new title should have it.
 - The new title is a git repository on `main` with one commit, beside the others
@@ -250,6 +267,8 @@ say, shadow mapping into the program:
 | Dear ImGui windows of a program's own | `imgui` |
 | task and mesh shaders | `meshshader` |
 | ray queries against an acceleration structure | `rayquery` |
+| a console-grade interface: themes, components, sound, frosted glass (the UI kit) | `uikit`, `uiscreen` |
+| a HUD and a pause menu over a 3D scene the glass blurs (`import_texture`) | `uioverlay` |
 
 Upstream has about eighty more examples in `examples/` that are not built for the
 console. Any of them can be tried by adding its line to `ps5/src/samples.cpp` (next
