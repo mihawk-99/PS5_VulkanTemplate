@@ -35,8 +35,13 @@ title after a GPU fault cannot be trusted to close itself. That is why the paylo
 exists. It is also why `kill` is a watchdog and not the way runs end
 (`../SKILL.md`, "How a run must end").
 
-A freshly deployed title id launches without any registration step (proven
-2026-10-01 with a new id).
+A freshly deployed title id needs no registration step, but when its folder did
+not exist before, ShadowMountPlus, which mounts the folders of `/data/homebrew/`,
+takes **up to 45 seconds** to pick it up; a launch before then is refused, and that
+is neither a crash nor a broken build. Poll for up to 45 s before a new title id's
+first launch. A deploy into a folder that already exists needs no wait. A refused
+launch leaves the run's `test-run.txt` behind: check for it and remove it, or the
+next launch by hand becomes a test run.
 
 ## Deploying
 

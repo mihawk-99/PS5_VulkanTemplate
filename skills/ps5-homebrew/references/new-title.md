@@ -19,8 +19,10 @@ ps5/tools/build.sh && ps5/tools/deploy.sh && ps5/tools/run.sh
 - **Put it beside `PS5_Vulkan` and `PS5_PayloadSDK`.** Its build finds them as
   `../`; elsewhere, set `PS5_VULKAN_DIR` and `PS5_PAYLOAD_SDK_FORK`.
 - **The title id** is `PPSA` and five digits, unique on the console. The script
-  refuses the ids my projects already use. A new id needs no registration step: the
-  first launch of a freshly deployed folder works (proven with PPSA99120).
+  refuses the ids my projects already use. A new id needs no registration step, but
+  ShadowMountPlus takes up to 45 seconds to pick up a folder that did not exist:
+  wait before a new title's first launch; later deploys need no wait
+  (`../../ps5-console/references/console-tools.md`).
 - **The name** is what the home screen shows: up to 40 letters, digits, spaces,
   `.`, `_` or `-`. It is also klog's prefix (`[My Title] ...`).
 - **`--refresh 60`** leaves out the high-frame-rate bits in `param.json`. The default
