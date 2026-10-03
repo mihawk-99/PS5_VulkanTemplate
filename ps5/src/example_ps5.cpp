@@ -14,6 +14,19 @@
 
 #include <sys/stat.h>
 
+bool ps5TestRun = false;
+
+/* The overlay keeps upstream's look unless the UI module restyles it in the
+ * title's theme (ps5/ui/overlay_theme.cpp defines these without weak). */
+__attribute__((weak)) void ps5StyleOverlay(ImGuiStyle &)
+{
+}
+
+__attribute__((weak)) bool ps5OverlayFont(std::string &, float &)
+{
+	return false;
+}
+
 /* One pad state for the whole title, so a button held while one sample ends
  * and the next starts is not seen as a new press by the next. */
 struct pad &ps5_pad()

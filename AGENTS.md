@@ -177,7 +177,10 @@ camera), the right stick zooms (or looks); OPTIONS or the touch pad shows and hi
 the settings window; the D-pad moves through it, CROSS acts, CIRCLE backs out, L1/R1
 change windows, L2/R2 change a slider slower or faster; the program's Quit ends the
 title. With more than one program in `samples.cpp`, a menu comes first and OPTIONS
-returns to it.
+returns to it; this repository's own title, which has the UI module, opens on a start
+screen first (`ps5/ui/start.cpp`): Samples (the menu, drawn with the kit), Designs (the
+kit's gallery) or Themes (the title's theme, which the menus and the samples' ImGui
+settings windows wear; test runs always use the default, `tiles`).
 
 ## Task: grow the program
 
@@ -274,7 +277,7 @@ Upstream has about eighty more examples in `examples/` that are not built for th
 console. Any of them can be tried by adding its line to `ps5/src/samples.cpp` (next
 task); prove it before trusting it.
 
-## Task: add a sample to PS5 Vulkan Samples (this repository)
+## Task: add a sample to Vulkan Template (this repository's title)
 
 1. Add `SAMPLE(<id>, false, "Title", "One line")` to `ps5/src/samples.cpp`. The build
    compiles `examples/<id>/<id>.cpp` (or `main.cpp`) inside a namespace of its own
@@ -296,7 +299,7 @@ task); prove it before trusting it.
 
 ```bash
 ps5/tools/run.sh                     # every program linked in, 300 frames each
-ps5/tools/run.sh launcher all        # PS5 Vulkan Samples: the menu too
+ps5/tools/run.sh start launcher all  # Vulkan Template: the start screen and the menu too
 ps5/tools/run.sh <id> [<id>...]      # those
 FRAMES=600 ps5/tools/run.sh <id>     # another budget (no reference comparison: references are frame 300)
 ps5/tools/run.sh --menu              # no test: launch normally and capture klog until the title ends
@@ -335,7 +338,7 @@ platform's to explain; one the PC shows too is the program's or the asset's.
 `test-results.txt` instead (`ps5/tools/run-without-klog.py`); crash records and
 driver messages then go unchecked, and the report must say so.
 
-**Speed**: a run ends the moment the title does; the whole PS5 Vulkan Samples suite
+**Speed**: a run ends the moment the title does; the whole Vulkan Template suite
 takes about 50 s. Deploying sends only changed files (and `eboot.bin` always).
 
 ## Task: change the foundation (this repository)
@@ -364,7 +367,7 @@ splash, pad, time, the shell exit), `platform_host.c` (the same on a PC),
 the native tool's conversion and signing, the title folder in `dist/<TITLE_ID>/`).
 
 After any change to the foundation: `ps5/tools/build.sh && ps5/tools/deploy.sh &&
-ps5/tools/run.sh launcher all` must give a PASS for every program, and the README's
+ps5/tools/run.sh start launcher all` must give a PASS for every program, and the README's
 claims must match what the run measured. A change that moves pictures on purpose
 gets new references (`ps5/tools/host-reference.sh --save`), named in the commit.
 Titles made earlier keep their copy of the foundation; carry a fix into one by hand.

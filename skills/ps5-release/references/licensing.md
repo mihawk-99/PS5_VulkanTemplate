@@ -5,7 +5,7 @@
 | Part | Licence |
 | --- | --- |
 | my titles and frontends (PS5_RetroArch's port code) | GPL-3.0-or-later |
-| PS5_VulkanTemplate: the PS5 Vulkan Samples title, and the foundation a title made with its `new-title.py` gets (Sascha Willems' examples and base class, my PS5 layer) | MIT; the built title links the platform layer, so it is distributed under GPL-3.0 |
+| PS5_VulkanTemplate: the Vulkan Template title, and the foundation a title made with its `new-title.py` gets (Sascha Willems' examples and base class, my PS5 layer) | MIT; the built title links the platform layer, so it is distributed under GPL-3.0 |
 | the platform layer (`libps5platform.a`) | GPL-3.0-or-later |
 | BlackBearReloaded's ps5-native-app-boilerplate and ProsperoLight code | GPL-3.0-or-later |
 | RADV and Mesa | MIT, with some parts under other permissive licences (Mesa's own notices) |

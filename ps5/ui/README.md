@@ -28,6 +28,13 @@ layer (`skills/ps5-release/references/licensing.md`).
 | `ui.cmake` | included by `ps5/CMakeLists.txt` when this folder exists: compiles the kit (not its OpenGL backend or its own console layer) into the title, defines `PS5_UI`, and tells `build-assets.py` to lay the kit's assets into `/app0/assets/hui/` |
 | `kit.hpp`, `kit.cpp` | `ps5ui::Kit` (the renderer, the six fonts, the mixer on the console's audio output, the cues, the music, the pad as the kit's input frames, the sample covers) and `ps5ui::KitExample`, the base class a program that draws with the kit derives from |
 | `hui_platform.cpp` | the kit's five system calls (`hui::sys::log`, the clock...) on the template's `platform.h` |
+| `start.cpp`, `samples_menu.cpp`, `theme_picker.cpp` | the samples title's start screen (Samples, Designs, Themes), its Samples menu (`ps5_run_launcher` hands over to it) and its Themes picker |
+| `overlay_theme.cpp` | the samples' ImGui settings windows in the title's theme: `ps5StyleOverlay` and `ps5OverlayFont`, which the base class's overlay calls (weak defaults in `ps5/src/example_ps5.cpp` keep upstream's look without the module) |
+
+**The title's theme** is `ps5ui::active_theme()`: the one picked in Themes, kept in
+`/app0/hui/theme.txt`, `tiles` until one is picked, and always `tiles` in a test run.
+**Leaving** a kit program is OPTIONS held for a second (`ps5ui::HoldToLeave`, which
+shows the hold as it fills); a press is the program's.
 
 The template's platform layer gives the module what the kit's own console layer
 gave it: every pad reading of the frame (`pad_readings`, so a tap shorter than a

@@ -36,6 +36,10 @@ struct Ps5Variants {
 extern const Ps5Variants ps5Variants[];
 extern const size_t ps5VariantCount;
 
+/* Set for the whole of a test run (main.cpp): what a person chose earlier (the
+ * title's theme) must not change a test's pictures. */
+extern bool ps5TestRun;
+
 /* The pad, shared by every sample and the launcher (example_ps5.cpp). */
 struct pad &ps5_pad();
 
@@ -44,4 +48,13 @@ struct pad &ps5_pad();
  * A test run's frame budget ends it after that many frames instead (-1), and
  * its last frame is saved to screenshotPath when that is not empty. */
 int ps5_run_launcher(int selected, const std::string &message, uint32_t frameBudget = 0,
-	const std::string &screenshotPath = "");
+	const std::string &screenshotPath = "", const char *leave = "Quit");
+
+/* With the UI module (ps5/ui/): the start screen, which returns 0 for Samples, 1
+ * for Designs, 2 for Themes and -1 for Quit; the Samples menu drawn with the kit,
+ * which ps5_run_launcher hands over to; and the Themes picker. A test run's frame
+ * budget ends each after that many frames, its last frame saved to screenshotPath. */
+int ps5_run_start(int selected, uint32_t frameBudget = 0, const std::string &screenshotPath = "");
+int ps5_run_kit_launcher(int selected, const std::string &message, uint32_t frameBudget,
+	const std::string &screenshotPath, const char *leave);
+void ps5_run_theme_picker(uint32_t frameBudget = 0, const std::string &screenshotPath = "");

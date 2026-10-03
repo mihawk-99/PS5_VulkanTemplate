@@ -54,6 +54,10 @@ namespace vks
 		style.Colors[ImGuiCol_Button] = ImVec4(1.0f, 0.0f, 0.0f, 0.4f);
 		style.Colors[ImGuiCol_ButtonHovered] = ImVec4(1.0f, 0.0f, 0.0f, 0.6f);
 		style.Colors[ImGuiCol_ButtonActive] = ImVec4(1.0f, 0.0f, 0.0f, 0.8f);
+#if defined(VK_EXAMPLE_PS5)
+		// PS5: in the title's theme, when it has the UI module
+		ps5StyleOverlay(style);
+#endif
 		// Dimensions
 		ImGuiIO& io = ImGui::GetIO();
 		io.FontGlobalScale = scale;
@@ -106,8 +110,13 @@ namespace vks
             delete[] fontAsset;   
         }
 #else
-		const std::string filename = getAssetPath() + "Roboto-Medium.ttf";
-		io.Fonts->AddFontFromFileTTF(filename.c_str(), 16.0f * scale);
+		std::string filename = getAssetPath() + "Roboto-Medium.ttf";
+		float fontSize = 16.0f;
+#if defined(VK_EXAMPLE_PS5)
+		// PS5: the theme's typeface, when it has one
+		ps5OverlayFont(filename, fontSize);
+#endif
+		io.Fonts->AddFontFromFileTTF(filename.c_str(), fontSize * scale);
 #endif
 		io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
 		VkDeviceSize uploadSize = texWidth*texHeight * 4 * sizeof(char);

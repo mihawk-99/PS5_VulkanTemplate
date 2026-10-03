@@ -30,7 +30,8 @@ class VulkanExample : public ps5ui::KitExample
 public:
 	std::unique_ptr<hui::app::Shell> shell;
 	std::unique_ptr<hui::app::Tour> tour;
-	float optionsHeld{ 0.0f };
+	ps5ui::HoldToLeave leaving;
+	hui::gfx::DrawList leavingList;
 	// The frame rate the designs may show, averaged over half a second
 	double fpsSeconds{ 0.0 };
 	int fpsFrames{ 0 };
@@ -70,14 +71,11 @@ public:
 	}
 
 	// OPTIONS is the designs' (a pause menu, a settings drawer): holding it for
-	// a second leaves, back to the menu or, in a title of one program, out
+	// a second leaves, back to the start screen or, in a title of one program, out
 	void holdOptions(float dt)
 	{
-		if (ps5.frameBudget) {
-			return;
-		}
-		optionsHeld = (ps5_pad().held & PAD_OPTIONS) ? optionsHeld + dt : 0.0f;
-		if (optionsHeld >= 1.0f) {
+		leaving.label = ps5.optionsEnds ? "Back to the start screen" : "Close";
+		if (!ps5.frameBudget && leaving.update(dt, (ps5_pad().held & PAD_OPTIONS) != 0)) {
 			quit = true;
 		}
 	}
@@ -140,6 +138,9 @@ public:
 		}
 		kit.tick(dt);
 		shell->compose(kit.renderer);
+		leavingList.clear();
+		leaving.draw(leavingList, kit.fonts, ps5ui::active_theme());
+		kit.renderer.draw(leavingList);
 		buildKitCommandBuffer();
 		submitFrame();
 	}

@@ -55,7 +55,7 @@ writes the whole file (`param_json`).
 
 **Title ids in use** (the generator refuses them): PPSA99002 ProsperoLight, 99008
 ProsperoEden, 99010 vkQuake, 99014 and 99015 PS5_Vulkan's RADV and CTS titles,
-99100 the old template, 99130 PS5 Vulkan Samples, 99169 RetroArch, 99988 PS5_Vulkan's runner, 99996 to 99999
+99100 the old template, 99130 Vulkan Template, 99169 RetroArch, 99988 PS5_Vulkan's runner, 99996 to 99999
 PS5_Vulkan's canaries and default profile. Check the console's `/data/homebrew/` as
 well.
 

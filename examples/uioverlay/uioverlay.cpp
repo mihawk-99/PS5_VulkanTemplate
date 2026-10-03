@@ -59,7 +59,8 @@ public:
 	hui::ui::Feedback feedback;
 	int lanternObjective{ -1 };
 	float clock{ 0.0f };
-	float optionsHeld{ 0.0f };
+	ps5ui::HoldToLeave leaving;
+	hui::gfx::DrawList leavingList;
 
 	enum Row { resumeRow, spinRow, hitRow, objectiveRow, healRow };
 
@@ -283,11 +284,8 @@ public:
 	// OPTIONS pauses; holding it for a second leaves (to the menu, or out of a title of one program)
 	void holdOptions(float dt)
 	{
-		if (ps5.frameBudget) {
-			return;
-		}
-		optionsHeld = (ps5_pad().held & PAD_OPTIONS) ? optionsHeld + dt : 0.0f;
-		if (optionsHeld >= 1.0f) {
+		leaving.label = ps5.optionsEnds ? "Back to the menu" : "Close";
+		if (!ps5.frameBudget && leaving.update(dt, (ps5_pad().held & PAD_OPTIONS) != 0)) {
 			quit = true;
 		}
 	}
@@ -365,6 +363,9 @@ public:
 		kit.renderer.glass();
 		kit.renderer.draw(hudList);
 		kit.renderer.draw(overlayList);
+		leavingList.clear();
+		leaving.draw(leavingList, kit.fonts, ps5ui::active_theme());
+		kit.renderer.draw(leavingList);
 	}
 
 	void drawScene(VkCommandBuffer cmd)

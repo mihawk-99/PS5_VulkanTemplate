@@ -66,7 +66,7 @@ def resolve(words):
         ids = built if word == "all" else samples_in_menu() if word == "menu" else [word]
         for sample in ids:
             base = sample.split(".")[0]
-            if base not in built and sample != "launcher":  # "launcher": the menu itself
+            if base not in built and sample not in ("launcher", "start", "themes"):  # the menu, the start screen, Themes
                 sys.exit(f"{base} is not linked into the title (ps5/src/samples.cpp)")
             # "all" and "menu" run a sample's variants instead of the sample
             names = [f"{sample}.{v}" for v in listed[sample]] if word in ("all", "menu") and sample in listed else [sample]

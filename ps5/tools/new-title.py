@@ -50,7 +50,7 @@ TAKEN = {
     "PPSA99014": "PS5_Vulkan's RADV test title",
     "PPSA99015": "PS5_Vulkan's CTS title",
     "PPSA99100": "the old ps5-homebrew-template",
-    "PPSA99130": "PS5 Vulkan Samples",
+    "PPSA99130": "Vulkan Template",
     "PPSA99169": "PS5 RetroArch",
     "PPSA99988": "PS5_Vulkan's test runner",
     "PPSA99996": "a PS5_Vulkan canary",
@@ -168,7 +168,7 @@ def screen_source(kit, design, name, pid):
     """The kit's design, as the title's own screen: its namespace renamed so it
     cannot meet the kit's copy, and ps5ui::make_screen to make it."""
     text = (kit / f"src/concepts/{design}.cpp").read_text()
-    revision = (kit / ".revision").read_text().strip()
+    revision = (kit / ".revision").read_text().split()[0]
     lines = text.split("\n")
     spdx = next(i for i, line in enumerate(lines) if "SPDX-License-Identifier" in line)
     lines[spdx + 1:spdx + 1] = [
@@ -357,7 +357,7 @@ change them, and its Quit ends the title.
 - **Assets** go in `ps5/assets.json`, each with its origin and licence; only assets
   with a clear licence are shipped (`ps5/ASSETS.md` is written from it).
 - **More programs**: another `SAMPLE(...)` line in `ps5/src/samples.cpp` turns the
-  title into a menu of them, as PS5 Vulkan Samples is.
+  title into a menu of them, as Vulkan Template is.
 - How the foundation works, its test runs and its tools: PS5_VulkanTemplate's
   `ps5/README.md`; the agent skills for this stack are in its `skills/`.
 

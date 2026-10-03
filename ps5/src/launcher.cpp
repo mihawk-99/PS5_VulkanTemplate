@@ -27,10 +27,11 @@ public:
 	int chosen{ -2 }; // -2: still choosing, -1: Quit, else an index in ps5Samples
 	int selected;
 	std::string message;
+	const char *leave; // the last row: Quit, or Back to the start screen
 	std::vector<int> entries;
 	bool focusSet{ false };
 
-	Launcher(int selected, const std::string &message) : selected(selected), message(message)
+	Launcher(int selected, const std::string &message, const char *leave) : selected(selected), message(message), leave(leave)
 	{
 		title = PS5_TITLE_NAME;
 		name = "ps5vulkansamples";
@@ -107,10 +108,12 @@ public:
 			ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings);
 
+		// Opened from the start screen (its last row Back) it is the title's Samples
+		const bool fromStart = strcmp(leave, "Back") == 0;
 		ImGui::SetWindowFontScale(1.6f);
-		ImGui::TextColored(accent, "%s", PS5_TITLE_NAME);
+		ImGui::TextColored(accent, "%s", fromStart ? "Samples" : PS5_TITLE_NAME);
 		ImGui::SetWindowFontScale(1.0f);
-		ImGui::TextColored(dim, "Vulkan on RADV, on the console");
+		ImGui::TextColored(dim, fromStart ? PS5_TITLE_NAME ": Vulkan on RADV, on the console" : "Vulkan on RADV, on the console");
 		ImGui::TextColored(dim, "%s, Vulkan %u.%u.%u, %ux%u", deviceProperties.deviceName,
 			VK_API_VERSION_MAJOR(deviceProperties.apiVersion), VK_API_VERSION_MINOR(deviceProperties.apiVersion),
 			VK_API_VERSION_PATCH(deviceProperties.apiVersion), width, height);
@@ -151,7 +154,7 @@ public:
 			ImGui::PopID();
 		}
 		ImGui::Spacing();
-		if (ImGui::Selectable("Quit", false)) {
+		if (ImGui::Selectable(leave, false)) {
 			chosen = -1;
 		}
 		if (!focusSet && entries.empty()) {
@@ -178,9 +181,13 @@ public:
 } // namespace
 
 int ps5_run_launcher(int selected, const std::string &message, uint32_t frameBudget,
-	const std::string &screenshotPath)
+	const std::string &screenshotPath, const char *leave)
 {
-	Launcher *launcher = new Launcher(selected, message);
+#if defined(PS5_UI)
+	// With the UI module the menu is drawn with the kit, in the title's theme
+	return ps5_run_kit_launcher(selected, message, frameBudget, screenshotPath, leave);
+#endif
+	Launcher *launcher = new Launcher(selected, message, leave);
 	launcher->ps5.frameBudget = frameBudget;
 	launcher->ps5.screenshotPath = screenshotPath;
 	int chosen = -1;

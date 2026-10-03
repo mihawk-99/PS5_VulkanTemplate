@@ -1,9 +1,13 @@
 # The PS5 port
 
-Sascha Willems' Vulkan examples as one PS5 homebrew title, **PS5 Vulkan Samples**
-(`PPSA99130`), on RADV linked into the title. Launched from the home screen it shows a
-menu of samples; a test run draws a set number of frames of each sample, saves the
-last frame and checks klog. The title is a reference for writing Vulkan on the
+Sascha Willems' Vulkan examples as one PS5 homebrew title, **Vulkan Template**
+(`PPSA99130`), on RADV linked into the title. Launched from the home screen it opens on
+a start screen drawn with the UI module: **Samples**, the menu of Vulkan samples;
+**Designs**, the UI kit's gallery of twenty-one designs; and **Themes**, which picks the
+title's look from the kit's thirty themes (the start screen, the Samples menu and the
+samples' settings windows wear it). A title built without `ps5/ui/` opens on a plain
+menu. A test run draws a set number of frames of each sample, saves the last frame and
+checks klog. The title is a reference for writing Vulkan on the
 console, a driver test suite run beside the CTS after RADV changes, a showcase, and
 the foundation every new homebrew is made on (`tools/new-title.py`, below).
 
@@ -14,32 +18,35 @@ draws what the host reference draws, holds its frame rate, and ends cleanly. Unt
 then test runs reach it and the menu does not (`src/samples.cpp`, the second field).
 
 All sixteen are proven, last on 2026-10-03 with RADV 15a5e99 and SDK fork adc8dd7, in
-two launches of the title a minute apart (the second a reopen, with the same figures):
-a test run of 300 frames each, at 3840x2160 on the 119.88 Hz display. Each held 119.9 fps after
+two launches of the title (the second a reopen, with the same figures), their settings
+windows in the title's default theme: a test run of 300 frames each, at 3840x2160 on
+the 119.88 Hz display. Each held 119.9 fps after
 its first 150 frames, its last frame differed from the host reference's by at most 4.5
 levels in 255 (the "from the host" column, a mean over the picture at 480x270), klog
 held no crash record, GPU fault or driver error, and the title exited on its own. The
-menu itself passes the same run (`launcher`, 1.4 from the host, measured on 2026-10-02 when
-its list became scrollable so that the menu fits the display).
+title's own screens pass the same run: the start screen (`start`, 1.6 from the host),
+the Samples menu (`launcher`, 1.3) and Themes (`themes`, 0.9). The settings windows'
+new look moved every sample's picture, so their references were saved again
+(`host-reference.sh --save`) before these runs.
 
 | Sample | What it shows | Assets | Console | From the host |
 | --- | --- | --- | --- | --- |
-| `starter` | the program a new homebrew grows from: a textured, lit glTF model with dynamic rendering, a settings window | Lantern | 119.9 fps | 0.6 |
-| `gltfloading` | a glTF scene: meshes, materials, textures, node hierarchy | Flight Helmet | 119.9 fps | 0.8 |
-| `texturemipmapgen` | a mip chain made at run time with blits, and the samplers that read it | a tunnel, Metal Plate | 119.9 fps | 0.9 |
-| `pbrtexture` | metal and roughness maps lit by an HDR environment (IBL) | Vintage Video Camera, Kloofendal sky | 119.9 fps | 2.1 |
+| `starter` | the program a new homebrew grows from: a textured, lit glTF model with dynamic rendering, a settings window | Lantern | 119.9 fps | 0.9 |
+| `gltfloading` | a glTF scene: meshes, materials, textures, node hierarchy | Flight Helmet | 119.9 fps | 0.6 |
+| `texturemipmapgen` | a mip chain made at run time with blits, and the samplers that read it | a tunnel, Metal Plate | 119.9 fps | 0.8 |
+| `pbrtexture` | metal and roughness maps lit by an HDR environment (IBL) | Vintage Video Camera, Kloofendal sky | 119.9 fps | 2.0 |
 | `shadowmapping` | a directional light's depth map, filtered with PCF | two scenes made here | 119.9 fps | 0.7 |
-| `deferred` | a G-buffer in several render targets, then the lights in one pass | Knight, Cobblestone Floor 01 | 119.9 fps | 1.2 |
-| `bloom` | bright parts blurred in two separable passes and added back | Retro UFO, a starfield made here | 119.9 fps | 0.6 |
-| `multisampling` | MSAA with resolve attachments, and sample-rate shading | Lantern | 119.9 fps | 1.9 |
-| `instancing` | thousands of rocks in one draw, with per-instance data | rocks and a planet made here | 119.9 fps | 1.8 |
-| `indirectdraw` | draws read from a GPU buffer, many meshes and instances each | plants and ground made here, Dry Ground 01 | 119.9 fps | 3.4 |
+| `deferred` | a G-buffer in several render targets, then the lights in one pass | Knight, Cobblestone Floor 01 | 119.9 fps | 1.3 |
+| `bloom` | bright parts blurred in two separable passes and added back | Retro UFO, a starfield made here | 119.9 fps | 0.7 |
+| `multisampling` | MSAA with resolve attachments, and sample-rate shading | Lantern | 119.9 fps | 1.8 |
+| `instancing` | thousands of rocks in one draw, with per-instance data | rocks and a planet made here | 119.9 fps | 1.9 |
+| `indirectdraw` | draws read from a GPU buffer, many meshes and instances each | plants and ground made here, Dry Ground 01 | 119.9 fps | 3.3 |
 | `computeparticles` | particles moved by a compute shader and drawn as points | sprites made here | 119.9 fps | 4.5 |
-| `descriptorindexing` | bindless textures: one descriptor array indexed per object | made by the sample | 119.9 fps | 0.9 |
-| `dynamicrendering` | rendering without render pass and framebuffer objects | Lantern | 119.9 fps | 0.5 |
+| `descriptorindexing` | bindless textures: one descriptor array indexed per object | made by the sample | 119.9 fps | 1.0 |
+| `dynamicrendering` | rendering without render pass and framebuffer objects | Lantern | 119.9 fps | 0.6 |
 | `imgui` | Dear ImGui over a 3D scene, with windows of its own | shapes made here | 119.9 fps | 0.5 |
 | `meshshader` | geometry from task and mesh shaders, with no vertex input | none | 119.9 fps | 0.5 |
-| `rayquery` | shadows traced from a fragment shader against an acceleration structure | a scene made here | 119.9 fps | 0.6 |
+| `rayquery` | shadows traced from a fragment shader against an acceleration structure | a scene made here | 119.9 fps | 0.5 |
 
 The assets, their authors and licences: [`ASSETS.md`](ASSETS.md).
 
@@ -48,16 +55,16 @@ The assets, their authors and licences: [`ASSETS.md`](ASSETS.md).
 Three more programs draw with the UI module ([`ui/README.md`](ui/README.md)):
 BlackBearReloaded's ps5-homebrew-ui kit, drawn with Vulkan through my fork
 PS5_VKHomebrewUI. The module is GPL-3.0-or-later and built only when `ps5/ui/` is
-there; a title made without `--ui` has none of it. Test runs reach the three; the
-menu does not list them yet.
+there; a title made without `--ui` has none of it. `uioverlay` is in the Samples menu,
+the gallery is the start screen's Designs, and test runs reach all three.
 
 They were proven on 2026-10-03 with RADV 15a5e99, SDK fork adc8dd7 and
-PS5_VKHomebrewUI 4451c26, in the same two launches as a full run of the sixteen
-samples above (41 programs a launch, 41 passes both times, the sixteen on their
-figures above): each held 119.9 fps at 3840x2160 (`uikit.settings` 119.1 in the
-first launch, 119.9 in the second), drew within 3.3 levels of the host's picture,
-opened the console's audio output, and left klog clean. How the sounds and the
-rumble feel is not something a run checks.
+PS5_VKHomebrewUI 4451c26, in the same launches as a full run of the sixteen samples
+above and the title's own screens (`start`, `launcher`, `themes`: 43 programs a
+launch, 43 passes in each of two launches): each held 119.9 fps at 3840x2160, drew
+within 3.3 levels of the host's picture (the screens within 1.6), opened the
+console's audio output, and left klog clean. How the sounds and the rumble feel is
+not something a run checks.
 
 | Program | What it shows | Console | From the host |
 | --- | --- | --- | --- |
@@ -71,6 +78,10 @@ design), and holding OPTIONS for a second goes back to the menu.
 
 ## Controls
 
+On the start screen the D-pad chooses Samples, Designs, Themes or Quit and CROSS opens
+it. CIRCLE in the Samples menu or in Themes returns to it; in a design, OPTIONS held for
+a second does (a plate with a filling ring shows the hold), since a press of OPTIONS
+belongs to the design. In Themes, CROSS makes the focused theme the title's.
 In the menu, the D-pad chooses and CROSS starts. In a sample:
 
 | Pad | Does |
@@ -101,7 +112,7 @@ ps5/tools/deploy.sh                 # upload what changed, over the console's FT
 ps5/tools/run.sh                    # a test run of every sample, 300 frames each
 ps5/tools/run.sh menu               # the samples in the menu
 ps5/tools/run.sh bloom deferred     # those two
-ps5/tools/run.sh launcher all       # the menu itself too
+ps5/tools/run.sh start launcher all # the start screen and the menu too
 ps5/tools/run.sh --menu             # no test: the menu, until Quit
 ```
 
@@ -138,7 +149,7 @@ explain, one that it shows too is the sample's or the asset's. `--save` keeps th
 at 480x270, as `reference/<id>.png`, which `check-run.py` compares a 300-frame run's
 pictures with (a mean difference of 12 in 255 fails).
 
-**After a RADV change**, run every sample (`ps5/tools/run.sh launcher all`) with the
+**After a RADV change**, run every sample (`ps5/tools/run.sh start launcher all`) with the
 CTS gate, and compare the frame rates with the table above and the pictures with the
 host's. The suite earns its place: its first console run drew three samples black
 where the host drew them in colour. The console's `localeconv()` reports an empty

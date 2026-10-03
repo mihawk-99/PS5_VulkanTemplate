@@ -34,6 +34,7 @@
 #include "gfx/vk/vk_renderer.hpp"
 #include "ui/components.hpp"
 #include "ui/fonts.hpp"
+#include "ui/glyphs.hpp"
 #include "ui/widgets.hpp"
 
 #include <sys/stat.h>
@@ -49,6 +50,20 @@ namespace ps5ui {
 // kit's designs, in examples/<program>/kit/screen.cpp (compiled outside the
 // program's namespace, as every file in a program's kit/ folder is).
 std::unique_ptr<hui::app::Concept> make_screen(hui::app::Context &context);
+
+// The title's theme: the one picked on the start screen's Themes, kept in
+// /app0/hui/theme.txt. It styles the start screen, the Samples menu and the
+// samples' settings windows. A test run always has the default (tiles), so its
+// pictures do not depend on what was picked.
+const hui::ui::Theme &active_theme();
+int active_theme_index();
+void set_active_theme(int index);
+
+// A row of controller hints (the DualSense glyph, then what it does) in a
+// theme's colours: dark or light caps to suit its page, labels in its muted
+// text. align: -1 starts at x, 0 centres on x, 1 ends at x. Returns the width.
+float draw_hints(hui::gfx::DrawList &list, const hui::ui::Fonts &fonts, const hui::ui::Theme &theme,
+	std::initializer_list<hui::ui::Hint> hints, float x, float cy, int align = -1, float size = 34.0f);
 
 class Kit
 {
@@ -99,6 +114,22 @@ private:
 	float rumble_left_ = 0.0f;
 	std::uint32_t light_bar_ = 0xffffffffu;
 	bool ready_ = false;
+};
+
+// Holding OPTIONS for a second leaves a kit program (a press stays the
+// program's). While it is held, a plate at the top of the screen shows the
+// OPTIONS glyph, a ring that fills, and where the hold goes.
+class HoldToLeave
+{
+public:
+	const char *label = "Back to the start screen";
+	// true once OPTIONS has been held for the whole second
+	bool update(float dt, bool held);
+	void draw(hui::gfx::DrawList &list, const hui::ui::Fonts &fonts, const hui::ui::Theme &theme) const;
+	float seconds = 1.0f;
+
+private:
+	float held_ = 0.0f;
 };
 
 // A program on the base class that draws with the kit

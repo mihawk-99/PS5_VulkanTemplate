@@ -1,7 +1,7 @@
 # A new title
 
 Every new title is made on one foundation: PS5_VulkanTemplate, the repository
-these skills live in, the same code its PS5 Vulkan Samples title runs sixteen
+these skills live in, the same code its Vulkan Template title runs sixteen
 programs on. A title is that foundation with
 one program of its own, so what an agent learns in one title, or in any sample, holds
 in every other.
@@ -92,7 +92,7 @@ settings window; the D-pad and CROSS change the settings.
   each is a class on the same base, proven on the console, and its methods and
   shaders copy across as they stand.
 - **More than one program**: another `SAMPLE(...)` line in `ps5/src/samples.cpp`
-  makes the title a menu of them, as PS5 Vulkan Samples is.
+  makes the title a menu of them, as Vulkan Template is.
 - **C++20, exceptions and RTTI** are available: the link brings libc++, libc++abi
   and libunwind, and the CRT runs static constructors and destructors.
 - **Libraries:** add their sources to `ps5/CMakeLists.txt` (built with the same

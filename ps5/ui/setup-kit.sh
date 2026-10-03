@@ -18,7 +18,9 @@ fork="${PS5_VKHOMEBREWUI:-$root/../PS5_VKHomebrewUI}"
 # 4451c26: the Vulkan backend, with import_texture (a program's own image)
 revision=4451c261ac8631c698291ee765a37456f25bc22c
 
-if [[ ! -f $kit/.revision || $(<"$kit/.revision") != "$revision" ]]; then
+# What is exported, beside the revision: a change to the list exports again
+stamp="$revision src assets/fonts assets/audio third_party/fonts"
+if [[ ! -f $kit/.revision || $(<"$kit/.revision") != "$stamp" ]]; then
     if ! git -C "$fork" cat-file -e "$revision^{commit}" 2>/dev/null; then
         fork="$root/.deps/PS5_VKHomebrewUI.git"
         [[ -d $fork ]] || git clone --quiet --bare https://github.com/mihawk-99/PS5_VKHomebrewUI.git "$fork" >&2
@@ -30,9 +32,10 @@ if [[ ! -f $kit/.revision || $(<"$kit/.revision") != "$revision" ]]; then
     fi
     rm -rf -- "$kit"
     mkdir -p "$kit"
-    # The code, the assets a title ships, and the licence texts
-    git -C "$fork" archive "$revision" src assets/fonts assets/audio LICENSE THIRD_PARTY_NOTICES.md \
-        | tar -x -C "$kit"
-    echo "$revision" > "$kit/.revision"
+    # The code, the assets a title ships (the TTFs are for the samples' ImGui
+    # windows, ps5/ui/overlay_theme.cpp), and the licence texts
+    git -C "$fork" archive "$revision" src assets/fonts assets/audio third_party/fonts LICENSE \
+        THIRD_PARTY_NOTICES.md | tar -x -C "$kit"
+    echo "$stamp" > "$kit/.revision"
 fi
 echo "$kit"

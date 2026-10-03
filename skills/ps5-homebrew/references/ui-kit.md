@@ -58,7 +58,13 @@ read `kit.input()`; update your screen or components with `dt` (clamp it, 0.05 s
   screen an idle frame (`connected = true`) or a scripted one.
 - OPTIONS is the designs' (pause menus, drawers). The programs leave when OPTIONS is
   **held** for a second: back to the menu, or out of a title of one program
-  (`quit = true`, never `exit`).
+  (`quit = true`, never `exit`). `ps5ui::HoldToLeave` does it and draws the hold as
+  a plate with a filling ring; draw it last, so people can see the way out.
+- **Hints** are glyphs, not words: `ps5ui::draw_hints` draws the kit's DualSense
+  buttons with their labels in a theme's colours.
+- **The title's theme** (`ps5ui::active_theme()`, picked in the samples title's
+  Themes) also styles the samples' ImGui windows through `ps5StyleOverlay`; a test
+  run always has the default, `tiles`.
 - Sound starts with `prepareKit()` (mixer, cues, music on `audio_start`'s thread);
   `{ .music = false }` leaves the songs out. The host reference build has no audio
   output and says so.

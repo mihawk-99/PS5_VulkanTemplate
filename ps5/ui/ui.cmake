@@ -1,7 +1,7 @@
 # PS5 Vulkan Template - the UI module: PS5_VKHomebrewUI's kit in the title's build.
 #
 # ps5/CMakeLists.txt includes this file when ps5/ui/ is present (a title made
-# with new-title.py --ui, and PS5 Vulkan Samples). It exports the pinned kit
+# with new-title.py --ui, and Vulkan Template). It exports the pinned kit
 # (setup-kit.sh), compiles its code into the samples' objects, minus what is
 # OpenGL's or the kit's own console layer (the template has its own), and
 # writes build/ps5/ui.txt, which tells build-assets.py to lay the kit's fonts
@@ -46,6 +46,10 @@ target_sources(samples PRIVATE
 	${ui_kit_sources}
 	${ui_program_sources}
 	${CMAKE_CURRENT_LIST_DIR}/kit.cpp
+	${CMAKE_CURRENT_LIST_DIR}/start.cpp
+	${CMAKE_CURRENT_LIST_DIR}/samples_menu.cpp
+	${CMAKE_CURRENT_LIST_DIR}/theme_picker.cpp
+	${CMAKE_CURRENT_LIST_DIR}/overlay_theme.cpp
 	${CMAKE_CURRENT_LIST_DIR}/hui_platform.cpp)
 target_include_directories(samples PRIVATE ${PS5_UI_KIT}/src ${CMAKE_CURRENT_LIST_DIR})
 target_compile_definitions(samples PRIVATE PS5_UI)

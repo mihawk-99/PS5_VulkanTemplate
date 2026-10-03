@@ -24,6 +24,14 @@
 
 #include "../external/imgui/imgui.h"
 
+#if defined(VK_EXAMPLE_PS5)
+#include <string>
+// PS5: the title's theme for the overlay. The UI module (ps5/ui/overlay_theme.cpp)
+// defines both; without it ps5/src/example_ps5.cpp's weak ones keep upstream's look.
+void ps5StyleOverlay(ImGuiStyle &style);
+bool ps5OverlayFont(std::string &path, float &size);
+#endif
+
 #if defined(__ANDROID__)
 #include "VulkanAndroid.h"
 #endif

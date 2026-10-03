@@ -3,9 +3,9 @@
 **Everything needed to build a PlayStation 5 homebrew powered by Vulkan, in one
 repository.**
 
-![PS5 Vulkan Samples: the menu on the console, sixteen techniques in one title](ps5/screenshots/menu.jpg)
+![Vulkan Template: the menu on the console, sixteen techniques in one title](ps5/screenshots/menu.jpg)
 
-*PS5 Vulkan Samples on my console, at 3840x2160: sixteen techniques, one class on the same
+*Vulkan Template on my console, at 3840x2160: sixteen techniques, one class on the same
 base, each proven by a test run of its own. What they measured: [`ps5/README.md`](ps5/README.md).*
 
 ## The samples
@@ -50,7 +50,7 @@ TV allows it.
 | --- | --- |
 | **A generator** that makes a new title, with its own program, ready to build, run and test on the console | [`ps5/tools/new-title.py`](ps5/tools/new-title.py) |
 | **The foundation** every title is made on: Sascha Willems' Vulkan example base class with its PS5 hooks, and the PS5 layer (launch, pad, klog, display, test runs, shell exit) | [`base/`](base), [`ps5/src/`](ps5/src) |
-| **Sixteen samples proven on the console**, one class each on the same base, built into one title, PS5 Vulkan Samples | [`examples/`](examples), the pictures above |
+| **Sixteen samples proven on the console**, one class each on the same base, built into one title, Vulkan Template | [`examples/`](examples), the pictures above |
 | **A test suite** for titles and for the driver: each program for a set number of frames, its last frame compared with the same frame drawn by the PC's Vulkan driver, klog checked | [`ps5/tools/run.sh`](ps5/tools/run.sh), [`ps5/tools/host-reference.sh`](ps5/tools/host-reference.sh) |
 | **Agent skills** for this stack: starting and building titles, the console, porting, releases | [`skills/`](skills) |
 | **Build and console tools**: setup, build, deploy, run, verdicts | [`ps5/tools/`](ps5/tools) |
@@ -108,12 +108,12 @@ those my titles use.
 ## Run the samples
 
 ```bash
-ps5/tools/build.sh && ps5/tools/deploy.sh   # the PS5 Vulkan Samples title, PPSA99130
+ps5/tools/build.sh && ps5/tools/deploy.sh   # the Vulkan Template title, PPSA99130
 ps5/tools/run.sh launcher all               # every sample and the menu: a verdict for each
 ps5/tools/host-reference.sh                 # the same frames on this PC's Vulkan driver
 ```
 
-Launched from the home screen, PS5 Vulkan Samples shows the menu pictured at the top.
+Launched from the home screen, Vulkan Template shows the menu pictured at the top.
 How the port works, its tools and how to add a sample: [`ps5/README.md`](ps5/README.md).
 The assets and their licences: [`ps5/ASSETS.md`](ps5/ASSETS.md).
 

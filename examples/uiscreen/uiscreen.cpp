@@ -34,7 +34,8 @@ public:
 	std::unique_ptr<hui::app::Concept> screen;
 	hui::app::Frame frame;
 	hui::ui::Feedback feedback;
-	float optionsHeld{ 0.0f };
+	ps5ui::HoldToLeave leaving;
+	hui::gfx::DrawList leavingList;
 	double fpsSeconds{ 0.0 };
 	int fpsFrames{ 0 };
 
@@ -63,11 +64,8 @@ public:
 	// Holding OPTIONS for a second leaves; a press is the design's
 	void holdOptions(float dt)
 	{
-		if (ps5.frameBudget) {
-			return;
-		}
-		optionsHeld = (ps5_pad().held & PAD_OPTIONS) ? optionsHeld + dt : 0.0f;
-		if (optionsHeld >= 1.0f) {
+		leaving.label = ps5.optionsEnds ? "Back to the menu" : "Close";
+		if (!ps5.frameBudget && leaving.update(dt, (ps5_pad().held & PAD_OPTIONS) != 0)) {
 			quit = true;
 		}
 	}
@@ -134,6 +132,9 @@ public:
 		}
 		kit.renderer.draw(frame.overlay);
 		kit.renderer.backdrop(frame.post);
+		leavingList.clear();
+		leaving.draw(leavingList, kit.fonts, ps5ui::active_theme());
+		kit.renderer.draw(leavingList);
 		buildKitCommandBuffer();
 		submitFrame();
 	}

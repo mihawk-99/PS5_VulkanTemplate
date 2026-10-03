@@ -38,7 +38,7 @@
 	SAMPLE(meshshader, true, "Mesh shaders", "Geometry made by task and mesh shaders, with no vertex input") \
 	SAMPLE(rayquery, true, "Ray queries", "Shadows traced against an acceleration structure from a fragment shader") \
 	SAMPLE(uikit, false, "Homebrew UI", "BlackBearReloaded's 21 UI designs and 30 themes, drawn with Vulkan: L1/R1 switch, hold OPTIONS to come back") \
-	SAMPLE(uioverlay, false, "UI over a game", "The kit's HUD and a frosted pause menu (OPTIONS) over a 3D scene; hold OPTIONS to come back") \
+	SAMPLE(uioverlay, true, "UI over a game", "The kit's HUD and a frosted pause menu (OPTIONS) over a 3D scene; hold OPTIONS to come back") \
 	SAMPLE(uiscreen, false, "UI starter", "The program a UI homebrew grows from: one of the kit's designs, full screen; hold OPTIONS to come back")
 
 #define SAMPLE(id, menu, title, description) \

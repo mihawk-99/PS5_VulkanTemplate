@@ -200,8 +200,14 @@ struct Chosen {
 
 int runTests(const TestRun &run)
 {
+	ps5TestRun = true;
 	std::vector<Chosen> chosen;
 	const bool launcher = std::find(run.samples.begin(), run.samples.end(), "launcher") != run.samples.end();
+	bool start = false, themes = false;
+#if defined(PS5_UI)
+	start = std::find(run.samples.begin(), run.samples.end(), "start") != run.samples.end();
+	themes = std::find(run.samples.begin(), run.samples.end(), "themes") != run.samples.end();
+#endif
 	for (const std::string &word : run.samples) {
 		// "id.variant" names one variant; "all" and "menu" take every variant
 		const size_t dot = word.find('.');
@@ -221,7 +227,7 @@ int runTests(const TestRun &run)
 			}
 		}
 	}
-	if (chosen.empty() && !launcher) {
+	if (chosen.empty() && !launcher && !start && !themes) {
 		say("test run: no sample matches");
 		return 1;
 	}
@@ -237,7 +243,8 @@ int runTests(const TestRun &run)
 	if (results) {
 		chmod(resultsPath, 0666);
 	}
-	report("test run: %zu samples, %u frames each%s", chosen.size() + (launcher ? 1 : 0), run.frames,
+	const size_t screens = (launcher ? 1 : 0) + (start ? 1 : 0) + (themes ? 1 : 0);
+	report("test run: %zu samples, %u frames each%s", chosen.size() + screens, run.frames,
 		run.screenshot ? ", a screenshot of each" : "");
 	int failed = 0;
 	if (launcher) {
@@ -251,22 +258,46 @@ int runTests(const TestRun &run)
 		ps5_run_launcher(-1, "", run.frames, screenshot);
 		report("sample launcher: ok, %u frames in %.2f s", run.frames, now() - start);
 	}
+#if defined(PS5_UI)
+	if (start) {
+		// The start screen as a launch by hand shows it, ended by the budget
+		report("sample start: starts");
+		const double began = now();
+		const std::string screenshot = run.screenshot ? std::string(screenshotDir) + "/start.ppm" : "";
+		if (run.screenshot) {
+			remove(screenshot.c_str());
+		}
+		ps5_run_start(0, run.frames, screenshot);
+		report("sample start: ok, %u frames in %.2f s", run.frames, now() - began);
+	}
+	if (themes) {
+		report("sample themes: starts");
+		const double began = now();
+		const std::string screenshot = run.screenshot ? std::string(screenshotDir) + "/themes.ppm" : "";
+		if (run.screenshot) {
+			remove(screenshot.c_str());
+		}
+		ps5_run_theme_picker(run.frames, screenshot);
+		report("sample themes: ok, %u frames in %.2f s", run.frames, now() - began);
+	}
+#endif
 	for (const Chosen &entry : chosen) {
 		const std::string screenshot = run.screenshot ? std::string(screenshotDir) + "/" + entry.name() + ".ppm" : "";
 		if (!runSample(*entry.sample, run.frames, screenshot, true, entry.variant).ok) {
 			failed++;
 		}
 	}
-	report("samples: %zu ok, %d failed", chosen.size() + (launcher ? 1 : 0) - failed, failed);
+	report("samples: %zu ok, %d failed", chosen.size() + screens - failed, failed);
 	return failed ? 1 : 0;
 }
 
-void runMenu()
+/* The menu of samples, until Quit (or Back, when the start screen opened it) */
+void runSamplesMenu(const char *leave)
 {
 	int selected = -1;
 	std::string message;
 	for (;;) {
-		const int chosen = ps5_run_launcher(selected, message);
+		const int chosen = ps5_run_launcher(selected, message, 0, "", leave);
 		if (chosen < 0) {
 			return;
 		}
@@ -274,6 +305,38 @@ void runMenu()
 		const Result result = runSample(ps5Samples[chosen], 0, "");
 		message = result.ok ? "" : std::string(ps5Samples[chosen].title) + " ended: " + result.error;
 	}
+}
+
+void runMenu()
+{
+#if defined(PS5_UI)
+	// With the UI module the title opens on its start screen: Samples (the menu
+	// above), Designs (the kit's gallery) or Themes (the title's theme); each
+	// comes back to it
+	const Ps5Sample *gallery = nullptr;
+	for (size_t i = 0; i < ps5SampleCount; i++) {
+		if (strcmp(ps5Samples[i].id, "uikit") == 0) {
+			gallery = &ps5Samples[i];
+		}
+	}
+	if (gallery) {
+		int choice = 0;
+		for (;;) {
+			choice = ps5_run_start(choice);
+			if (choice < 0) {
+				return;
+			}
+			if (choice == 1) {
+				runSample(*gallery, 0, "");
+			} else if (choice == 2) {
+				ps5_run_theme_picker();
+			} else {
+				runSamplesMenu("Back");
+			}
+		}
+	}
+#endif
+	runSamplesMenu("Quit");
 }
 
 } // namespace

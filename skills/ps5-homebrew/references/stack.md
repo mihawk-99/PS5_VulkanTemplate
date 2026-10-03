@@ -59,7 +59,7 @@ RADV, unchanged but where the console differs.
 **The titles** - PS5_RetroArch (PPSA99169, an emulator frontend loading libretro
 cores, most of them forks of mine), PS5_vkQuake (PPSA99010), PS5_ProsperoEden
 (PPSA99008, my experimental fork of BlackBearReloaded's Eden port, for benchmarking
-the driver), and PS5 Vulkan Samples (PPSA99130), which PS5_VulkanTemplate builds: my fork of
+the driver), and Vulkan Template (PPSA99130), which PS5_VulkanTemplate builds: my fork of
 Sascha Willems' Vulkan examples, sixteen samples in one title, a reference for Vulkan
 techniques on the console, a driver test suite, and the foundation every new title is
 made on (`ps5/README.md` there). Each links the RADV archive

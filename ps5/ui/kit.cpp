@@ -151,6 +151,123 @@ void Kit::light_bar(hui::gfx::Color color)
 	}
 }
 
+namespace {
+
+#ifndef PS5_APP_ROOT
+#define PS5_APP_ROOT "/app0"
+#endif
+const char *const themeFolder = PS5_APP_ROOT "/hui";
+const char *const themePath = PS5_APP_ROOT "/hui/theme.txt";
+// Flat and charcoal: the look the start screen was drawn for
+const char *const defaultTheme = "tiles";
+
+int themeIndex(const std::string &id)
+{
+	const auto all = hui::ui::themes();
+	for (size_t i = 0; i < all.size(); i++) {
+		if (id == all[i].id) {
+			return (int)i;
+		}
+	}
+	return -1;
+}
+
+int loadedTheme = -2; // -2: not read yet
+
+} // namespace
+
+int active_theme_index()
+{
+	if (ps5TestRun) {
+		return themeIndex(defaultTheme);
+	}
+	if (loadedTheme == -2) {
+		std::string id;
+		hui::save::read_file(themePath, &id, 64);
+		while (!id.empty() && (id.back() == '\n' || id.back() == '\r' || id.back() == ' ')) {
+			id.pop_back();
+		}
+		loadedTheme = themeIndex(id);
+		if (loadedTheme < 0) {
+			loadedTheme = themeIndex(defaultTheme);
+		}
+	}
+	return loadedTheme;
+}
+
+const hui::ui::Theme &active_theme()
+{
+	const int index = active_theme_index();
+	return index >= 0 ? hui::ui::themes()[index] : hui::ui::default_theme();
+}
+
+void set_active_theme(int index)
+{
+	const auto all = hui::ui::themes();
+	if (index < 0 || index >= (int)all.size()) {
+		return;
+	}
+	loadedTheme = index;
+	if (ps5TestRun) {
+		return; // a test run leaves the title's choice alone
+	}
+	hui::save::ensure_directory(themeFolder);
+	chmod(themeFolder, 0777);
+	const std::string error = hui::save::write_atomic(themePath, std::string(all[index].id) + "\n");
+	if (error.empty()) {
+		chmod(themePath, 0666);
+	}
+	say("theme: %s%s%s", all[index].id, error.empty() ? "" : ", not saved: ", error.c_str());
+}
+
+float draw_hints(hui::gfx::DrawList &list, const hui::ui::Fonts &fonts, const hui::ui::Theme &theme,
+	std::initializer_list<hui::ui::Hint> hints, float x, float cy, int align, float size)
+{
+	hui::ui::GlyphStyle style = theme.dark ? hui::ui::GlyphStyle::dark() : hui::ui::GlyphStyle::light();
+	style.label = theme.page_text_muted.a > 0.0f ? theme.page_text_muted : theme.text_muted;
+	hui::ui::HintLayout layout;
+	layout.size = size;
+	layout.text_size = size * 0.62f;
+	layout.cy = cy;
+	layout.item_gap = size * 1.1f;
+	const hui::ui::Hint *row = hints.begin();
+	const int count = (int)hints.size();
+	if (align == 0) {
+		x -= hui::ui::measure_hints(fonts, row, count, layout) * 0.5f;
+	}
+	return hui::ui::draw_hints(list, fonts, style, row, count, x, align > 0, layout);
+}
+
+bool HoldToLeave::update(float dt, bool held)
+{
+	held_ = held ? held_ + dt : 0.0f;
+	return held_ >= seconds;
+}
+
+void HoldToLeave::draw(hui::gfx::DrawList &list, const hui::ui::Fonts &fonts, const hui::ui::Theme &theme) const
+{
+	// A press is the program's: the plate shows only once the hold is clearly meant
+	const float delay = 0.15f;
+	if (held_ < delay) {
+		return;
+	}
+	const float shown = std::min(1.0f, (held_ - delay) / 0.12f);
+	const float progress = std::min(1.0f, held_ / seconds);
+	const float width = 120.0f + hui::ui::button_width(hui::ui::Button::options, 34.0f) + fonts.semibold.font->measure(label, 26.0f);
+	const hui::gfx::Rect plate{ 960.0f - width * 0.5f, 44.0f - (1.0f - shown) * 20.0f, width, 76.0f };
+	list.push_opacity(shown);
+	list.shadow(plate, 38.0f, 26.0f, theme.shadow.a > 0.0f ? theme.shadow.with_alpha(0.5f) : hui::gfx::Color::rgb(0x000000, 0.4f));
+	list.rounded_rect(plate, 38.0f, theme.surface.with_alpha(0.96f));
+	const float cx = plate.x + 46.0f, cy = plate.y + plate.h * 0.5f;
+	list.ring(cx, cy, 24.0f, 6.0f, theme.surface_high);
+	list.arc(cx, cy, 24.0f, 6.0f, 0.0f, 6.2831853f * progress, theme.accent);
+	hui::ui::GlyphStyle glyphs = theme.dark ? hui::ui::GlyphStyle::dark() : hui::ui::GlyphStyle::light();
+	hui::ui::draw_button(list, fonts, glyphs, hui::ui::Button::options, plate.x + 88.0f, cy, 34.0f);
+	hui::ui::text(list, fonts.semibold, label, plate.x + 100.0f + hui::ui::button_width(hui::ui::Button::options, 34.0f),
+		cy + 9.0f, 26.0f, theme.text);
+	list.pop_opacity();
+}
+
 KitExample::~KitExample()
 {
 	// Before the base class destroys the device

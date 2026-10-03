@@ -52,7 +52,7 @@ touching the driver:
    changes RADV's cache identity, so titles recompile every pipeline once. The first
    run after a driver change is slow to start, and is not a regression.
 3. Targeted CTS runs on the console; the smoke test (`tools/build-radv-title.sh`,
-   PPSA99014); and the PS5 Vulkan Samples suite (`PS5_VulkanTemplate`:
+   PPSA99014); and the Vulkan Template suite (`PS5_VulkanTemplate`:
    `ps5/tools/build.sh && ps5/tools/deploy.sh && ps5/tools/run.sh launcher all`),
    fifteen real workloads, each 300 frames, its last frame compared with the same
    frame on the PC's driver (`ps5/tools/host-reference.sh`). A sample whose picture
@@ -60,7 +60,7 @@ touching the driver:
 4. Pin the revision in `tools/build-radv.sh`, rebuild the release archive, record
    the round in `docs/RADV_PHASE.md`.
 5. **Rebuild and regression-run every title that links RADV** (RetroArch with every
-   core, vkQuake, ProsperoEden, PS5 Vulkan Samples), compare with their published
+   core, vkQuake, ProsperoEden, Vulkan Template), compare with their published
    figures, and update their READMEs. A driver fix that breaks a title is not finished.
 
 ## Debugging aids
