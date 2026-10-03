@@ -206,7 +206,9 @@ VULKAN_EXAMPLE_MAIN()                // on the console: defines createExample() 
 - **Ending**: set `quit = true` (the starter's Quit button does). Save and release
   everything before the render loop returns.
 - **Files**: write only under `/app0/` or `/data/`, `chmod` folders 0777 and files
-  0666 so FTP can reach them.
+  0666 so FTP can reach them. A sandboxed title cannot see `/data` until it asks the Lapy
+  daemon: `ps5_elevation_request` (`ps5platform/elevation.h`, `skills/ps5-homebrew/references/platform-layer.md`);
+  without a running daemon it times out and the title keeps to `/app0`.
 - **C++20, exceptions and RTTI** are available; so are `std::thread`, `std::random_device`
   and libc++. `dlopen` is not (`skills/ps5-porting/references/loading-code.md`).
 - **A libc call beyond the basics** may not exist on the console: check
