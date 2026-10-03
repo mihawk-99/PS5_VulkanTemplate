@@ -13,8 +13,9 @@ A sample goes in the menu only once it has been proven on the console: it starts
 draws what the host reference draws, holds its frame rate, and ends cleanly. Until
 then test runs reach it and the menu does not (`src/samples.cpp`, the second field).
 
-All sixteen are proven, on 2026-10-01 with RADV 0b2d6d1 and SDK fork fa69d00: a test
-run of 300 frames each, at 3840x2160 on the 119.88 Hz display. Each held 119.9 fps after
+All sixteen are proven, last on 2026-10-03 with RADV 15a5e99 and SDK fork adc8dd7, in
+two launches of the title a minute apart (the second a reopen, with the same figures):
+a test run of 300 frames each, at 3840x2160 on the 119.88 Hz display. Each held 119.9 fps after
 its first 150 frames, its last frame differed from the host reference's by at most 4.5
 levels in 255 (the "from the host" column, a mean over the picture at 480x270), klog
 held no crash record, GPU fault or driver error, and the title exited on its own. The
@@ -62,8 +63,9 @@ The title builds against my PS5 stack, checked out beside this repository:
 [PS5_Vulkan](https://github.com/mihawk-99/PS5_Vulkan) (its RADV release archive, its
 link recipe, its native tool and `libc.prx`), the Mesa fork it builds RADV from, and
 my [payload SDK fork](https://github.com/mihawk-99/PS5_PayloadSDK), which
-`tools/setup-sdk.sh` installs into `.deps/` at the revision it pins (fa69d00, the
-first with the platform layer's C-locale `localeconv`). The assets need Python with numpy and Pillow, and download their
+`tools/setup-sdk.sh` installs into `.deps/` at the revision it pins (adc8dd7, which
+adds the platform layer's `/data` client; a pin is never older than fa69d00, the first
+with its C-locale `localeconv`). The assets need Python with numpy and Pillow, and download their
 CC0 sources once (into `build/ps5/downloads/`, checked against pinned hashes).
 
 ```bash

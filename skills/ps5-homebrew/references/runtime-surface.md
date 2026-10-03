@@ -25,7 +25,8 @@ refused for every path), the directory functions, `statvfs`, `getpwuid_r`,
 A function the console does export can still answer wrongly: its `localeconv()`
 gives an empty decimal point, so code that builds numbers from it (nlohmann::json,
 behind tinygltf) loses every fraction. The platform layer's C-locale `localeconv`
-fixes it for titles whose SDK pin has it (fa69d00 or later).
+fixes it for titles whose SDK pin has it (fa69d00 or later; the template's pin, in
+`ps5/tools/setup-sdk.sh`, is).
 
 ## The defence: the platform layer and the link recipe
 

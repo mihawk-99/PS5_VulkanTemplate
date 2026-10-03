@@ -54,8 +54,9 @@ source "$vulkan/tools/radv-link.sh"
 radv_link_recipe "$vulkan" "$sdk" "$archive" || exit 2
 # localeconv in the C locale, '.' the decimal point (the console's gives none, and
 # tinygltf's JSON parser then read 0.62 as 0): the platform layer's since SDK fork
-# fa69d00, bound by PS5_Vulkan's recipe since its 6a6dfa6. With an older recipe
-# the title binds it here, kept local as the recipe keeps its bound names.
+# fa69d00 (tools/setup-sdk.sh's pin is never older), bound by PS5_Vulkan's recipe
+# since its 6a6dfa6. With an older recipe the title binds it here, kept local as
+# the recipe keeps its bound names.
 if "$sdk/bin/llvm-nm" --defined-only "$sdk/target/lib/libps5platform.a" 2>/dev/null | grep -q " T ps5_localeconv$" &&
         [[ " ${radv_link_flags[*]} " != *" --defsym=localeconv=ps5_localeconv "* ]]; then
     printf '{\n    local:\n        localeconv;\n};\n' > "$work/link/localeconv-local.map"

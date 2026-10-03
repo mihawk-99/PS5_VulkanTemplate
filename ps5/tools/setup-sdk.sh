@@ -17,8 +17,9 @@ root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 cache="$root/.deps/native"
 sdk="$cache/ps5-payload-sdk"
 sdk_fork="${PS5_PAYLOAD_SDK_FORK:-$root/../PS5_PayloadSDK}"
-# fa69d00: the platform layer's localeconv in the C locale (ps5_localeconv)
-sdk_revision=fa69d00fe974a47a20009d32c9780c259a05a08f
+# adc8dd7: /data through the Lapy daemon (ps5platform/elevation.h), an opt-in no sample calls.
+# Never older than fa69d00, the platform layer's localeconv in the C locale (ps5_localeconv).
+sdk_revision=adc8dd795ada7bf696cd98748aae463a3970ffbb
 
 if [[ ! -f $sdk/.ps5-sdk-revision || $(<"$sdk/.ps5-sdk-revision") != "$sdk_revision" ]]; then
     git -C "$sdk_fork" cat-file -e "$sdk_revision^{commit}" 2>/dev/null || {

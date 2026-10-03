@@ -392,7 +392,8 @@ Titles made earlier keep their copy of the foundation; carry a fix into one by h
   (inside tinygltf) then read every number's integer part only: materials of 0.62
   drew black, node scales of 0.2 drew at 0. The platform layer's `ps5_localeconv`
   (SDK fork fa69d00 and later) fixes it, bound by the link (PS5_Vulkan's recipe, or
-  `link-title.sh` when the recipe predates it). Keep the SDK pin at or after fa69d00.
+  `link-title.sh` when the recipe predates it). Keep the SDK pin (`ps5/tools/setup-sdk.sh`)
+  at or after fa69d00.
 - **A header first included inside a sample's namespace** breaks the build in strange
   ways (`std::` inside `sample_x::std`): add it to `ps5/src/prelude.h`.
 - **A library's `*_IMPLEMENTATION` macro in a sample** duplicates code the base
