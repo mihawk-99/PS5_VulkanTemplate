@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 
 #include <chrono>
+#include <cstring>
 #include <cstdarg>
 #include <fstream>
 #include <sstream>
@@ -121,11 +122,13 @@ double now()
  * fatal error in it (vks::tools::exitFatal) arrives here as an exception: the
  * sample is ended and the title carries on. */
 Result runSample(const Ps5Sample &sample, uint32_t frameBudget, const std::string &screenshotPath,
-	bool optionsEnds = true)
+	bool optionsEnds = true, const std::string &variant = "")
 {
 	Result result;
 	VulkanExampleBase *example = nullptr;
-	report("sample %s: starts", sample.id);
+	// A variant is reported, and its picture saved, under "id.variant"
+	const std::string name = variant.empty() ? sample.id : std::string(sample.id) + "." + variant;
+	report("sample %s: starts", name.c_str());
 	const double start = now();
 	try {
 		example = sample.create();
@@ -136,6 +139,7 @@ Result runSample(const Ps5Sample &sample, uint32_t frameBudget, const std::strin
 		example->ps5.frameBudget = frameBudget;
 		example->ps5.screenshotPath = screenshotPath;
 		example->ps5.optionsEnds = optionsEnds;
+		example->ps5.variant = variant;
 		if (!example->initVulkan()) {
 			throw std::runtime_error("initVulkan failed");
 		}
@@ -165,22 +169,55 @@ Result runSample(const Ps5Sample &sample, uint32_t frameBudget, const std::strin
 		delete example;
 	}
 	if (result.ok) {
-		report("sample %s: ok, %u frames in %.2f s, %.1f fps after the first half", sample.id, result.frames,
+		report("sample %s: ok, %u frames in %.2f s, %.1f fps after the first half", name.c_str(), result.frames,
 			result.seconds, result.steadyFps);
 	} else {
-		report("sample %s: FAILED after %.2f s: %s", sample.id, result.seconds, result.error.c_str());
+		report("sample %s: FAILED after %.2f s: %s", name.c_str(), result.seconds, result.error.c_str());
 	}
 	return result;
 }
 
+/* The variants samples.cpp lists for a sample; none for most */
+std::vector<std::string> variantsOf(const Ps5Sample &sample)
+{
+	std::vector<std::string> names;
+	for (size_t i = 0; i < ps5VariantCount; i++) {
+		if (strcmp(ps5Variants[i].id, sample.id) == 0) {
+			std::istringstream words(ps5Variants[i].names);
+			for (std::string name; words >> name;) {
+				names.push_back(name);
+			}
+		}
+	}
+	return names;
+}
+
+struct Chosen {
+	const Ps5Sample *sample;
+	std::string variant;
+	std::string name() const { return variant.empty() ? sample->id : std::string(sample->id) + "." + variant; }
+};
+
 int runTests(const TestRun &run)
 {
-	std::vector<const Ps5Sample *> chosen;
+	std::vector<Chosen> chosen;
 	const bool launcher = std::find(run.samples.begin(), run.samples.end(), "launcher") != run.samples.end();
-	for (const std::string &id : run.samples) {
+	for (const std::string &word : run.samples) {
+		// "id.variant" names one variant; "all" and "menu" take every variant
+		const size_t dot = word.find('.');
+		const std::string id = word.substr(0, dot);
 		for (size_t i = 0; i < ps5SampleCount; i++) {
-			if (id == "all" || (id == "menu" && ps5Samples[i].inMenu) || id == ps5Samples[i].id) {
-				chosen.push_back(&ps5Samples[i]);
+			const Ps5Sample &sample = ps5Samples[i];
+			if (word == "all" || (word == "menu" && sample.inMenu)) {
+				const std::vector<std::string> variants = variantsOf(sample);
+				if (variants.empty()) {
+					chosen.push_back({ &sample, "" });
+				}
+				for (const std::string &variant : variants) {
+					chosen.push_back({ &sample, variant });
+				}
+			} else if (id == sample.id) {
+				chosen.push_back({ &sample, dot == std::string::npos ? "" : word.substr(dot + 1) });
 			}
 		}
 	}
@@ -192,8 +229,8 @@ int runTests(const TestRun &run)
 		mkdir(screenshotDir, 0777);
 		chmod(screenshotDir, 0777);
 		// No picture of an earlier run may pass for this one's
-		for (const Ps5Sample *sample : chosen) {
-			remove((std::string(screenshotDir) + "/" + sample->id + ".ppm").c_str());
+		for (const Chosen &entry : chosen) {
+			remove((std::string(screenshotDir) + "/" + entry.name() + ".ppm").c_str());
 		}
 	}
 	results = fopen(resultsPath, "w");
@@ -214,9 +251,9 @@ int runTests(const TestRun &run)
 		ps5_run_launcher(-1, "", run.frames, screenshot);
 		report("sample launcher: ok, %u frames in %.2f s", run.frames, now() - start);
 	}
-	for (const Ps5Sample *sample : chosen) {
-		const std::string screenshot = run.screenshot ? std::string(screenshotDir) + "/" + sample->id + ".ppm" : "";
-		if (!runSample(*sample, run.frames, screenshot).ok) {
+	for (const Chosen &entry : chosen) {
+		const std::string screenshot = run.screenshot ? std::string(screenshotDir) + "/" + entry.name() + ".ppm" : "";
+		if (!runSample(*entry.sample, run.frames, screenshot, true, entry.variant).ok) {
 			failed++;
 		}
 	}

@@ -26,6 +26,16 @@ struct Ps5Sample {
 extern const Ps5Sample ps5Samples[];
 extern const size_t ps5SampleCount;
 
+/* A sample's variants for test runs (samples.cpp): its id, and the variant
+ * names separated by spaces. */
+struct Ps5Variants {
+	const char *id;
+	const char *names;
+};
+
+extern const Ps5Variants ps5Variants[];
+extern const size_t ps5VariantCount;
+
 /* The pad, shared by every sample and the launcher (example_ps5.cpp). */
 struct pad &ps5_pad();
 

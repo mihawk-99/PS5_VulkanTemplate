@@ -98,11 +98,13 @@ done
 (cd "$vulkan/runtime" && sha256sum --check --strict --quiet libc.prx.sha256)
 cp "$vulkan/runtime/libc.prx" "$app/sce_module/libc.prx"
 # The precompiled SPIR-V of the base class and of each sample linked in
-# (CMake writes the list without a final newline: read then reports end of file)
+# (CMake writes the list without a final newline: read then reports end of file).
+# A sample that draws only with the UI kit has none: the kit carries its own.
 IFS=';' read -r -a samples < "$work/samples.txt" || (( ${#samples[@]} ))
 rm -rf "$app/shaders/glsl"
 mkdir -p "$app/shaders/glsl"
 for dir in base "${samples[@]}"; do
+    compgen -G "$root/shaders/glsl/$dir/*.spv" > /dev/null || continue
     mkdir -p "$app/shaders/glsl/$dir"
     cp "$root/shaders/glsl/$dir/"*.spv "$app/shaders/glsl/$dir/"
 done

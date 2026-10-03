@@ -33,7 +33,7 @@ TITLE_ID = __import__("json").loads((PS5 / "sce_sys" / "param.json").read_text()
 
 PARAM = __import__("json").loads((PS5 / "sce_sys" / "param.json").read_text())
 TITLE_NAME = PARAM["localizedParameters"]["en-US"]["titleName"]
-SAMPLE_LINE = re.compile(r"(?:\[" + re.escape(TITLE_NAME) + r"\] |^)sample (\w+): (ok|FAILED)(.*)", re.M)
+SAMPLE_LINE = re.compile(r"(?:\[" + re.escape(TITLE_NAME) + r"\] |^)sample ([\w.]+): (ok|FAILED)(.*)", re.M)
 CRASH = re.compile(r"A user thread receives a fatal signal|mDBG: Sending signal|GPU_FAULT|gpu fault", re.I)
 DRIVER_ERROR = re.compile(r"\bradv(/ps5)?: .*(error|fail)|MESA: error|amdgpu: .*fail|Fatal : VkResult", re.I)
 # Mean absolute difference (0..255 per channel) a screenshot may have from its reference
@@ -52,16 +52,27 @@ def samples_in_menu():
     return [m.group(1) for m in re.finditer(r"\n\s*SAMPLE\((\w+),\s*true,", text)]
 
 
+def variants():
+    """VARIANTS(id, "a b c") lines of samples.cpp: a run names them id.a, id.b..."""
+    text = (PS5 / "src" / "samples.cpp").read_text()
+    return {m.group(1): m.group(2).split() for m in re.finditer(r"\n\s*VARIANTS\((\w+),\s*\"([^\"]*)\"\)", text)}
+
+
 def resolve(words):
     built = samples_in_build()
+    listed = variants()
     chosen = []
     for word in words:
         ids = built if word == "all" else samples_in_menu() if word == "menu" else [word]
         for sample in ids:
-            if sample not in built and sample != "launcher":  # "launcher": the menu itself
-                sys.exit(f"{sample} is not linked into the title (ps5/src/samples.cpp)")
-            if sample not in chosen:
-                chosen.append(sample)
+            base = sample.split(".")[0]
+            if base not in built and sample != "launcher":  # "launcher": the menu itself
+                sys.exit(f"{base} is not linked into the title (ps5/src/samples.cpp)")
+            # "all" and "menu" run a sample's variants instead of the sample
+            names = [f"{sample}.{v}" for v in listed[sample]] if word in ("all", "menu") and sample in listed else [sample]
+            for name in names:
+                if name not in chosen:
+                    chosen.append(name)
     print("\n".join(chosen))
 
 

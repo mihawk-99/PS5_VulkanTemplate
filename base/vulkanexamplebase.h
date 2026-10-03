@@ -327,6 +327,8 @@ public:
 		bool ownOverlay = false;
 		/** @brief OPTIONS ends the sample, back to the menu; in a title with one program, it shows and hides the overlay */
 		bool optionsEnds = true;
+		/** @brief A test run's variant of the sample ("uikit.aurora" runs uikit with "aurora"); empty otherwise */
+		std::string variant;
 	} ps5;
 	/** @brief Reads the pad: the sticks move the camera, the buttons drive the UI overlay, OPTIONS ends the sample */
 	void ps5HandleInput();

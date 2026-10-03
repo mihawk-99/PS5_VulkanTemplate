@@ -1,5 +1,5 @@
 /*
- * PS5 Vulkan Template - the console: klog, the splash, the pad, time, the exit.
+ * PS5 Vulkan Template - the console: klog, the splash, the pad, sound, time, the exit.
  *
  * Copyright (C) 2026 Mihawk
  *
@@ -12,7 +12,9 @@
 
 #include <ps5platform/klog.h>
 
+#include <pthread.h>
 #include <stdarg.h>
+#include <stdatomic.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
@@ -25,6 +27,14 @@ int sceUserServiceGetInitialUser(int32_t *user_id);
 int scePadInit(void);
 int scePadOpen(int32_t user_id, int32_t port_type, int32_t index, const void *params);
 int scePadRead(int32_t handle, void *samples, int32_t capacity);
+int scePadSetVibrationMode(int32_t handle, int32_t mode);
+int scePadSetVibration(int32_t handle, const void *vibration);
+int scePadSetLightBar(int32_t handle, const void *color);
+int sceAudioOutInit(void);
+int sceAudioOutOpen(int32_t user, int32_t type, int32_t index, uint32_t grain, uint32_t rate,
+                    uint32_t format);
+int sceAudioOutOutput(int32_t port, const void *samples);
+int sceAudioOutClose(int32_t port);
 int sceKernelUsleep(uint32_t microseconds);
 
 void
@@ -89,12 +99,14 @@ _Static_assert(sizeof(struct pad_sample) == 120, "the console's pad samples are 
 _Static_assert(offsetof(struct pad_sample, connected) == 0x4c, "connection state sits at 0x4c");
 _Static_assert(offsetof(struct pad_sample, timestamp_us) == 0x50, "the timestamp sits at 0x50");
 
-/* Set while the shell has the pad (the home screen, a system dialog): such a
- * sample is not input for the title. */
-#define PAD_INTERCEPTED 0x80000000u
+/* The two-motor rumble, as PS5_vkQuake and ProsperoLight drive it (the other
+ * mode is the DualSense's haptics). */
+#define PAD_VIBRATION_COMPATIBLE 2
 
 static int32_t pad_handle = -1;
 static struct pad_sample pad_last;
+static struct pad_reading pad_taken[64];
+static int pad_taken_count;
 
 bool
 pad_open(void)
@@ -112,6 +124,8 @@ pad_open(void)
          sceKernelUsleep(100000);
    }
    say(pad_handle >= 0 ? "pad: opened for user %d" : "pad: scePadOpen failed for user %d", (int)user);
+   if (pad_handle >= 0)
+      say("pad: rumble mode %d", scePadSetVibrationMode(pad_handle, PAD_VIBRATION_COMPATIBLE));
    memset(&pad_last, 0, sizeof(pad_last));
    pad_last.left_x = pad_last.left_y = pad_last.right_x = pad_last.right_y = 128;
    return pad_handle >= 0;
@@ -131,12 +145,17 @@ void
 pad_poll(struct pad *pad)
 {
    const uint32_t before = pad->held;
+   pad_taken_count = 0;
    if (pad_handle >= 0) {
-      static struct pad_sample samples[16];
-      const int count = scePadRead(pad_handle, samples, 16);
-      for (int i = 0; i < count && i < 16; i++) {
-         if (samples[i].connected && !(samples[i].buttons & PAD_INTERCEPTED))
-            pad_last = samples[i];
+      static struct pad_sample samples[64];
+      const int count = scePadRead(pad_handle, samples, 64);
+      for (int i = 0; i < count && i < 64; i++) {
+         const struct pad_sample *s = &samples[i];
+         pad_taken[pad_taken_count++] = (struct pad_reading){
+            s->buttons, s->left_x, s->left_y, s->right_x, s->right_y, s->l2, s->r2,
+            s->connected != 0, s->timestamp_us};
+         if (s->connected && !(s->buttons & PAD_INTERCEPTED))
+            pad_last = *s;
       }
    }
    pad->held = pad_handle >= 0 ? pad_last.buttons : 0;
@@ -147,4 +166,104 @@ pad_poll(struct pad *pad)
    pad->right_y = stick(pad_last.right_y);
    pad->l2 = pad_last.l2 / 255.0f;
    pad->r2 = pad_last.r2 / 255.0f;
+}
+
+int
+pad_readings(const struct pad_reading **readings)
+{
+   *readings = pad_taken;
+   return pad_taken_count;
+}
+
+void
+pad_vibrate(float large, float small)
+{
+   if (pad_handle < 0)
+      return;
+   const float l = large < 0.0f ? 0.0f : large > 1.0f ? 1.0f : large;
+   const float s = small < 0.0f ? 0.0f : small > 1.0f ? 1.0f : small;
+   const uint8_t motors[2] = {(uint8_t)(l * 255.0f), (uint8_t)(s * 255.0f)};
+   (void)scePadSetVibration(pad_handle, motors);
+}
+
+void
+pad_light_bar(uint8_t r, uint8_t g, uint8_t b)
+{
+   if (pad_handle < 0)
+      return;
+   const uint8_t color[4] = {r, g, b, 0};
+   (void)scePadSetLightBar(pad_handle, color);
+}
+
+/* --------------------------------------------------------------- the sound */
+
+#define AUDIO_GRAIN 256
+#define AUDIO_ALREADY_INITIALISED ((int)0x8026000e)
+
+static int32_t audio_port = -1;
+static pthread_t audio_thread;
+static atomic_bool audio_running;
+static audio_fill_fn audio_fill;
+static void *audio_user;
+
+static void *
+audio_main(void *unused)
+{
+   (void)unused;
+   static int16_t grain[AUDIO_GRAIN * 2] __attribute__((aligned(64)));
+   unsigned errors = 0;
+   while (atomic_load(&audio_running)) {
+      audio_fill(grain, AUDIO_GRAIN, audio_user);
+      /* Blocks for one grain: this is what paces the thread. An output that
+       * stops taking grains is said once, not left to stall the program. */
+      if (sceAudioOutOutput(audio_port, grain) < 0) {
+         if (errors++ == 0)
+            say("audio: sceAudioOutOutput failed");
+         sceKernelUsleep(5000);
+      }
+   }
+   (void)sceAudioOutOutput(audio_port, NULL); /* drain the grain still queued */
+   return NULL;
+}
+
+bool
+audio_start(audio_fill_fn fill, void *user)
+{
+   if (audio_port >= 0 || fill == NULL)
+      return false;
+   const int init = sceAudioOutInit();
+   if (init < 0 && init != AUDIO_ALREADY_INITIALISED) {
+      say("audio: sceAudioOutInit 0x%08x", (unsigned)init);
+      return false;
+   }
+   /* The system user's main port: 256 frames, 48 kHz, 16-bit stereo. */
+   audio_port = sceAudioOutOpen(0xff, 0, 0, AUDIO_GRAIN, 48000, 1);
+   if (audio_port < 0) {
+      say("audio: sceAudioOutOpen 0x%08x", (unsigned)audio_port);
+      audio_port = -1;
+      return false;
+   }
+   audio_fill = fill;
+   audio_user = user;
+   atomic_store(&audio_running, true);
+   if (pthread_create(&audio_thread, NULL, audio_main, NULL) != 0) {
+      say("audio: no thread");
+      atomic_store(&audio_running, false);
+      (void)sceAudioOutClose(audio_port);
+      audio_port = -1;
+      return false;
+   }
+   say("audio: 48 kHz stereo on port %d", (int)audio_port);
+   return true;
+}
+
+void
+audio_stop(void)
+{
+   if (audio_port < 0)
+      return;
+   atomic_store(&audio_running, false);
+   pthread_join(audio_thread, NULL);
+   (void)sceAudioOutClose(audio_port);
+   audio_port = -1;
 }
