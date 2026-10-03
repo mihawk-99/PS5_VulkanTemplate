@@ -56,9 +56,13 @@ radv_link_recipe "$vulkan" "$sdk" "$archive" || exit 2
 # tinygltf's JSON parser then read 0.62 as 0): the platform layer's since SDK fork
 # fa69d00 (tools/setup-sdk.sh's pin is never older), bound by PS5_Vulkan's recipe
 # since its 6a6dfa6. With an older recipe the title binds it here, kept local as
-# the recipe keeps its bound names.
-if "$sdk/bin/llvm-nm" --defined-only "$sdk/target/lib/libps5platform.a" 2>/dev/null | grep -q " T ps5_localeconv$" &&
-        [[ " ${radv_link_flags[*]} " != *" --defsym=localeconv=ps5_localeconv "* ]]; then
+# the recipe keeps its bound names. The symbol listing is read whole before it
+# is searched: piped into grep -q under pipefail, llvm-nm's SIGPIPE made the
+# found symbol a miss about half the time once the archive grew (SDK adc8dd7).
+platform_has_localeconv=false
+grep -q " T ps5_localeconv$" <<<"$("$sdk/bin/llvm-nm" --defined-only "$sdk/target/lib/libps5platform.a" 2>/dev/null)" &&
+    platform_has_localeconv=true
+if $platform_has_localeconv && [[ " ${radv_link_flags[*]} " != *" --defsym=localeconv=ps5_localeconv "* ]]; then
     printf '{\n    local:\n        localeconv;\n};\n' > "$work/link/localeconv-local.map"
     radv_link_flags+=(--defsym=localeconv=ps5_localeconv --version-script "$work/link/localeconv-local.map")
 fi
@@ -69,6 +73,13 @@ fi
     "$work/link/stubs/libSceAgc.so" "$work/link/stubs/libSceAgcDriver.so" \
     "${radv_link_inputs[@]}" \
     --as-needed "$sdk"/target/lib/*.so
+# A title whose localeconv is still the console's reads every glTF fraction as 0
+# (black materials, models scaled to nothing): refuse it here, not on the console
+if $platform_has_localeconv &&
+        grep -q " U localeconv$" <<<"$("$sdk/bin/llvm-nm" "$work/link/llvm-pie.elf" 2>/dev/null)"; then
+    echo "link-title.sh: localeconv is not bound to the platform layer's ps5_localeconv" >&2
+    exit 1
+fi
 "$tool" link --in "$work/link/llvm-pie.elf" --out "$work/eboot.elf.new" \
     --stub-dir "$sdk/target/lib" --stub "$work/link/stubs/libSceAgc.so" \
     --stub "$work/link/stubs/libSceAgcDriver.so" --module-sdk 0x02000009 \

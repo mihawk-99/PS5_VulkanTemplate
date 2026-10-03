@@ -394,6 +394,12 @@ Titles made earlier keep their copy of the foundation; carry a fix into one by h
   (SDK fork fa69d00 and later) fixes it, bound by the link (PS5_Vulkan's recipe, or
   `link-title.sh` when the recipe predates it). Keep the SDK pin (`ps5/tools/setup-sdk.sh`)
   at or after fa69d00.
+- **A symbol check piped into `grep -q` under `set -o pipefail`** is a coin flip: grep
+  stops at the match, the lister takes SIGPIPE, and pipefail reports a miss. The
+  link's `localeconv` binding was decided that way, and after the SDK archive grew
+  (adc8dd7) half the links came out with the console's `localeconv` and black glTF
+  materials. Read the listing whole first (`grep -q ... <<<"$(llvm-nm ...)"`);
+  `link-title.sh` now refuses a title whose `localeconv` is unbound.
 - **A header first included inside a sample's namespace** breaks the build in strange
   ways (`std::` inside `sample_x::std`): add it to `ps5/src/prelude.h`.
 - **A library's `*_IMPLEMENTATION` macro in a sample** duplicates code the base
