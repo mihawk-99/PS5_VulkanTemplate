@@ -2,7 +2,8 @@
   "comment": "The assets the PS5 title ships, each with its origin and licence (ps5/tools/build-assets.py; the notices in ps5/ASSETS.md are written from this file). Only assets with a clear licence are listed: the rest of the asset pack is not shipped, and samples that use such assets get replacements made or fetched here.",
   "sources": {
     "download": "files fetched at pinned SHA-256 hashes into build/ps5/downloads/: the asset pack's (SaschaWillems/Vulkan-Assets at a27c0e584434) whose licences are clear",
-    "generated": "ps5/tools/generate_assets.py: geometry and noise written there, or CC0 files it downloads (Poly Haven; Khronos's glTF-Sample-Assets at f36bfdabd1031c3cf6689a50570b8cdf3678b49c) at pinned SHA-256 hashes"
+    "generated": "ps5/tools/generate_assets.py: geometry and noise written there, or CC0 files it downloads (Poly Haven; Khronos's glTF-Sample-Assets at f36bfdabd1031c3cf6689a50570b8cdf3678b49c) at pinned SHA-256 hashes",
+    "kit": "the UI module's fonts and sounds, from PS5_VKHomebrewUI at the revision ps5/ui/setup-kit.sh pins (BlackBearReloaded's ps5-homebrew-ui with a Vulkan backend), exported into .deps/hui; installed under hui/ when the title links the UI module"
   },
   "assets": [
     {
@@ -491,6 +492,132 @@
       "author": "made for this fork (ps5/tools/generate_assets.py)",
       "licence": "MIT",
       "url": "ps5/tools/generate_assets.py"
+    },
+    {
+      "path": "hui/fonts/inter-regular.huifont",
+      "from": "kit",
+      "source": "assets/fonts/inter-regular.huifont",
+      "used_by": [
+        "@ui"
+      ],
+      "title": "Inter Regular",
+      "author": "The Inter Project Authors",
+      "licence": "OFL-1.1",
+      "url": "https://github.com/rsms/inter",
+      "changes": "a signed-distance-field atlas, made by ps5-homebrew-ui's tools/bake-fonts.sh",
+      "licence_file": "kit:assets/fonts/Inter-LICENSE.txt"
+    },
+    {
+      "path": "hui/fonts/inter-semibold.huifont",
+      "from": "kit",
+      "source": "assets/fonts/inter-semibold.huifont",
+      "used_by": [
+        "@ui"
+      ],
+      "title": "Inter SemiBold",
+      "author": "The Inter Project Authors",
+      "licence": "OFL-1.1",
+      "url": "https://github.com/rsms/inter",
+      "changes": "a signed-distance-field atlas, made by ps5-homebrew-ui's tools/bake-fonts.sh",
+      "licence_file": "kit:assets/fonts/Inter-LICENSE.txt"
+    },
+    {
+      "path": "hui/fonts/montserrat-medium.huifont",
+      "from": "kit",
+      "source": "assets/fonts/montserrat-medium.huifont",
+      "used_by": [
+        "@ui"
+      ],
+      "title": "Montserrat Medium",
+      "author": "The Montserrat Project Authors",
+      "licence": "OFL-1.1",
+      "url": "https://github.com/JulietaUla/Montserrat",
+      "changes": "a signed-distance-field atlas, made by ps5-homebrew-ui's tools/bake-fonts.sh",
+      "licence_file": "kit:assets/fonts/Montserrat-LICENSE.txt"
+    },
+    {
+      "path": "hui/fonts/dejavu-sans-mono.huifont",
+      "from": "kit",
+      "source": "assets/fonts/dejavu-sans-mono.huifont",
+      "used_by": [
+        "@ui"
+      ],
+      "title": "DejaVu Sans Mono",
+      "author": "Bitstream, Inc.; the DejaVu changes are in the public domain",
+      "licence": "Bitstream-Vera",
+      "url": "https://dejavu-fonts.github.io/",
+      "changes": "a signed-distance-field atlas, made by ps5-homebrew-ui's tools/bake-fonts.sh",
+      "licence_file": "kit:assets/fonts/DejaVu-LICENSE.txt"
+    },
+    {
+      "path": "hui/fonts/press-start-2p.huifont",
+      "from": "kit",
+      "source": "assets/fonts/press-start-2p.huifont",
+      "used_by": [
+        "@ui"
+      ],
+      "title": "Press Start 2P",
+      "author": "The Press Start 2P Project Authors",
+      "licence": "OFL-1.1",
+      "url": "https://fonts.google.com/specimen/Press+Start+2P",
+      "changes": "a signed-distance-field atlas, made by ps5-homebrew-ui's tools/bake-fonts.sh",
+      "licence_file": "kit:assets/fonts/PressStart2P-LICENSE.txt"
+    },
+    {
+      "path": "hui/fonts/patrick-hand.huifont",
+      "from": "kit",
+      "source": "assets/fonts/patrick-hand.huifont",
+      "used_by": [
+        "@ui"
+      ],
+      "title": "Patrick Hand",
+      "author": "Patrick Wagesreiter",
+      "licence": "OFL-1.1",
+      "url": "https://fonts.google.com/specimen/Patrick+Hand",
+      "changes": "a signed-distance-field atlas, made by ps5-homebrew-ui's tools/bake-fonts.sh",
+      "licence_file": "kit:assets/fonts/PatrickHand-LICENSE.txt"
+    },
+    {
+      "path": "hui/audio/sfx/glass",
+      "from": "kit",
+      "source": "assets/audio/sfx/glass",
+      "used_by": [
+        "@ui"
+      ],
+      "title": "The glass sound set (ProsperoEden's sound effects)",
+      "author": "BlackBearReloaded",
+      "licence": "GPL-3.0-or-later",
+      "url": "https://github.com/blackbearreloaded/ps5-homebrew-ui",
+      "changes": "generated with ElevenLabs Sound Effects v2 for ProsperoEden, trimmed, faded and levelled by ps5-homebrew-ui's tools/process-sfx.py (its THIRD_PARTY_NOTICES.md)",
+      "licence_file": "licenses/GPL-3.0.txt"
+    },
+    {
+      "path": "hui/audio/sfx/paper",
+      "from": "kit",
+      "source": "assets/audio/sfx/paper",
+      "used_by": [
+        "@ui"
+      ],
+      "title": "The paper sound set (ProsperoPuzzles' sound effects)",
+      "author": "BlackBearReloaded",
+      "licence": "GPL-3.0-or-later",
+      "url": "https://github.com/blackbearreloaded/ps5-homebrew-ui",
+      "changes": "generated with ElevenLabs Sound Effects v2 for ProsperoPuzzles, trimmed, faded and levelled by ps5-homebrew-ui's tools/process-sfx.py (its THIRD_PARTY_NOTICES.md)",
+      "licence_file": "licenses/GPL-3.0.txt"
+    },
+    {
+      "path": "hui/audio/music",
+      "from": "kit",
+      "source": "assets/audio/music",
+      "used_by": [
+        "@ui"
+      ],
+      "title": "First Light, Open Strings and Quiet Hours",
+      "author": "BlackBearReloaded",
+      "licence": "GPL-3.0-or-later",
+      "url": "https://github.com/blackbearreloaded/ps5-homebrew-ui",
+      "changes": "48 kHz OGG Vorbis at -18 LUFS, as ps5-homebrew-ui ships them",
+      "licence_file": "licenses/GPL-3.0.txt"
     }
   ]
 }

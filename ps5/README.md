@@ -43,6 +43,32 @@ its list became scrollable so that the menu fits the display).
 
 The assets, their authors and licences: [`ASSETS.md`](ASSETS.md).
 
+### The UI module
+
+Three more programs draw with the UI module ([`ui/README.md`](ui/README.md)):
+BlackBearReloaded's ps5-homebrew-ui kit, drawn with Vulkan through my fork
+PS5_VKHomebrewUI. The module is GPL-3.0-or-later and built only when `ps5/ui/` is
+there; a title made without `--ui` has none of it. Test runs reach the three; the
+menu does not list them yet.
+
+They were proven on 2026-10-03 with RADV 15a5e99, SDK fork adc8dd7 and
+PS5_VKHomebrewUI 4451c26, in the same two launches as a full run of the sixteen
+samples above (41 programs a launch, 41 passes both times, the sixteen on their
+figures above): each held 119.9 fps at 3840x2160 (`uikit.settings` 119.1 in the
+first launch, 119.9 in the second), drew within 3.3 levels of the host's picture,
+opened the console's audio output, and left klog clean. How the sounds and the
+rumble feel is not something a run checks.
+
+| Program | What it shows | Console | From the host |
+| --- | --- | --- | --- |
+| `uikit` | the kit's gallery: twenty-one designs (L1/R1), the Theme Lab's thirty themes, the component library, the kit's sounds and music | 119.9 fps | 1.2 |
+| `uikit.<design>` | the gallery started on one design, playing the kit's own tour of it: all twenty-one (`aurora` ... `toolbox`, `samples.cpp`'s `VARIANTS`) | 119.9 fps each | 0.4 to 3.3 |
+| `uioverlay` | a HUD and a frosted pause menu over the starter's lantern, drawn off-screen and blurred by the glass (`import_texture`); the kit on dynamic rendering | 119.9 fps | 0.2 |
+| `uiscreen` | the UI starter: one design full screen, the program a `--ui` title grows from | 119.9 fps | 1.2 |
+
+In the three, every button is the program's (OPTIONS pauses or belongs to the
+design), and holding OPTIONS for a second goes back to the menu.
+
 ## Controls
 
 In the menu, the D-pad chooses and CROSS starts. In a sample:
@@ -184,6 +210,7 @@ made here, where every sample tests it, and committed first. Proven on 2026-10-0
 a title made this way built from nothing in 31 s and passed its test run on the
 console (119.9 fps, 0.6 from its host reference, a clean exit).
 
+
 ## Adding a sample
 
 1. Add a `SAMPLE(id, false, "title", "description")` line to `src/samples.cpp`. The
@@ -202,4 +229,6 @@ console (119.9 fps, 0.6 from its host reference, a clean exit).
 Upstream's code is MIT (`LICENSE.md`), and so is what I add in `ps5/`. The assets
 keep their own licences (`ASSETS.md`; the title's `assets/NOTICES.txt` lists those
 installed). The built title links the PS5 platform layer of my payload SDK fork, which
-is GPL-3.0, so the title as distributed is under GPL-3.0; RADV (Mesa) is MIT.
+is GPL-3.0, so the title as distributed is under GPL-3.0; RADV (Mesa) is MIT. The UI
+module (`ps5/ui/`), the programs that draw with it and the kit's sounds are
+GPL-3.0-or-later, its fonts OFL-1.1 and Bitstream Vera (`ui/README.md`).

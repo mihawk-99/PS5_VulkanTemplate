@@ -58,3 +58,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+// The UI module's glue and, through it, the kit's headers (ps5/ui/, when the
+// title has it)
+#if defined(PS5_UI)
+#include "kit.hpp"
+#endif

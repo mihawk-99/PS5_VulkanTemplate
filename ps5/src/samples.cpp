@@ -36,7 +36,10 @@
 	SAMPLE(dynamicrendering, true, "Dynamic rendering", "Rendering without render pass and framebuffer objects") \
 	SAMPLE(imgui, true, "On-screen UI", "Dear ImGui drawn over a 3D scene, with windows of its own") \
 	SAMPLE(meshshader, true, "Mesh shaders", "Geometry made by task and mesh shaders, with no vertex input") \
-	SAMPLE(rayquery, true, "Ray queries", "Shadows traced against an acceleration structure from a fragment shader")
+	SAMPLE(rayquery, true, "Ray queries", "Shadows traced against an acceleration structure from a fragment shader") \
+	SAMPLE(uikit, false, "Homebrew UI", "BlackBearReloaded's 21 UI designs and 30 themes, drawn with Vulkan: L1/R1 switch, hold OPTIONS to come back") \
+	SAMPLE(uioverlay, false, "UI over a game", "The kit's HUD and a frosted pause menu (OPTIONS) over a 3D scene; hold OPTIONS to come back") \
+	SAMPLE(uiscreen, false, "UI starter", "The program a UI homebrew grows from: one of the kit's designs, full screen; hold OPTIONS to come back")
 
 #define SAMPLE(id, menu, title, description) \
 	namespace sample_##id { VulkanExampleBase *createExample(); }
@@ -49,7 +52,8 @@ const Ps5Sample ps5Samples[] = { PS5_SAMPLES };
 
 const size_t ps5SampleCount = sizeof(ps5Samples) / sizeof(ps5Samples[0]);
 
-#define PS5_VARIANTS
+#define PS5_VARIANTS \
+	VARIANTS(uikit, "aurora paper neon editorial carousel radial hud dashboard player keyboard constellation terminal store trophies files inventory boot settings themes components toolbox")
 
 #define VARIANTS(id, names) { #id, names },
 const Ps5Variants ps5Variants[] = { PS5_VARIANTS { nullptr, nullptr } };

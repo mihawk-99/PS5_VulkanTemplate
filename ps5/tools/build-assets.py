@@ -8,9 +8,11 @@
 
 Every asset comes from ps5/assets.json, which names its origin and licence:
 "download" (files at pinned URLs and SHA-256 hashes, among them the asset pack's
-whose licences are clear), "file" (kept in the repository), or "generated" (made by ps5/tools/generate_assets.py, deterministically,
+whose licences are clear), "file" (kept in the repository), "generated" (made by ps5/tools/generate_assets.py, deterministically,
 from geometry and noise written there or from CC0 files it downloads at pinned
-SHA-256 hashes into build/ps5/downloads/). The
+SHA-256 hashes into build/ps5/downloads/), or "kit" (the UI kit's fonts and
+sounds, from the pinned PS5_VKHomebrewUI that ps5/ui/setup-kit.sh exports into
+.deps/hui; installed when the title links the UI module, "@ui" in used_by). The
 title's assets/NOTICES.txt lists what was installed, with the licences.
 
 Copyright (C) 2026 Mihawk
@@ -31,6 +33,7 @@ ROOT = PS5.parent
 BUILD = ROOT / "build" / "ps5"
 DOWNLOADS = BUILD / "downloads"
 GENERATED = BUILD / "generated"
+KIT = ROOT / ".deps" / "hui"
 
 
 def load_manifest():
@@ -42,6 +45,17 @@ def linked_samples():
     if not listing.is_file():
         sys.exit("no build/ps5/samples.txt: build the title first (ps5/tools/build.sh)")
     return [s for s in listing.read_text().strip().split(";") if s]
+
+
+def ui_linked():
+    """The build compiled the UI module (ps5/ui/ui.cmake writes build/ps5/ui.txt)."""
+    return (BUILD / "ui.txt").is_file()
+
+
+def licence_path(asset):
+    """A licence text kept in ps5/, or one the kit carries ("kit:<path>")."""
+    name = asset["licence_file"]
+    return KIT / name[4:] if name.startswith("kit:") else PS5 / name
 
 
 def download(url, sha256):
@@ -75,6 +89,11 @@ def source_path(asset, manifest):
     if kind == "file":
         # Kept in the repository itself (a title made by new-title.py has no asset pack)
         return ROOT / asset["source"]
+    if kind == "kit":
+        path = KIT / asset["source"]
+        if not path.exists():
+            sys.exit(f"{asset['path']}: no {path} (the UI kit is exported when the title is built)")
+        return path
     if kind == "generated":
         sys.path.insert(0, str(PS5 / "tools"))
         import generate_assets
@@ -113,11 +132,12 @@ def install(folder):
     staging.mkdir(parents=True)
     installed = []
     for asset in manifest["assets"]:
-        if "*" not in asset["used_by"] and not samples.intersection(asset["used_by"]):
+        used = set(asset["used_by"])
+        if "*" not in used and not samples.intersection(used) and not ("@ui" in used and ui_linked()):
             continue
         copy_asset(source_path(asset, manifest), staging / asset["path"])
         if asset.get("licence_file"):
-            licence = PS5 / asset["licence_file"]
+            licence = licence_path(asset)
             (staging / "LICENSES").mkdir(exist_ok=True)
             shutil.copy2(licence, staging / "LICENSES" / licence.name)
         installed.append(asset)
@@ -141,6 +161,13 @@ def notices_text(assets):
     lines += ["", "CC0-1.0: https://creativecommons.org/publicdomain/zero/1.0/",
               "CC-BY-3.0: https://creativecommons.org/licenses/by/3.0/",
               "MIT: made by ps5/tools/generate_assets.py (from PS5 Vulkan Template, github.com/mihawk-99/PS5_VulkanTemplate), under LICENSE.md"]
+    # The UI kit's licences, when its assets are in
+    used = {asset["licence"] for asset in assets}
+    for licence, line in (("OFL-1.1", "OFL-1.1: https://openfontlicense.org"),
+                          ("Bitstream-Vera", "Bitstream-Vera: https://dejavu-fonts.github.io/License.html"),
+                          ("GPL-3.0-or-later", "GPL-3.0-or-later: https://www.gnu.org/licenses/gpl-3.0.html")):
+        if licence in used:
+            lines.append(line)
     return "\n".join(lines) + "\n"
 
 
@@ -154,7 +181,7 @@ def write_notices():
            "| Path under `/app0/assets/` | Asset | Author | Licence | Samples |",
            "| --- | --- | --- | --- | --- |"]
     for asset in manifest["assets"]:
-        used = ", ".join(asset["used_by"]).replace("*", "all")
+        used = ", ".join(asset["used_by"]).replace("*", "all").replace("@ui", "the UI module")
         title = f"[{asset['title']}]({asset['url']})"
         if asset.get("changes"):
             title += f" ({asset['changes']})"

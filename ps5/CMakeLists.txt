@@ -110,6 +110,14 @@ target_compile_options(samples PRIVATE
 	-O2 -g1 -ffunction-sections -fdata-sections -fno-omit-frame-pointer
 	"SHELL:-include ${CMAKE_CURRENT_SOURCE_DIR}/third_party/volk/volk.h")
 
+# The UI module, when the title has it: PS5_VKHomebrewUI's kit, GPL-3.0-or-later
+# (ui/README.md). Without ps5/ui/ nothing of it is built.
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/ui/ui.cmake)
+	include(ui/ui.cmake)
+else()
+	file(REMOVE ${CMAKE_BINARY_DIR}/ui.txt)
+endif()
+
 if(PS5_HOST_REFERENCE)
 	add_executable(ps5-samples-host $<TARGET_OBJECTS:samples>)
 	target_link_libraries(ps5-samples-host PRIVATE dl pthread)
