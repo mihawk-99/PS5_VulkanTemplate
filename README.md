@@ -14,7 +14,9 @@ every frame on the console, and agent skills for the whole stack.
 <sub>Vulkan Template on my console, through a capture card: the title renders at 3840 x 2160; the clip is 960 x 540 at 60 fps (the card's 1920 x 1080 as an <a href="ps5/screenshots/vulkan-template.mp4">MP4</a>).</sub>
 
 **16 Vulkan samples** &middot; **21 designs** &middot; **30 themes** &middot; **4 agent skills**
-&middot; **43 of 43 programs pass on the console** &middot; **Vulkan 1.4 on RADV** at 3840 x 2160
+&middot; **42 of 42 programs pass on the console** &middot; **Vulkan 1.4 on RADV** at 3840 x 2160
+
+**Latest release: [v1.000.000](https://github.com/mihawk-99/PS5_VulkanTemplate/releases/tag/v1.000.000)**, the Vulkan Template title (PPSA99130), ready to copy to the console
 
 [Samples](#the-samples) &middot;
 [Designs](#the-designs) &middot;
@@ -301,16 +303,18 @@ done
 
 ## Validated on hardware
 
-Validated on my console on 2026-10-03: `ps5/tools/run.sh start launcher all` ran
-the start screen, the Samples menu, Themes, the sixteen samples, the twenty-one
-designs, the UI over a game and the UI starter. **43 of 43 passed**: every
-program held 119.9 frames per second at 3840 x 2160, every last frame was within
-0.2 to 4.5 levels in 255 of the same frame on my PC's driver, klog had no crash
-record, GPU fault or driver error, and the title exited on its own. Numbers per
-program are in [`ps5/README.md`](ps5/README.md).
+Validated on my console on 2026-10-04, with the build of release
+[v1.000.000](https://github.com/mihawk-99/PS5_VulkanTemplate/releases/tag/v1.000.000):
+`ps5/tools/run.sh start launcher themes all` ran the start screen, the Samples
+menu, Themes, the sixteen samples, the twenty-one designs, the UI over a game and
+the UI starter. **42 of 42 passed**: every program held 119.9 frames per second at
+3840 x 2160, every last frame was within 0.2 to 4.5 levels in 255 of the same
+frame on my PC's driver, klog had no crash record, GPU fault or driver error, and
+the title exited on its own. Numbers per program are in
+[`ps5/README.md`](ps5/README.md) and in the release's notes.
 
-Not verified by a person yet: how the kit's sounds and rumble feel with a
-controller in hand (the test runs ignore the pad).
+Tried by hand with a controller: the moves between the start screen, Samples and
+Designs. Not verified by a person yet: how the kit's sounds and rumble feel.
 
 ## Repository layout
 
