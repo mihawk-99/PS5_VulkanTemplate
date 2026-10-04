@@ -126,6 +126,12 @@ public:
 		holdOptions(dt);
 		updateTelemetry();
 		shell->update(input, dt);
+		// CIRCLE that nothing on screen took (a design answers the CIRCLE it
+		// uses with a cue: back, close) leaves the gallery. Not in a test run:
+		// the kit's tours press CIRCLE for the designs
+		if (!ps5.frameBudget && input.is_pressed(hui::Action::back) && shell->feedback().cues.empty()) {
+			quit = true;
+		}
 		if (tour && !tour->capture().empty()) {
 			tour->capture_done(); // the tour's pictures are the PC tool's; the test saves its own
 		}

@@ -172,10 +172,19 @@ public:
 		hui::ui::Painter painter(scene, kit.fonts, theme, glass);
 		const hui::ui::ComponentStyle style{ theme };
 
+		// The entrance: the title fades in, then the cards rise one after another
+		const auto arrive = [this](float delay, float length) {
+			return hui::tween::smoothstep(std::clamp((clock - delay) / length, 0.0f, 1.0f));
+		};
+		const float heading = arrive(0.0f, 0.5f);
+		scene.push_opacity(heading);
+		scene.push_transform(1.0f, 0.0f, 0.0f, 0.0f, (1.0f - heading) * 24.0f);
 		painter.label("PLAYSTATION 5 HOMEBREW", 160.0f, 150.0f, 22.0f, painter.page_text_muted());
 		painter.heading(PS5_TITLE_NAME, 156.0f, 252.0f, 96.0f, painter.page_text());
 		painter.body("Vulkan 1.4 on RADV, at 3840 x 2160: samples of the API, interface designs and thirty themes",
 			160.0f, 308.0f, 26.0f, painter.page_text_muted());
+		scene.pop_transform();
+		scene.pop_opacity();
 
 		hui::ui::CardLook look;
 		look.art_aspect = 1.6f;
@@ -201,13 +210,21 @@ public:
 			hui::ui::CardState state;
 			state.focus = shown[i].value;
 			const Rect card{ 160.0f + (cardWidth + gap) * (float)i, 400.0f, cardWidth, cardHeight };
+			const float rise = arrive(0.25f + 0.12f * (float)i, 0.55f);
+			scene.push_opacity(rise);
+			scene.push_transform(1.0f, 0.0f, 0.0f, 0.0f, (1.0f - rise) * 120.0f);
 			hui::ui::draw_card(canvas, style, look, card, item, state);
+			scene.pop_transform();
+			scene.pop_opacity();
 		}
 
+		const float foot = arrive(0.75f, 0.4f);
+		scene.push_opacity(foot);
 		painter.button({ 860.0f, 940.0f, 200.0f, 60.0f }, "Quit", hui::ui::ButtonKind::secondary, { shown[quitItem].value, 0.0f, false });
 		ps5ui::draw_hints(scene, kit.fonts, theme,
-			{ { hui::ui::Button::dpad, "Move" }, { hui::ui::Button::cross, "Choose" }, { hui::ui::Button::circle, "Back here, from a menu" },
-				{ hui::ui::Button::options, "Hold: back here, from a design" } }, 960.0f, 1040.0f, 0);
+			{ { hui::ui::Button::dpad, "Move" }, { hui::ui::Button::cross, "Choose" }, { hui::ui::Button::circle, "Back here, from each" },
+				{ hui::ui::Button::options, "Hold: back here, always" } }, 960.0f, 1040.0f, 0);
+		scene.pop_opacity();
 
 		hui::gfx::BackdropSpec backdrop = theme.backdrop;
 		backdrop.time = clock;

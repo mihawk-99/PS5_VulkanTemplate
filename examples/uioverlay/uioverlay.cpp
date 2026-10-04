@@ -327,6 +327,8 @@ public:
 		} else {
 			if (input.is_pressed(hui::Action::menu)) {
 				pause.open(feedback);
+			} else if (!ps5.frameBudget && input.is_pressed(hui::Action::back)) {
+				quit = true; // CIRCLE with the game running leaves; in the pause menu it resumes
 			}
 			// The sticks turn and zoom the camera while the game runs
 			camera.rotate(glm::vec3(-input.stick_y, input.stick_x, 0.0f) * 90.0f * dt);

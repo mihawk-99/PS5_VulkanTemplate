@@ -39,6 +39,14 @@ Kit::~Kit()
 bool Kit::init(const hui::gfx::VkRendererConfig &config, const std::string &assets, const Options &options)
 {
 	this->assets = assets;
+	// A button already down as this program starts (the CROSS that chose it on
+	// the screen before, still held or still buffered) is not a press for it:
+	// the tracker starts from the title's pad state, which pad_poll carries
+	// from program to program, as the samples' own input does (example_ps5.cpp)
+	hui::PadSample current;
+	current.buttons = ps5_pad().held;
+	current.connected = true;
+	tracker.update(std::span<const hui::PadSample>(&current, 1), (std::uint64_t)(now_seconds() * 1e6));
 	if (!renderer.init(config)) {
 		say("ui kit: renderer failed, VkResult %d", (int)renderer.last_error());
 		return false;

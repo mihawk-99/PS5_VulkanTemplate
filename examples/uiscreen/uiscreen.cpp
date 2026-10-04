@@ -109,6 +109,10 @@ public:
 		holdOptions(dt);
 		updateTelemetry();
 		screen->update(input, dt, feedback);
+		// CIRCLE the design did not take (it answers the CIRCLE it uses with a cue) leaves
+		if (!ps5.frameBudget && input.is_pressed(hui::Action::back) && feedback.cues.empty()) {
+			quit = true;
+		}
 		if (context->settings_changed) {
 			context->settings_changed = false;
 			kit.apply(choices);
