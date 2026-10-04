@@ -80,6 +80,23 @@ if $platform_has_localeconv &&
     echo "link-title.sh: localeconv is not bound to the platform layer's ps5_localeconv" >&2
     exit 1
 fi
+# A title loads neither libkernel_sys's exports nor libScePosixForWebKit's: an
+# import only their stubs define links, and is null at run time, so its first call
+# jumps to address 0 (PS5_RetroArch's strcasestr did; RADV imports readlink and
+# mkstemp). PS5_Vulkan's recipe binds those the platform layer has: refuse a
+# title that still imports one, here rather than on the console.
+null_imports=$(comm -23 \
+    <("$sdk/bin/llvm-nm" -D --undefined-only "$work/link/llvm-pie.elf" |
+        awk '$1 == "U" { sub(/@.*/, "", $2); print $2 }' | sort -u) \
+    <(for library in "$sdk"/target/lib/*.so "$work/link/stubs/libSceAgc.so" "$work/link/stubs/libSceAgcDriver.so"; do
+        case ${library##*/} in libkernel_sys.so | libScePosixForWebKit.so) continue ;; esac
+        "$sdk/bin/llvm-nm" -D --defined-only "$library" 2>/dev/null | awk '{ print $NF }'
+    done | sort -u))
+if [[ -n $null_imports ]]; then
+    echo "link-title.sh: imports that no module a title loads exports (null at run time): ${null_imports//$'\n'/ }" >&2
+    echo "link-title.sh: bind them to the platform layer (PS5_Vulkan's tools/radv-link.sh)" >&2
+    exit 1
+fi
 "$tool" link --in "$work/link/llvm-pie.elf" --out "$work/eboot.elf.new" \
     --stub-dir "$sdk/target/lib" --stub "$work/link/stubs/libSceAgc.so" \
     --stub "$work/link/stubs/libSceAgcDriver.so" --module-sdk 0x02000009 \

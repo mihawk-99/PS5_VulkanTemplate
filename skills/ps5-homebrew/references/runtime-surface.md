@@ -13,9 +13,14 @@ visible from the build.
    title, or faults in it. The import slot is never filled, and the call jumps to
    address zero.
 
-Nothing in the build can warn about this. The console reports it as an
-instruction-fetch SIGSEGV with `rip: 0`, whose backtrace names the *caller* (a call
-through NULL pushes no frame: `ps5-console` skill, crash reading).
+The build catches one class of it: a name that only the `libkernel_sys` or
+`libScePosixForWebKit` stub defines, whose modules give a title nothing.
+`ps5/tools/link-title.sh` refuses such an import (`strcasestr`, `mkstemp`,
+`readlink`, `link` and `symlink` were, until the recipe bound them; PS5_RetroArch's
+menu called `strcasestr` through NULL). Beyond that, nothing in the build can warn.
+The console reports it as an instruction-fetch SIGSEGV with `rip: 0`, whose
+backtrace names the *caller* (a call through NULL pushes no frame: `ps5-console`
+skill, crash reading).
 
 The canonical case is `getcwd`: declared, linked, imported harmlessly for months,
 and faulting the first time a title called it. Others found the same way:
