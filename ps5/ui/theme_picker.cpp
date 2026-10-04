@@ -77,8 +77,7 @@ public:
 		feedback.clear();
 		hui::InputFrame input = kit.input();
 		if (ps5.frameBudget) {
-			input = hui::InputFrame{};
-			input.connected = true;
+			input = kit.scripted("themes", ps5.framesDrawn);
 		}
 		clock += dt;
 		applied = std::max(0.0f, applied - dt);

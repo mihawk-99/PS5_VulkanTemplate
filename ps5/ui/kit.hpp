@@ -88,6 +88,10 @@ public:
 	// The readings the frame's pad_poll took, folded into one input frame
 	// (the base class's render loop polls before render())
 	hui::InputFrame input();
+	// A test run's input: idle (the pad is ignored), or the presses its
+	// test-run.txt gives this program at this frame ("press <program> <frame>
+	// <action>", ps5_samples.h), for a recording
+	hui::InputFrame scripted(const char *program, uint32_t frame) const;
 	// Plays what an update asked for: each cue in its own sound set, or in
 	// set when it names none; the rumble when haptics is on
 	void play(const hui::ui::Feedback &feedback, hui::audio::SoundSet set, bool haptics = true);

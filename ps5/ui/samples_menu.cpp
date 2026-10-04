@@ -82,8 +82,7 @@ public:
 		feedback.clear();
 		hui::InputFrame input = kit.input();
 		if (ps5.frameBudget) {
-			input = hui::InputFrame{};
-			input.connected = true;
+			input = kit.scripted("launcher", ps5.framesDrawn);
 		}
 		clock += dt;
 		const hui::ui::Event event = list.handle(input, feedback);

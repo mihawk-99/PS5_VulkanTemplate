@@ -27,6 +27,41 @@ the last mark, `SCREENSHOT` saves a GPU screenshot, `SAVE_STATE` / `LOAD_STATE`,
 `RELOAD` reloads the content, `OPTION <key> <value>` sets a core option, and `STOP`
 ends the run through the frontend's own shutdown.
 
+**Lines for a recording.** PS5_VulkanTemplate's `test-run.txt` also takes what a
+recording of the title needs, still deterministic (`ps5/src/ps5_samples.h`):
+`press <program> <frame> <left|right|up|down|cross|l1|r1>` presses for the UI kit's
+screens (`start`, `launcher`, `themes`, `uikit`) at a frame of the run, `orbit 20`
+turns every sample's camera 20 degrees a second (`orbit deferred 8` one program's;
+a first-person camera moves round the scene's origin as well, so the scene stays in
+view), `overlay off` hides the samples' settings windows (imgui keeps its own), and
+`beat 0.592` gives programs that move with music the beat in seconds. References
+are made without them.
+
+### Recording through a capture card
+
+What a 1080p60 USB capture card ("USB3 Video", a V4L2 device: raw YUYV 4:2:2 at
+1920x1080, 60 fps, the best mode it offers) showed, measured on my console:
+
+- **The title must present at 59.94 Hz.** With `param.json`'s high-frame-rate bits
+  the title flips at 119.88 Hz while the link to a 60 Hz card runs at 60: every other
+  frame never reaches the card, so a 1/60 s test step plays back at double speed.
+  Record with those bits left out (`attribute3` 0, as `new-title.py --refresh 60`
+  writes), and put them back after.
+- **The card repeats frames.** It delivered about 62 frames a second from the
+  console's 59.94, one exact copy every 30 or so (0 pixels changed; a real frame of a
+  moving scene changes 40,000 or more). Drop them by exact equality where the picture
+  moves; where it is still, map frames by their capture time at 59.94 Hz from a frame
+  whose index is known (a scripted press lands on its frame within half a frame).
+- **No dropped frames** with `ffmpeg -fps_mode passthrough -enc_time_base demux` and a
+  fast lossless codec (Ut Video, about 375 Mbit/s); x264 lossless and the default
+  frame-rate handling dropped a few. Keep the PC otherwise idle: a busy CPU starved
+  the card's ALSA audio until ffmpeg gave up mid-run.
+- **Colours**: the card sends full-range YUV with the BT.709 matrix, tagged as
+  limited; converting it as full-range BT.709 matched the PC driver's frames to a mean
+  of about 2 levels in 255.
+- **The first program of a launch** may lose its first second under the launch's
+  transition: put the program a recording needs whole second.
+
 ## Measuring
 
 Measure from the title's own records, at the moment they happen, and print them to

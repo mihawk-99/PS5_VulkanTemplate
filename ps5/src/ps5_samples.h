@@ -10,7 +10,9 @@
 #include "platform.h"
 
 #include <cstddef>
+#include <cstdint>
 #include <string>
+#include <vector>
 
 class VulkanExampleBase;
 
@@ -39,6 +41,24 @@ extern const size_t ps5VariantCount;
 /* Set for the whole of a test run (main.cpp): what a person chose earlier (the
  * title's theme) must not change a test's pictures. */
 extern bool ps5TestRun;
+
+/* What a test run's test-run.txt adds to a plain run (main.cpp reads it, and
+ * the launch deletes it): a scripted pad for the kit's programs ("press
+ * <program> <frame> <left|right|up|down|cross|r1|l1>"), the music's beat in
+ * seconds for programs that move with one ("beat 0.592"), a slow camera orbit
+ * for the samples in degrees a second ("orbit 12", or "orbit deferred 8" for one
+ * program; a first-person camera moves round the scene's origin too), and their
+ * settings windows hidden ("overlay off"; imgui keeps its own). A recording of
+ * the title wants them; the samples' references are made without. */
+struct Ps5Press {
+	std::string program;
+	uint32_t frame;
+	std::string action;
+};
+extern std::vector<Ps5Press> ps5Presses;
+extern float ps5Beat;
+extern float ps5Orbit;
+extern bool ps5HideOverlay;
 
 /* The pad, shared by every sample and the launcher (example_ps5.cpp). */
 struct pad &ps5_pad();

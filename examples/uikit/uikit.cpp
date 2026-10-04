@@ -122,6 +122,9 @@ public:
 		hui::InputFrame input = kit.input();
 		if (tour) {
 			input = tour->step(dt);
+		} else if (ps5.frameBudget) {
+			// A test run ignores the pad; a reel's script may press for it
+			input = kit.scripted("uikit", ps5.framesDrawn);
 		}
 		holdOptions(dt);
 		updateTelemetry();

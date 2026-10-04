@@ -136,8 +136,7 @@ public:
 		feedback.clear();
 		hui::InputFrame input = kit.input();
 		if (ps5.frameBudget) {
-			input = hui::InputFrame{};
-			input.connected = true;
+			input = kit.scripted("start", ps5.framesDrawn);
 		}
 		clock += dt;
 		const bool onCards = focus < cardCount;

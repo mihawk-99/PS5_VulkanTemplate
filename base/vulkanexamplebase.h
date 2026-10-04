@@ -329,6 +329,8 @@ public:
 		bool optionsEnds = true;
 		/** @brief A test run's variant of the sample ("uikit.aurora" runs uikit with "aurora"); empty otherwise */
 		std::string variant;
+		/** @brief A recording's camera orbit in a test run, degrees a second (test-run.txt's "orbit") */
+		float orbit = 0.0f;
 	} ps5;
 	/** @brief Reads the pad: the sticks move the camera, the buttons drive the UI overlay, OPTIONS ends the sample */
 	void ps5HandleInput();

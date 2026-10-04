@@ -32,6 +32,7 @@
 #include <cstring>
 #include <cstdarg>
 #include <fstream>
+#include <map>
 #include <sstream>
 
 #if !defined(PS5_HOST_REFERENCE)
@@ -48,6 +49,8 @@ namespace {
 const char *const testRunPath = PS5_APP_ROOT "/test-run.txt";
 const char *const resultsPath = PS5_APP_ROOT "/test-results.txt";
 FILE *results = nullptr;
+// test-run.txt's "orbit <program> <degrees a second>" lines
+std::map<std::string, float> orbits;
 
 /* A test run's line: to klog, and to the results file, flushed at once so a
  * run that crashes keeps what came before. */
@@ -93,6 +96,26 @@ bool readTestRun(TestRun &run)
 			for (std::string id; words >> id;) {
 				run.samples.push_back(id);
 			}
+		} else if (key == "press") {
+			Ps5Press press;
+			if (words >> press.program >> press.frame >> press.action) {
+				ps5Presses.push_back(press);
+			}
+		} else if (key == "beat") {
+			words >> ps5Beat;
+		} else if (key == "orbit") {
+			// "orbit 20" for every program, "orbit deferred 8" for one
+			std::string first, second;
+			words >> first;
+			if (words >> second) {
+				orbits[first] = std::stof(second);
+			} else {
+				ps5Orbit = std::stof(first);
+			}
+		} else if (key == "overlay") {
+			std::string value;
+			words >> value;
+			ps5HideOverlay = value == "off";
 		} else {
 			say("test run: unknown line \"%s\"", line.c_str());
 		}
@@ -140,6 +163,11 @@ Result runSample(const Ps5Sample &sample, uint32_t frameBudget, const std::strin
 		example->ps5.screenshotPath = screenshotPath;
 		example->ps5.optionsEnds = optionsEnds;
 		example->ps5.variant = variant;
+		const auto orbit = orbits.find(name);
+		example->ps5.orbit = !frameBudget ? 0.0f : orbit != orbits.end() ? orbit->second : ps5Orbit;
+		if (frameBudget && ps5HideOverlay && strcmp(sample.id, "imgui") != 0) {
+			example->settings.overlay = false;
+		}
 		if (!example->initVulkan()) {
 			throw std::runtime_error("initVulkan failed");
 		}

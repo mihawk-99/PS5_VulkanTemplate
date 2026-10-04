@@ -15,6 +15,10 @@
 #include <sys/stat.h>
 
 bool ps5TestRun = false;
+std::vector<Ps5Press> ps5Presses;
+float ps5Beat = 0.5f;
+float ps5Orbit = 0.0f;
+bool ps5HideOverlay = false;
 
 /* The overlay keeps upstream's look unless the UI module restyles it in the
  * title's theme (ps5/ui/overlay_theme.cpp defines these without weak). */
@@ -48,6 +52,16 @@ void VulkanExampleBase::ps5HandleInput()
 		}
 		if (ps5.framesDrawn + 1 == ps5.frameBudget) {
 			ps5.lastFrameTime = now;
+		}
+		// A recording's slow orbit (test-run.txt's "orbit"), at the test run's fixed step. A
+		// first-person camera turns where it stands, so it also moves round the scene's origin
+		// by the same angle: the scene stays in view, as it does under a look-at camera.
+		if (ps5.orbit != 0.0f) {
+			const float step = ps5.orbit * frameTimer;
+			if (camera.type == Camera::CameraType::firstperson) {
+				camera.position = glm::vec3(glm::rotate(glm::mat4(1.0f), glm::radians(-step), glm::vec3(0.0f, 1.0f, 0.0f)) * glm::vec4(camera.position, 1.0f));
+			}
+			camera.rotate(glm::vec3(0.0f, step, 0.0f));
 		}
 		// A test run is the same whoever holds the pad
 		return;

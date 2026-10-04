@@ -110,6 +110,34 @@ hui::InputFrame Kit::input()
 	return tracker.update(std::span<const hui::PadSample>(samples_), (std::uint64_t)(now_seconds() * 1e6));
 }
 
+hui::InputFrame Kit::scripted(const char *program, uint32_t frame) const
+{
+	hui::InputFrame input;
+	input.connected = true;
+	for (const Ps5Press &press : ps5Presses) {
+		if (press.frame != frame || press.program != program) {
+			continue;
+		}
+		if (press.action == "left") {
+			input.nav = hui::Direction::left;
+		} else if (press.action == "right") {
+			input.nav = hui::Direction::right;
+		} else if (press.action == "up") {
+			input.nav = hui::Direction::up;
+		} else if (press.action == "down") {
+			input.nav = hui::Direction::down;
+		} else if (press.action == "cross") {
+			input.pressed |= hui::action_bit(hui::Action::confirm);
+		} else if (press.action == "r1") {
+			input.pressed |= hui::action_bit(hui::Action::page_next);
+		} else if (press.action == "l1") {
+			input.pressed |= hui::action_bit(hui::Action::page_prev);
+		}
+		input.held |= input.pressed;
+	}
+	return input;
+}
+
 void Kit::play(const hui::ui::Feedback &feedback, hui::audio::SoundSet set, bool haptics)
 {
 	for (const hui::audio::CueEvent &event : feedback.cues) {

@@ -328,6 +328,11 @@ klog/host-<run> [ids]` sets each beside the PC's with their difference.
 
 **Test runs are deterministic**: the launch sets `benchmark.active` (the samples'
 random generators get seed 0), time advances 1/60 s a frame, and the pad is ignored.
+**A recording** (a video of the title) adds lines to `test-run.txt`: scripted presses
+for the kit's screens, a camera orbit for the samples, settings windows hidden, the
+music's beat; recording through a capture card has rules of its own (59.94 Hz, the
+card's repeated frames, full-range colour). Both are in
+`skills/ps5-console/references/test-runs.md`.
 **The host reference** (`ps5/tools/host-reference.sh [ids]`, `--save` to keep them as
 `ps5/reference/`) builds the same code for Linux with a headless surface and libc++
 18.1.8 (as the console's SDK; libstdc++'s random distributions differ) and runs the
