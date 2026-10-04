@@ -9,9 +9,9 @@ must, a generator that makes a new title in one command, sixteen Vulkan samples
 to copy from, a UI kit of complete designs and themes, a test suite that checks
 every frame on the console, and agent skills for the whole stack.
 
-<a href="ps5/screenshots/vulkan-template.mp4"><img src="ps5/screenshots/vulkan-template.jpg" width="860" alt="Vulkan Template on my console: the start screen, a run of designs and the thirty themes (a 15-second clip)"></a>
+<img src="ps5/screenshots/vulkan-template.webp" width="860" alt="Vulkan Template on my console: the start screen, a run of designs and the thirty themes">
 
-<sub>15 seconds of Vulkan Template on my console, through a capture card: the title renders at 3840 x 2160, the clip is the card's 1920 x 1080 at 60 fps.</sub>
+<sub>Vulkan Template on my console, through a capture card: the title renders at 3840 x 2160; the clip is 960 x 540 at 60 fps (the card's 1920 x 1080 as an <a href="ps5/screenshots/vulkan-template.mp4">MP4</a>).</sub>
 
 **16 Vulkan samples** &middot; **21 designs** &middot; **30 themes** &middot; **4 agent skills**
 &middot; **43 of 43 programs pass on the console** &middot; **Vulkan 1.4 on RADV** at 3840 x 2160
