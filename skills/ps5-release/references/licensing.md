@@ -40,10 +40,13 @@ Every built title folder carries:
   same legal notice.
 
 PS5_RetroArch generates them at build time (`tools/stage-notices.py` from
-`tooling/notices/components.json`, checked by `tools/check-notices.py`). A new title
-copies that machinery when it starts shipping third-party parts. A minimal title
-(one made with `new-title.py`) needs its `LICENSE.md`, the RADV/Mesa and SDK notices,
-and its assets' (`ps5/ASSETS.md`; the title folder's `assets/NOTICES.txt`).
+`tooling/notices/components.json`, checked by `tools/check-notices.py`). A title made
+from PS5_VulkanTemplate has them from its link: `ps5/tools/stage-notices.py` writes
+`LEGAL.txt` and `licenses/` (the title and the libraries in its tree, the UI kit when
+the title has it, the platform layer, PS5_Vulkan, RADV/Mesa and the LLVM runtime,
+each with its licence texts read at the revision it was built from), beside the
+assets' `assets/NOTICES.txt`; `ps5/tools/package-release.py <tag>` then makes the ZIP
+and one source archive per part, and refuses a part built from uncommitted source.
 
 Adding a part: one entry in `components.json` (`id`, `name`, `licence`, `texts`,
 `copyright`, `modifications`, `artifacts`, `source`), its licence texts under

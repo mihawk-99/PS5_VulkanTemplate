@@ -112,3 +112,5 @@ mv "$work/eboot.elf.new" "$work/eboot.elf"
 archive_revision=$(sed -n 's/^revision: //p' "$(dirname "$(dirname "$archive")")/PROVENANCE.txt" 2>/dev/null || true)
 printf '==> %s: %s (eboot.bin %s bytes; %d samples; RADV %s)\n' "$title_id" "$app" \
     "$(stat -c %s "$app/eboot.bin")" "${#samples[@]}" "${archive_revision:0:11}"
+# The notices beside eboot.bin: LEGAL.txt and licenses/, each part with its revision
+python3 "$ps5/tools/stage-notices.py" "$app" "$vulkan" "$archive"
