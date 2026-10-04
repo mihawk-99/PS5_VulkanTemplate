@@ -20,6 +20,37 @@ float ps5Beat = 0.5f;
 float ps5Orbit = 0.0f;
 bool ps5HideOverlay = false;
 
+#if defined(PS5_HOST_REFERENCE)
+/* The host reference build can record a reel for the README: with PS5_RECORD set
+ * to a command (an ffmpeg reading raw 1920x1080 RGB from its standard input),
+ * every frame's capture is piped to it (ps5/tools/record-reel.sh). */
+static FILE *ps5Reel()
+{
+	static FILE *reel = nullptr;
+	static bool opened = false;
+	if (!opened) {
+		opened = true;
+		if (const char *command = getenv("PS5_RECORD")) {
+			reel = popen(command, "w");
+			if (reel) {
+				atexit([] { pclose(reel); });
+			}
+		}
+	}
+	return reel;
+}
+
+bool VulkanExampleBase::ps5Recording()
+{
+	return ps5Reel() != nullptr;
+}
+#else
+bool VulkanExampleBase::ps5Recording()
+{
+	return false;
+}
+#endif
+
 /* The overlay keeps upstream's look unless the UI module restyles it in the
  * title's theme (ps5/ui/overlay_theme.cpp defines these without weak). */
 __attribute__((weak)) void ps5StyleOverlay(ImGuiStyle &)
@@ -198,6 +229,15 @@ VkSemaphore VulkanExampleBase::ps5CaptureSwapchainImage(VkSemaphore renderComple
 	}
 	readback.destroy();
 
+#if defined(PS5_HOST_REFERENCE)
+	// A reel (ps5/tools/record-reel.sh): every frame goes to the encoder
+	if (ps5Recording()) {
+		fwrite(rgb.data(), 1, rgb.size(), ps5Reel());
+		if (ps5.screenshotPath.empty() || ps5.framesDrawn + 1 != ps5.frameBudget) {
+			return ps5CaptureComplete;
+		}
+	}
+#endif
 	FILE *file = fopen(ps5.screenshotPath.c_str(), "wb");
 	if (file) {
 		fprintf(file, "P6\n%u %u\n255\n", outWidth, outHeight);

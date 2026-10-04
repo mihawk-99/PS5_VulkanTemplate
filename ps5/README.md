@@ -202,6 +202,7 @@ The title's own parts:
 | `tools/deploy.sh`, `run.sh`, `run-without-klog.py`, `check-run.py` | the console: upload, test runs, verdicts |
 | `tools/contact-sheet.py`, `compare-run.py` | the pictures, together and beside the host's |
 | `tools/host-reference.sh`, `reference/` | the reference pictures (the host build links libc++ 18.1.8, as the console's SDK, so the samples' random scenes match) |
+| `tools/record-reel.sh` | a preview of the title's own screens recorded on this PC: the host reference build pipes every frame of scripted test runs to ffmpeg |
 
 ## Starting a homebrew
 

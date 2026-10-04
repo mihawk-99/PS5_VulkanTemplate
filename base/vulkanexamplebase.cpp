@@ -874,7 +874,8 @@ void VulkanExampleBase::submitFrame(bool skipQueueSubmit)
 	VkSemaphore presentWait = renderCompleteSemaphores[currentImageIndex];
 #if defined(VK_EXAMPLE_PS5)
 	// The last frame of a test run's budget is copied out before it is presented
-	if (!ps5.screenshotPath.empty() && ps5.frameBudget && ps5.framesDrawn + 1 == ps5.frameBudget) {
+	// (every frame, when the host reference build records a reel)
+	if ((!ps5.screenshotPath.empty() && ps5.frameBudget && ps5.framesDrawn + 1 == ps5.frameBudget) || ps5Recording()) {
 		presentWait = ps5CaptureSwapchainImage(presentWait);
 	}
 #endif

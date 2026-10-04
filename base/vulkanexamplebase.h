@@ -104,6 +104,8 @@ private:
 #if defined(VK_EXAMPLE_PS5)
 	VkSemaphore ps5CaptureComplete{ VK_NULL_HANDLE };
 	VkSemaphore ps5CaptureSwapchainImage(VkSemaphore renderComplete);
+	/** @brief The host reference build is recording every frame (PS5_RECORD, ps5/tools/record-reel.sh) */
+	static bool ps5Recording();
 #endif
 protected:
 	// Returns the path to the root of the glsl, hlsl or slang shader directory.
