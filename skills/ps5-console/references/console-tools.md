@@ -51,8 +51,11 @@ size matches unless forced, and reads every file back.
 
 Projects with their own deploy (`PS5_RetroArch/tools/deploy-title.py`) also verify a
 manifest of digests recorded at build time. Verify what you **built**, not what you
-download: a deployed `eboot.bin` (and `libc.prx`) reads back as a plain ELF of
-another length, the console's own form of an accepted title.
+download: the console's FTP server, in its default SELF transfer mode, decodes a
+SELF when it serves it, so a deployed `eboot.bin`, `libvulkan.so.1` or `libc.prx`
+reads back as a plain ELF of another length. The stored file is what was uploaded:
+with that mode off, the same download is byte for byte the upload (PS5_RetroArch,
+`docs/FINDINGS.md`, 2026-10-04).
 
 The console's FTP server deviates from the standard in three ways, each of which
 breaks the obvious code:

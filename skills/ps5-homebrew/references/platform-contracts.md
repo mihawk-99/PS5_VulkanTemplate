@@ -39,6 +39,20 @@ Every fatal signal makes the console write a crash report, a coredump and a
 klog, exactly like one that died mid-frame: check how a title ends before believing
 that it crashed.
 
+## Restarting as another program of the title
+
+The same call with a path under `/app0` replaces the running process with that
+executable of the title: `sceSystemServiceLoadExec("/app0/eboot.bin", argv)`, or any
+other signed executable in the title folder. On a base PS5 (13.40) klog shows
+`Kill for LoadExec(...) => 0` and a new `EXEC` with the next pid, 0.56 to 0.61 s from
+one `main` to the next, and each new process had the same flexible memory free as a
+cold launch (five restarts in a row). **The arguments arrive as the whole `argv`,
+with no program name in front**: `argv[0]` is the first argument, and a launch from
+the home screen gets `argc` 1 and `argv[0]` `""`. Look for a mode from `argv[0]`.
+PS5_RetroArch hands over between its picker, EmulationStation and RetroArch this
+way, each in a fresh process (`src/ps5_game.c`, `src/frontend_mode_ps5.cpp`;
+`evidence/loadexec-relaunch`).
+
 ## The splash
 
 The shell's splash screen covers the title until the title calls
@@ -48,12 +62,14 @@ series of runs to understand.
 
 ## The display
 
-Through RADV's `VK_KHR_display` swapchain (`vulkan-on-radv.md`), at 3840x2160. The
-title owns the console's one VideoOut through that swapchain; it does not open
-VideoOut itself as well.
+Through RADV's `VK_KHR_display` swapchain (`vulkan-on-radv.md`): 3840x2160 by
+default, or 2560x1440 or 1920x1080, which VideoOut scales to the screen. The title
+owns the console's one VideoOut through that swapchain; it does not open VideoOut
+itself as well.
 
 **120 Hz** needs both a request and a display that follows. The request is
-`param.json`'s `attribute3` with bits `0x80040` set (`title-packaging.md`). The WSI
+`param.json`'s `attribute3` with bits `0x80040` set (`title-packaging.md`; the
+driver reads bit `0x40`). The WSI
 then measures the vblank period and falls back to 59.94 Hz when the display stays
 there. A program that paces by time must therefore read the refresh it got (the
 mode's `refreshRate`, or measured presents), not assume 120.
@@ -96,6 +112,12 @@ int sceUserServiceGetLoginUserIdList(struct user_list *list);
   others with `pad_player`, `pad_player_readings`, `pad_player_vibrate`. Measured in
   PS5_RetroArch (base PS5, two DualSense, two users: ports 0 and 1, a racing game
   played with both, its `evidence/multi-controller`).
+- **Rumble and the light bar** go to the player's handle: `scePadSetVibrationMode`
+  once after opening (compatible mode), then `scePadSetVibration` with the large and
+  the small motor, and `scePadSetLightBar` with a colour. The foundation wraps them as
+  `pad_vibrate`, `pad_light_bar` and their `pad_player_*` forms (`ps5/src/platform.h`).
+  DualSense haptics as sound, streamed through the pad's vibration audio port, are
+  PS5_RetroArch's (`src/input_ps5.cpp`).
 - Translate the console's numbering once, at the platform boundary. Console
   constants do not leak into program code.
 
@@ -149,6 +171,14 @@ double-precision references broke on exactly this.
 
 ## Networking
 
-Sockets exist, and the platform layer's FTP client uses them on 127.0.0.1. Treat
-any other networking as unproven until a probe shows it works, and disable a
-subsystem gracefully rather than retrying a refusal.
+Proven in both directions by PS5_RetroArch:
+- **A server on the local network.** Its WebUI listens on TCP port 6769 from inside
+  the title, and a browser on the network uses it (`src/webui_ps5.cpp`).
+- **HTTPS out, through the console's own libraries**: `sceNetInit` and
+  `sceNetPoolCreate`, `sceSslInit`, then `sceHttp2Init`, a template, a request with
+  its URL, `sceHttp2SendRequest`, `sceHttp2GetStatusCode` and `sceHttp2ReadData`
+  (`src/webui_update.cpp`, which downloads and verifies release ZIPs from GitHub).
+- The platform layer's FTP client talks to the console's own server on 127.0.0.1.
+
+Anything else (UDP, discovery, other services) is unproven until a run shows it
+works. Disable a subsystem gracefully rather than retrying a refusal.

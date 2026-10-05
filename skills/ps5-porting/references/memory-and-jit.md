@@ -41,8 +41,8 @@ for execute at map time is refused. A protection change costs about 26 us. So:
   hands out as many as a core asks for.
 
 Proven by PPSSPP, Dolphin (its JIT and vertex loaders), Dynarmic (Azahar),
-DeSmuME, Mupen64Plus (new dynarec and ParaLLEl-RSP), LRPS2 and RPCS3 in
-PS5_RetroArch.
+DeSmuME, Mupen64Plus (new dynarec and ParaLLEl-RSP) and LRPS2 in PS5_RetroArch,
+and by RPCS3 before it was removed.
 
 ## Guest memory, mirrors, fastmem: `ps5platform/shm.h`
 

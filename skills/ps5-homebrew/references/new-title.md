@@ -76,7 +76,8 @@ it ended through the shell.
    line each in klog and in `test-results.txt`, then the end. Otherwise the program
    runs until it ends itself (its Quit), and the title ends with it.
 6. **The display**: the base class's direct-to-display path, `VK_KHR_display`, the
-   console's one mode, 3840x2160, at 119.88 Hz when `param.json` asks.
+   first mode, 3840x2160, at 119.88 Hz when `param.json` asks (the display also
+   offers 2560x1440 and 1920x1080: `vulkan-on-radv.md`).
 7. **The end**: `main` returns, and `catchReturnFromMain` asks the shell to close the
    title (`platform-contracts.md`, "Ending a title"). A fatal error in the program
    (`vks::tools::exitFatal`) throws instead of calling `exit`, and is reported.

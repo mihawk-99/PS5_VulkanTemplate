@@ -3,8 +3,9 @@
 Every third-party project I change lives as a fork on GitHub (`mihawk-99/PS5_<Name>`),
 never as a patch series applied at setup time. Existing forks: PS5_PayloadSDK,
 PS5_Mesa, PS5_LLVM, PS5_LRPS2, PS5_BeetlePSX, PS5_Mupen64Plus, PS5_BeetleSaturn,
-PS5_VICE, PS5_MAME, PS5_DeSmuME, PS5_Azahar, PS5_Dynarmic, PS5_RPCS3,
-PS5_ProsperoEden.
+PS5_VICE, PS5_MAME, PS5_DeSmuME, PS5_Azahar, PS5_Dynarmic, PS5_ProsperoEden,
+PS5_VulkanTemplate, PS5_VKHomebrewUI and ps5-opengl (PS5_OpenGL). PS5_RPCS3 was
+removed with every RPCS3 part of PS5_RetroArch (2026-10-04).
 
 ## Making one
 
@@ -62,5 +63,6 @@ GitHub. Before a release, check every pin resolves on GitHub
   PCSX2), port the living project's renderer fixes and features into it, so it
   resembles upstream instead of falling further behind.
 - A fork may depart from upstream's design where the console needs a different one
-  (RPCS3's fork redesigns whole areas for the PS5's hardware). Then write down why,
+  (RPCS3's fork, before it was removed, redesigned whole areas for the PS5's
+  hardware). Then write down why,
   in the fork's README section.

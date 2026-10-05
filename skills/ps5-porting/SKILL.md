@@ -37,8 +37,8 @@ in the platform layer or in a project that already met it. Reuse them.
 
 | The program uses | On the console |
 | --- | --- |
-| a window, SDL, GLFW | the `VK_KHR_display` swapchain (`ps5-homebrew` skill, `vulkan-on-radv.md`); a small platform file for pad and audio |
-| OpenGL | port its Vulkan backend if it has one (RADV is a full Vulkan 1.4). Otherwise BlackBearReloaded's ps5-opengl is the GL route (ProsperoEden's GL backend uses it) |
+| a window, SDL, GLFW | the `VK_KHR_display` swapchain (`ps5-homebrew` skill, `vulkan-on-radv.md`); a small platform file for pad and audio. An SDL2 program can keep SDL2 through PS5_OpenGL's bridge, as EmulationStation does |
+| OpenGL | port its Vulkan backend if it has one (RADV is a full Vulkan 1.4). Otherwise PS5_OpenGL, my fork of BlackBearReloaded's ps5-opengl, is the GL route: OpenGL 4.6 Core and EGL (PS5_RetroArch's EmulationStation; ProsperoEden's GL launcher uses ps5-opengl) |
 | `vkGetInstanceProcAddr` from a loader | one forwarding function to `vk_icdGetInstanceProcAddr` |
 | `dlopen` of plugins or drivers | link statically, or load ELF code with an in-process loader (`references/loading-code.md`) |
 | `mmap(PROT_EXEC)` for a JIT | `ps5platform/exec.h` (`references/memory-and-jit.md`) |
@@ -48,7 +48,8 @@ in the platform layer or in a project that already met it. Reuse them.
 | heavy file writes | throttled after about 1.3 GiB: write through the console's FTP server (`offload.h`) |
 | denormals, IEEE rounding | set MXCSR per thread (`ps5platform/fp.h`): a title starts FTZ/DAZ |
 | `exit()` | the shell exit (`ps5-homebrew` skill, `platform-contracts.md`) |
-| networking | treat as unavailable until a probe proves otherwise |
+| networking | sockets, including a server on the local network, and HTTPS through the console's `sceHttp2` (`ps5-homebrew` skill, `platform-contracts.md`, "Networking"); anything else unproven |
+| a second program (a launcher, another frontend) | its own executable in the title folder, started with `sceSystemServiceLoadExec`, which replaces the process (`platform-contracts.md`) |
 
 ## Rules for emulators and engines
 
@@ -74,7 +75,8 @@ in the platform layer or in a project that already met it. Reuse them.
 | --- | --- |
 | a whole game engine | PS5_vkQuake (`src/`: display, pad, audio, memory, exit, the RADV ICD forward) |
 | an emulator frontend loading cores | PS5_RetroArch (`src/core_loader_ps5.cpp`, `core_imports_ps5.cpp`, `tools/build-*.sh`) |
-| JIT emulators | PS5_RetroArch's PPSSPP, Dolphin, Azahar (Dynarmic), DeSmuME, Mupen64Plus, LRPS2 and RPCS3 forks |
+| JIT emulators | PS5_RetroArch's PPSSPP, Dolphin, Azahar (Dynarmic), DeSmuME, Mupen64Plus and LRPS2 forks |
+| a second frontend in one title | PS5_RetroArch's `frontends/` (EmulationStation on PS5_OpenGL and SDL2, and the picker on this foundation), handing over through LoadExec |
 | a large C++ application | PS5_ProsperoEden (Eden): its own build, RADV through `tools/radv-link-eden.sh` |
 
 ## References

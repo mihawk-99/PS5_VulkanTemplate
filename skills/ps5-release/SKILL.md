@@ -17,8 +17,8 @@ uncertainty, take the option with no legal exposure, and say what it rules out.
   PS5 firmware dump, decryption keys, licence files (`.rap`), IRDs;
 - **RPCS3 binaries**: RPCS3 is GPL-2.0-only and cannot be distributed with my
   GPL-3.0-or-later code. It is source-only, built by each person for their own
-  console. PS5_RetroArch's release build leaves it out by itself, and the release
-  check fails on any RPCS3 file;
+  console. Every PS5_RetroArch build leaves it out unless `PS5_WITH_RPCS3=1`, and
+  the release check fails on any RPCS3 file;
 - art, sound or text of unrecorded origin: replace it with something generated or
   owned (PS5_RetroArch's launcher art is drawn by `tools/make-title-art.py`);
 - the console's address, `.env`, klog captures, screenshots of games.
@@ -64,8 +64,13 @@ same way).
 ## Release notes
 
 `references/release-notes.md` has the skeleton. The fixed parts:
-- a piracy notice at the top: no games, BIOS, firmware or keys, now or ever; legally
-  obtained backups of games you own only;
+- the warning at the top, above every other image, in the README and in the notes
+  alike: the red IMPORTANT WARNING banner (PS5_RetroArch's
+  `assets/readme/important-warning.png`, alt "Important warning"), the heading
+  "<Project> is a passion project, not a piracy project.", and the notice as bold
+  points: piracy is not condoned; no games, BIOS, firmware or keys, now or ever;
+  legally obtained backups of games you own and files dumped from hardware you own
+  only; no requests or links for them. GitHub's alert boxes are not used for it;
 - the RPCS3 notice: not in any release, compile it yourself, don't share the binaries;
 - **no game titles anywhere**: say what was measured on which core or system ("a
   GameCube game I test with slows to 76-85% at some transitions");

@@ -14,8 +14,8 @@ What differs from a desktop, and stays true across driver rounds:
 | --- | --- |
 | Loader | none. RADV is linked into the title; every command comes from `vk_icdGetInstanceProcAddr` |
 | Surface | `VK_KHR_surface` + `VK_KHR_display`: one display, a plane surface; no window system |
-| Extent | 3840x2160, fixed |
-| Refresh | the display's modes; 119.88 Hz only when `param.json` sets the high-frame-rate bits, else 59.94 Hz |
+| Extent | its display mode's: 3840x2160, 2560x1440 or 1920x1080, which VideoOut scales to the screen |
+| Refresh | 59.94 Hz for every size, and 119.88 Hz before it where `param.json` declares the high-frame-rate bit and the display takes it |
 | Present | FIFO, 3 to 5 swapchain images, paced by the display's flips |
 | Queues | graphics, compute and transfer families, all served from the graphics ring: no asynchronous compute (yet) |
 | Conformance | `conformanceVersion` is 0.0.0.0: the CTS runs on the console, and no conformance is claimed |
@@ -58,12 +58,20 @@ release or so newer); what the driver reports is what counts, not the header.
 ## The display
 
 1. Enable `VK_KHR_surface` and `VK_KHR_display` on the instance.
-2. `vkGetPhysicalDeviceDisplayPropertiesKHR`: one display, 3840x2160.
-3. `vkGetDisplayModePropertiesKHR`: take the fastest mode (`refreshRate` is in
-   millihertz). With the high-frame-rate bits it is 119.88 Hz. The WSI then measures
-   the vblank period, and **falls back to 59.94 Hz by itself** when the display stays
-   at 60, so a 60 Hz TV gets correct pacing without the title knowing.
-4. `vkCreateDisplayPlaneSurfaceKHR` with the mode's `visibleRegion` as the extent,
+2. `vkGetPhysicalDeviceDisplayPropertiesKHR`: one display.
+3. `vkGetDisplayModePropertiesKHR`: the modes come largest first, each size's
+   119.88 Hz mode (where offered) before its 59.94 Hz one, so the first mode is
+   3840x2160 at the fastest refresh (`refreshRate` is in millihertz). A smaller size
+   draws fewer pixels and VideoOut scales it to fill the screen: 1920x1080 on a 1080p
+   screen need not draw 4K. 1280x720 is not offered: VideoOut refused a fourth set of
+   buffers (PS5_Mesa, "wsi/videoout: a display mode for each size VideoOut takes
+   buffers of", measured with PS5_RetroArch's display modes test on a base PS5). The WSI measures the vblank period and **falls back to 59.94 Hz by
+   itself** when the display stays at 60, so a 60 Hz TV gets correct pacing without
+   the title knowing. A process that does not see `/app0` (one started elevated)
+   names its `param.json` in `PS5_VIDEOOUT_PARAM_JSON`; otherwise the driver finds no
+   high-frame-rate declaration and offers 59.94 Hz only.
+4. `vkCreateDisplayPlaneSurfaceKHR` with the mode's `visibleRegion` as the extent
+   (a swapchain must be its mode's size; each size used gets its own buffers, kept),
    identity transform, opaque alpha.
 5. Pick a queue family with graphics and `vkGetPhysicalDeviceSurfaceSupportKHR`.
 6. Swapchain: `minImageCount` 3, `B8G8R8A8_UNORM` (or what the surface reports),

@@ -57,13 +57,21 @@ RADV, unchanged but where the console differs.
   that kept it. New work never targets ps5vk.
 
 **The titles** - PS5_RetroArch (PPSA99169, an emulator frontend loading libretro
-cores, most of them forks of mine), PS5_vkQuake (PPSA99010), PS5_ProsperoEden
+cores, most of them forks of mine, with a pre-screen that starts RetroArch or
+EmulationStation, each an executable of the title started through LoadExec),
+PS5_vkQuake (PPSA99010), PS5_ProsperoEden
 (PPSA99008, my experimental fork of BlackBearReloaded's Eden port, for benchmarking
 the driver), and Vulkan Template (PPSA99130), which PS5_VulkanTemplate builds: my fork of
 Sascha Willems' Vulkan examples, sixteen samples in one title, a reference for Vulkan
 techniques on the console, a driver test suite, and the foundation every new title is
 made on (`ps5/README.md` there). Each links the RADV archive
 through `radv-link.sh`, with the payload SDK fork at a revision it pins itself.
+
+**PS5_OpenGL** - my fork of BlackBearReloaded's ps5-opengl (`mihawk-99/ps5-opengl`):
+OpenGL 4.6 Core through Mesa's Gallium, fullscreen EGL at 1080p, 1440p or 4K, a static
+SDK, and an SDL2 bridge with the fork's audio driver. It is the route for a program
+that has only an OpenGL renderer or is written against SDL2: PS5_RetroArch's
+EmulationStation is built on it.
 
 **ps5-homebrew-template** - the old starting point. It links ps5vk, not RADV, and is
 superseded by PS5_VulkanTemplate's `ps5/tools/new-title.py`, which makes new titles on

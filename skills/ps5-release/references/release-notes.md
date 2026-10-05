@@ -11,13 +11,19 @@ identical.
 
 <One line: what the program is.>
 
-> [!IMPORTANT]
-> **Piracy is not condoned.** This release contains no games, no BIOS files, no
-> console firmware and no decryption keys, and none will ever be provided or
-> linked to. Use only **legally obtained backups of games you own**, made yourself
-> from your own discs, cartridges or digital purchases, and BIOS or firmware files
-> dumped from **hardware you own**. Please don't ask for, or post links to, games,
-> BIOS files, firmware or keys in issues or discussions: they will be removed.
+![Important warning](<raw URL of assets/readme/important-warning.png on main>)
+
+## <Project> is a passion project, not a piracy project.
+
+It exists so you can play the games you own on the console you own.
+
+- **Piracy is not condoned.**
+- **No games, BIOS files, console firmware or decryption keys are included, and they never will be.**
+- **Use only legally obtained backups of games you own**, made yourself from your own discs, cartridges or digital purchases.
+- **Use only BIOS and firmware files dumped from hardware you own.**
+- **Requests for, or links to, games, BIOS files, firmware or keys are not welcome** in this project's issues or discussions.
+
+---
 
 > [!WARNING]                      (only where it applies)
 > **PlayStation 3 (RPCS3) is not in this release, and it will not be in any future
@@ -67,6 +73,8 @@ SHA-256 of `<zip>`: `<sha256>`
 - **Measured, not hoped.** Every performance or fix claim has the run behind it. A
   feature not proven on the console is not claimed. If the code exists but the run
   showed it does not work, say so, and say what works instead.
+- **One line per paragraph and per list item.** The release page turns every line
+  break in the body into a `<br>`, so a wrapped paragraph shows ragged there.
 - **Players' words.** Describe what someone saw ("frame drops with crackling audio")
   before the cause.
 - **First person**: "I tested", "my console". Never "the owner", "the user", or "the

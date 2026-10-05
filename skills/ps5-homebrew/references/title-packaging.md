@@ -47,7 +47,7 @@ tool and the console's loader use it. Validate it in the build.
 | `contentId` | `UP9000-<titleId>_00-<16 upper-case letters or digits>` |
 | `localizedParameters.en-US.titleName` | the name the home screen shows |
 | `contentVersion` | `NN.NNN.NNN` |
-| `attribute3` | `0x80040` (524352) for 119.88 Hz output, `0` for 59.94 Hz |
+| `attribute3` | `0x80040` (524352) for 119.88 Hz output, `0` for 59.94 Hz. The driver needs only bit `0x40`; `0x80000` asks for a 120 Hz mode that requires VRR and turns the system's VRR off (PS5_Mesa, "wsi/videoout: offer 119.88 Hz for a title declaring attribute3's 120 Hz bit alone"). The generator still writes `0x80040`, the value proven at 119.88 Hz |
 | `applicationDrmType` | `free` |
 | `kernel.flexibleMemorySize` | the title's flexible memory in bytes, 2097152 to 1073741824; `1073741824` from the generator (below) |
 
