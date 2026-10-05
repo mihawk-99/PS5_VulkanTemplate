@@ -39,7 +39,9 @@ shows the hold as it fills); a press is the program's.
 The template's platform layer gives the module what the kit's own console layer
 gave it: every pad reading of the frame (`pad_readings`, so a tap shorter than a
 frame counts), rumble (`pad_vibrate`), the light bar (`pad_light_bar`) and a 48 kHz
-output thread (`audio_start`). They are MIT and any title may use them.
+output thread (`audio_start`). They are MIT and any title may use them. The kit reads
+player 0, the user who started the title; the other signed-in users' controllers
+are there through the `pad_player` calls.
 
 ## A program that draws with the kit
 

@@ -81,6 +81,45 @@ pad_light_bar(uint8_t r, uint8_t g, uint8_t b)
    (void)b;
 }
 
+uint32_t
+pad_players(void)
+{
+   return 0;
+}
+
+bool
+pad_player(int player, struct pad *pad)
+{
+   (void)player;
+   memset(pad, 0, sizeof(*pad));
+   return false;
+}
+
+int
+pad_player_readings(int player, const struct pad_reading **readings)
+{
+   (void)player;
+   *readings = NULL;
+   return 0;
+}
+
+void
+pad_player_vibrate(int player, float large, float small)
+{
+   (void)player;
+   (void)large;
+   (void)small;
+}
+
+void
+pad_player_light_bar(int player, uint8_t r, uint8_t g, uint8_t b)
+{
+   (void)player;
+   (void)r;
+   (void)g;
+   (void)b;
+}
+
 bool
 audio_start(audio_fill_fn fill, void *user)
 {

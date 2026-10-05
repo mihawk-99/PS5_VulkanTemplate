@@ -24,9 +24,16 @@ int sceSystemServiceHideSplashScreen(void);
 int sceSystemServiceLoadExec(const char *path, const char *const *argv);
 int sceUserServiceInitialize(const void *params);
 int sceUserServiceGetInitialUser(int32_t *user_id);
+/* The signed-in users, at most four; unused entries are -1. */
+struct user_list {
+   int32_t user_id[4];
+};
+int sceUserServiceGetLoginUserIdList(struct user_list *list);
 int scePadInit(void);
 int scePadOpen(int32_t user_id, int32_t port_type, int32_t index, const void *params);
+int scePadGetHandle(int32_t user_id, int32_t port_type, int32_t index);
 int scePadRead(int32_t handle, void *samples, int32_t capacity);
+int scePadClose(int32_t handle);
 int scePadSetVibrationMode(int32_t handle, int32_t mode);
 int scePadSetVibration(int32_t handle, const void *vibration);
 int scePadSetLightBar(int32_t handle, const void *color);
@@ -103,32 +110,131 @@ _Static_assert(offsetof(struct pad_sample, timestamp_us) == 0x50, "the timestamp
  * mode is the DualSense's haptics). */
 #define PAD_VIBRATION_COMPATIBLE 2
 
-static int32_t pad_handle = -1;
-static struct pad_sample pad_last;
-static struct pad_reading pad_taken[64];
-static int pad_taken_count;
+/* A player: a signed-in user's controller, PS5_ProsperoEden's way. The console
+ * pairs each controller with a user, and scePadOpen opens a user's. Player 0 is
+ * the user who started the title and stays theirs; about once a second
+ * pad_poll reads the signed-in users again, a new user's controller takes the
+ * first free player, and a player is let go when their user signs out. */
+struct pad_player_state {
+   int32_t user;
+   int32_t handle;
+   bool connected;
+   struct pad_sample last;
+   struct pad_reading taken[64];
+   int taken_count;
+};
+
+static struct pad_player_state pad_states[PAD_PLAYERS];
+static bool pad_service;
+static double pad_next_scan;
+/* A user whose controller would not open, said once rather than every scan. */
+static int32_t pad_unopened = -1;
+#define PAD_SCAN_SECONDS 1.0
+
+/* A player's state while they have a controller, else NULL (and always NULL
+ * before pad_open has set the players up). */
+static struct pad_player_state *
+pad_state(int player)
+{
+   if (!pad_service || player < 0 || player >= PAD_PLAYERS || pad_states[player].handle < 0)
+      return NULL;
+   return &pad_states[player];
+}
+
+static void
+pad_rest(struct pad_player_state *state)
+{
+   memset(state, 0, sizeof(*state));
+   state->user = state->handle = -1;
+   state->last.left_x = state->last.left_y = state->last.right_x = state->last.right_y = 128;
+}
+
+static bool
+pad_player_open(int player, int32_t user, int attempts)
+{
+   struct pad_player_state *state = &pad_states[player];
+   pad_rest(state);
+   /* A title can start before the pad service has published the device. */
+   int32_t handle = -1;
+   for (int attempt = 0; attempt < attempts && handle < 0; attempt++) {
+      handle = scePadOpen(user, 0, 0, NULL);
+      if (handle < 0 && attempt + 1 < attempts)
+         sceKernelUsleep(100000);
+   }
+   /* A handle this process already holds for the user is reused. */
+   if (handle < 0)
+      handle = scePadGetHandle(user, 0, 0);
+   if (handle < 0) {
+      if (user != pad_unopened)
+         say("pad: scePadOpen failed for user %d (player %d)", (int)user, player);
+      pad_unopened = user;
+      return false;
+   }
+   state->user = user;
+   state->handle = handle;
+   say("pad: player %d opened for user %d, rumble mode %d", player, (int)user,
+       scePadSetVibrationMode(handle, PAD_VIBRATION_COMPATIBLE));
+   return true;
+}
+
+static void
+pad_player_close(int player, const char *why)
+{
+   struct pad_player_state *state = &pad_states[player];
+   if (state->handle < 0)
+      return;
+   say("pad: player %d let go (user %d %s), close %d", player, (int)state->user, why,
+       scePadClose(state->handle));
+   pad_rest(state);
+}
+
+/* The signed-in users again: player 0 stays; a player whose user signed out is
+ * let go; a new user's controller takes the first free player. */
+static void
+pad_scan(void)
+{
+   struct user_list list = {{-1, -1, -1, -1}};
+   if (sceUserServiceGetLoginUserIdList(&list) < 0)
+      return;
+   for (int player = 1; player < PAD_PLAYERS; player++) {
+      if (pad_states[player].handle < 0)
+         continue;
+      bool signed_in = false;
+      for (int i = 0; i < 4; i++)
+         signed_in |= list.user_id[i] >= 0 && list.user_id[i] == pad_states[player].user;
+      if (!signed_in)
+         pad_player_close(player, "signed out");
+   }
+   for (int i = 0; i < 4; i++) {
+      const int32_t user = list.user_id[i];
+      bool known = user < 0;
+      for (int player = 0; player < PAD_PLAYERS && !known; player++)
+         known = pad_states[player].handle >= 0 && pad_states[player].user == user;
+      for (int player = 0; player < PAD_PLAYERS && !known; player++) {
+         if (pad_states[player].handle < 0) {
+            (void)pad_player_open(player, user, 1);
+            break;
+         }
+      }
+   }
+}
 
 bool
 pad_open(void)
 {
+   for (int player = 0; player < PAD_PLAYERS; player++)
+      pad_rest(&pad_states[player]);
    (void)sceUserServiceInitialize(NULL);
    int32_t user = -1;
    if (sceUserServiceGetInitialUser(&user) < 0 || scePadInit() < 0) {
       say("pad: no user or no pad service");
       return false;
    }
-   /* A title can start before the pad service has published the device. */
-   for (int attempt = 0; attempt < 10 && pad_handle < 0; attempt++) {
-      pad_handle = scePadOpen(user, 0, 0, NULL);
-      if (pad_handle < 0)
-         sceKernelUsleep(100000);
-   }
-   say(pad_handle >= 0 ? "pad: opened for user %d" : "pad: scePadOpen failed for user %d", (int)user);
-   if (pad_handle >= 0)
-      say("pad: rumble mode %d", scePadSetVibrationMode(pad_handle, PAD_VIBRATION_COMPATIBLE));
-   memset(&pad_last, 0, sizeof(pad_last));
-   pad_last.left_x = pad_last.left_y = pad_last.right_x = pad_last.right_y = 128;
-   return pad_handle >= 0;
+   pad_service = true;
+   const bool opened = pad_player_open(0, user, 10);
+   pad_scan();
+   pad_next_scan = now_seconds() + PAD_SCAN_SECONDS;
+   return opened;
 }
 
 static float
@@ -141,58 +247,121 @@ stick(uint8_t value)
    return v > 0 ? (v - dead) / (1.0f - dead) : (v + dead) / (1.0f - dead);
 }
 
+static void
+pad_fill(const struct pad_player_state *state, struct pad *pad)
+{
+   const uint32_t before = pad->held;
+   pad->held = state->handle >= 0 ? state->last.buttons : 0;
+   pad->pressed = pad->held & ~before;
+   pad->left_x = stick(state->last.left_x);
+   pad->left_y = stick(state->last.left_y);
+   pad->right_x = stick(state->last.right_x);
+   pad->right_y = stick(state->last.right_y);
+   pad->l2 = state->last.l2 / 255.0f;
+   pad->r2 = state->last.r2 / 255.0f;
+}
+
 void
 pad_poll(struct pad *pad)
 {
-   const uint32_t before = pad->held;
-   pad_taken_count = 0;
-   if (pad_handle >= 0) {
-      static struct pad_sample samples[64];
-      const int count = scePadRead(pad_handle, samples, 64);
+   if (pad_service && now_seconds() >= pad_next_scan) {
+      pad_scan();
+      pad_next_scan = now_seconds() + PAD_SCAN_SECONDS;
+   }
+   static struct pad_sample samples[64];
+   for (int player = 0; player < PAD_PLAYERS; player++) {
+      struct pad_player_state *state = pad_state(player);
+      if (state == NULL)
+         continue;
+      state->taken_count = 0;
+      const int count = scePadRead(state->handle, samples, 64);
+      if (count < 0)
+         state->connected = false;
       for (int i = 0; i < count && i < 64; i++) {
          const struct pad_sample *s = &samples[i];
-         pad_taken[pad_taken_count++] = (struct pad_reading){
+         state->taken[state->taken_count++] = (struct pad_reading){
             s->buttons, s->left_x, s->left_y, s->right_x, s->right_y, s->l2, s->r2,
             s->connected != 0, s->timestamp_us};
+         state->connected = s->connected != 0;
          if (s->connected && !(s->buttons & PAD_INTERCEPTED))
-            pad_last = *s;
+            state->last = *s;
       }
    }
-   pad->held = pad_handle >= 0 ? pad_last.buttons : 0;
-   pad->pressed = pad->held & ~before;
-   pad->left_x = stick(pad_last.left_x);
-   pad->left_y = stick(pad_last.left_y);
-   pad->right_x = stick(pad_last.right_x);
-   pad->right_y = stick(pad_last.right_y);
-   pad->l2 = pad_last.l2 / 255.0f;
-   pad->r2 = pad_last.r2 / 255.0f;
+   (void)pad_player(0, pad);
+}
+
+uint32_t
+pad_players(void)
+{
+   uint32_t players = 0;
+   for (int player = 0; player < PAD_PLAYERS; player++) {
+      const struct pad_player_state *state = pad_state(player);
+      if (state != NULL && state->connected)
+         players |= 1u << player;
+   }
+   return players;
+}
+
+bool
+pad_player(int player, struct pad *pad)
+{
+   const struct pad_player_state *state = pad_state(player);
+   if (state == NULL) {
+      struct pad_player_state rest;
+      pad_rest(&rest);
+      pad_fill(&rest, pad);
+      return false;
+   }
+   pad_fill(state, pad);
+   return true;
+}
+
+int
+pad_player_readings(int player, const struct pad_reading **readings)
+{
+   const struct pad_player_state *state = pad_state(player);
+   *readings = state != NULL ? state->taken : NULL;
+   return state != NULL ? state->taken_count : 0;
 }
 
 int
 pad_readings(const struct pad_reading **readings)
 {
-   *readings = pad_taken;
-   return pad_taken_count;
+   return pad_player_readings(0, readings);
+}
+
+void
+pad_player_vibrate(int player, float large, float small)
+{
+   const struct pad_player_state *state = pad_state(player);
+   if (state == NULL)
+      return;
+   const float l = large < 0.0f ? 0.0f : large > 1.0f ? 1.0f : large;
+   const float s = small < 0.0f ? 0.0f : small > 1.0f ? 1.0f : small;
+   const uint8_t motors[2] = {(uint8_t)(l * 255.0f), (uint8_t)(s * 255.0f)};
+   (void)scePadSetVibration(state->handle, motors);
 }
 
 void
 pad_vibrate(float large, float small)
 {
-   if (pad_handle < 0)
+   pad_player_vibrate(0, large, small);
+}
+
+void
+pad_player_light_bar(int player, uint8_t r, uint8_t g, uint8_t b)
+{
+   const struct pad_player_state *state = pad_state(player);
+   if (state == NULL)
       return;
-   const float l = large < 0.0f ? 0.0f : large > 1.0f ? 1.0f : large;
-   const float s = small < 0.0f ? 0.0f : small > 1.0f ? 1.0f : small;
-   const uint8_t motors[2] = {(uint8_t)(l * 255.0f), (uint8_t)(s * 255.0f)};
-   (void)scePadSetVibration(pad_handle, motors);
+   const uint8_t color[4] = {r, g, b, 0};
+   (void)scePadSetLightBar(state->handle, color);
 }
 
 void
 pad_light_bar(uint8_t r, uint8_t g, uint8_t b)
 {
-   if (pad_handle < 0)
-      return;
-   const uint8_t color[4] = {r, g, b, 0};
-   (void)scePadSetLightBar(pad_handle, color);
+   pad_player_light_bar(0, r, g, b);
 }
 
 /* --------------------------------------------------------------- the sound */

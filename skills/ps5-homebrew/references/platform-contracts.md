@@ -71,7 +71,11 @@ int sceUserServiceInitialize(const void *params);       /* NULL */
 int sceUserServiceGetInitialUser(int32_t *user_id);
 int scePadInit(void);
 int scePadOpen(int32_t user_id, int32_t port_type, int32_t index, const void *params);  /* user, 0, 0, NULL */
+int scePadGetHandle(int32_t user_id, int32_t port_type, int32_t index);  /* a handle already held */
 int scePadRead(int32_t handle, void *samples, int32_t capacity);  /* returns the samples since the last read */
+int scePadClose(int32_t handle);
+struct user_list { int32_t user_id[4]; };              /* unused entries are -1 */
+int sceUserServiceGetLoginUserIdList(struct user_list *list);
 ```
 
 - A sample is 120 bytes: `uint32 buttons` at 0, the stick bytes (left x/y, right
@@ -83,6 +87,15 @@ int scePadRead(int32_t handle, void *samples, int32_t capacity);  /* returns the
   dialog): ignore that sample.
 - Retry `scePadOpen` (10 tries, 100 ms apart). A title can start before the pad
   service has published the device.
+- **Several controllers are several users.** The console pairs each controller
+  with a signed-in user, and `scePadOpen` opens a user's. The foundation does it
+  PS5_ProsperoEden's way (`ps5/src/platform.c`): player 0 is the initial user and
+  stays theirs; `pad_poll` reads the signed-in users again about once a second, a
+  new user's controller takes the first free player (of four), and a player is let
+  go when their user signs out. Programs read player 0 with `pad_poll` and the
+  others with `pad_player`, `pad_player_readings`, `pad_player_vibrate`. Measured in
+  PS5_RetroArch (base PS5, two DualSense, two users: ports 0 and 1, a racing game
+  played with both, its `evidence/multi-controller`).
 - Translate the console's numbering once, at the platform boundary. Console
   constants do not leak into program code.
 

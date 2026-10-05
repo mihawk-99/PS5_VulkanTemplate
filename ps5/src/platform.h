@@ -48,9 +48,25 @@ struct pad {
    float l2, r2;                           /* 0..1 */
 };
 
-/* Open the first user's pad; false (and no input) when there is none. */
+/* Up to four players, one per signed-in user: the console pairs each controller
+ * with a user. Player 0 is the user who started the title and stays theirs;
+ * pad_poll reads the signed-in users again about once a second, a new user's
+ * controller takes the first free player, and a player is let go when their user
+ * signs out. pad_poll, pad_readings, pad_vibrate and pad_light_bar are player
+ * 0's; the pad_player calls reach the others. */
+#define PAD_PLAYERS 4
+
+/* Open player 0's pad (the first user's), and every other signed-in user's;
+ * false (and no input for player 0) when there is none. */
 bool pad_open(void);
+/* Read every player's controller; *pad is player 0's. Call once a frame. */
 void pad_poll(struct pad *pad);
+/* The players whose controller reported itself connected, a bit each (bit 0 is
+ * player 0), as of the last pad_poll. */
+uint32_t pad_players(void);
+/* A player's pad as the last pad_poll read it, `pressed` against the held
+ * buttons *pad had; false, and a pad at rest, when that player has none. */
+bool pad_player(int player, struct pad *pad);
 
 /* Set in a reading's buttons while the shell has the pad (the home screen, a
  * system dialog): that reading is not input for the title. */
@@ -69,11 +85,14 @@ struct pad_reading {
  * 64 between polls), for input models that must see a tap shorter than a
  * frame. Returns their number; *readings stays valid until the next poll. */
 int pad_readings(const struct pad_reading **readings);
+int pad_player_readings(int player, const struct pad_reading **readings);
 
 /* Rumble: the large and the small motor, 0..1 each; 0, 0 stops it. */
 void pad_vibrate(float large, float small);
+void pad_player_vibrate(int player, float large, float small);
 /* The light bar's colour. */
 void pad_light_bar(uint8_t r, uint8_t g, uint8_t b);
+void pad_player_light_bar(int player, uint8_t r, uint8_t g, uint8_t b);
 
 /* Sound: one 48 kHz output of interleaved stereo 16-bit samples. A thread of
  * its own calls fill for 256 frames at a time and blocks while the console

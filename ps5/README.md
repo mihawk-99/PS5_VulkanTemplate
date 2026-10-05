@@ -194,7 +194,7 @@ The title's own parts:
 | `src/launcher.cpp` | the menu |
 | `src/samples.cpp` | the samples linked in, and which are in the menu (one alone: the title is that program) |
 | `src/example_ps5.cpp` | the base class's console parts: pad, screenshot |
-| `src/platform.c`, `platform.h` | klog, the splash, the pad, the shell exit (from the ps5-homebrew skill's template) |
+| `src/platform.c`, `platform.h` | klog, the splash, the pad (up to four players, one per signed-in user), the shell exit (from the ps5-homebrew skill's template) |
 | `src/platform_host.c` | the same on a PC, for the host reference |
 | `tools/build.sh`, `link-title.sh`, `setup-sdk.sh` | configure, compile, link with RADV, sign, package; the SDK pin |
 | `tools/new-title.py`, `compile-shaders.sh` | a new title on this foundation; a program's GLSL to the SPIR-V it loads |
