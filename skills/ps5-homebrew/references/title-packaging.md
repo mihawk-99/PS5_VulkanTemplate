@@ -49,9 +49,44 @@ tool and the console's loader use it. Validate it in the build.
 | `contentVersion` | `NN.NNN.NNN` |
 | `attribute3` | `0x80040` (524352) for 119.88 Hz output, `0` for 59.94 Hz |
 | `applicationDrmType` | `free` |
+| `kernel.flexibleMemorySize` | optional: the title's flexible memory in bytes, 2097152 to 1073741824 (below) |
 
 The rest is constant across my titles: PS5_VulkanTemplate's `ps5/tools/new-title.py`
-writes the whole file (`param_json`).
+writes the whole file (`param_json`); it writes no `kernel` key.
+
+### A larger flexible pool: `kernel.flexibleMemorySize`
+
+A title's flexible memory (what plain anonymous `mmap`, executable mappings of it
+included, libc's own heap and shared-memory objects draw from) is 448 MiB unless its
+`param.json` asks otherwise. The console reads the request from `param.json` at every launch:
+
+```json
+"kernel": {
+  "flexibleMemorySize": 1073741824
+}
+```
+
+What my console showed (firmware 10.01, measured in PS5_Proton, PPSA99170, a title
+on this foundation):
+
+- **1 GiB is the most.** At 1073741824 klog reports `FMEM size: 0x40000000` for the
+  title and every process it starts, and the title started with 1,037,041,664 bytes
+  of flexible memory free instead of 433,061,888. At 2147483648 the launch is
+  refused (`0x80020016`, an error dialog on the home screen) and klog states the
+  accepted range: 2097152 to 1073741824.
+- **It comes out of direct memory.** At 1 GiB, klog's `DMEM size` falls from
+  `0x300000000` to `0x2dc000000`: 576 MiB less direct memory, the total unchanged.
+- **The executable cannot ask for it.** The memory-parameter block the native tool
+  writes into the executable's process parameters had no effect with a size in it,
+  whether its pointers were relocated or stored in the file (PS5_Vulkan branch
+  `experiment/flexible-memory`).
+
+Leave it out unless the title runs short of flexible memory: the platform layer
+already keeps the heap, JIT code and guest memory in direct memory
+(`platform-layer.md`), and every title that asks for more gives up direct memory
+for it. A title with many processes, or with large shared-memory or executable
+mappings, is the case for it; measure free flexible memory before and after
+(`sceKernelAvailableFlexibleMemorySize`).
 
 **Title ids in use** (the generator refuses them): PPSA99002 ProsperoLight, 99008
 ProsperoEden, 99010 vkQuake, 99014 and 99015 PS5_Vulkan's RADV and CTS titles,

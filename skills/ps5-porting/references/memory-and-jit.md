@@ -7,7 +7,7 @@ below are what every port has needed.
 
 | Pool | Size | What goes there |
 | --- | --- | --- |
-| **flexible memory** (the title's own budget, what plain `mmap` and libc's heap draw from) | small: a few hundred MiB free at start | little: let the libraries that insist on `mmap` have it |
+| **flexible memory** (the title's own budget, what plain `mmap` and libc's heap draw from) | small: 448 MiB, a few hundred MiB free at start; at most 1 GiB through `param.json`, taken from direct memory (`ps5-homebrew/references/title-packaging.md`) | little: let the libraries that insist on `mmap` have it |
 | **direct memory** (shared with the GPU) | about 12 GiB | everything big: the heap, JIT caches, guest memory, loaded code, large buffers |
 
 - **The heap.** The link recipe wraps `malloc` and its family into the platform heap

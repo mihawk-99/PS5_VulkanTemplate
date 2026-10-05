@@ -54,8 +54,10 @@ has the rest (the daemon's modes, `daemon_held`).
 From `PROBE.md`; read it for the numbers and the evidence:
 
 - **Two pools.** Direct memory is large: about 12 GiB, shared with the GPU. The
-  title's flexible memory is small: a few hundred MiB free at start. Put big things
-  (heaps, JIT caches, guest memory, loaded code) in direct memory.
+  title's flexible memory is small: 448 MiB, a few hundred MiB free at start, and
+  at most 1 GiB through `param.json`, taken from direct memory
+  (`title-packaging.md`). Put big things (heaps, JIT caches, guest memory, loaded
+  code) in direct memory.
 - **Virtual space** has to be reserved and placed deliberately. Mappings without an
   address land in the GPU driver's window.
 - **Thread-local storage** is emulated (`__emutls_*`), and costs a call per access.
