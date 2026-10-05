@@ -133,7 +133,7 @@ never change the console's settings or system software.
 ## Task: make a new homebrew
 
 ```bash
-python3 ps5/tools/new-title.py ../PS5_MyGame --title-id PPSA99121 --name "My Game" [--refresh 60]
+python3 ps5/tools/new-title.py ../PS5_MyGame --title-id PPSA99121 --name "My Game" [--refresh 60] [--flexible-memory 448]
 python3 ps5/tools/new-title.py ../PS5_MyApp --title-id PPSA99122 --name "My App" --ui settings   # a UI title
 cd ../PS5_MyGame
 ps5/tools/build.sh && ps5/tools/deploy.sh && ps5/tools/run.sh
@@ -147,6 +147,10 @@ ps5/tools/build.sh && ps5/tools/deploy.sh && ps5/tools/run.sh
   `_`, `-`) and klog's prefix (`[My Game] ...`).
 - **`--refresh 60`** leaves out the 120 Hz bits in `param.json`; the default asks for
   119.88 Hz (the display falls back to 59.94 Hz by itself where it must).
+- **Flexible memory**: the generator's `param.json` asks for 1 GiB
+  (`kernel.flexibleMemorySize`), the most the console grants, instead of the
+  kernel's 448 MiB; the 576 MiB more comes out of direct memory.
+  `--flexible-memory 448` leaves the request out (`title-packaging.md`).
 - **`--ui <design>`** starts from the UI module instead of the 3D starter: the
   program is the UI starter (`examples/uiscreen`) and its screen is the title's own
   copy of one of the kit's designs (`--ui list` names the twenty), in

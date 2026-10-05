@@ -49,10 +49,11 @@ tool and the console's loader use it. Validate it in the build.
 | `contentVersion` | `NN.NNN.NNN` |
 | `attribute3` | `0x80040` (524352) for 119.88 Hz output, `0` for 59.94 Hz |
 | `applicationDrmType` | `free` |
-| `kernel.flexibleMemorySize` | optional: the title's flexible memory in bytes, 2097152 to 1073741824 (below) |
+| `kernel.flexibleMemorySize` | the title's flexible memory in bytes, 2097152 to 1073741824; `1073741824` from the generator (below) |
 
 The rest is constant across my titles: PS5_VulkanTemplate's `ps5/tools/new-title.py`
-writes the whole file (`param_json`); it writes no `kernel` key.
+writes the whole file (`param_json`), with `kernel.flexibleMemorySize` at 1 GiB unless
+it is given `--flexible-memory 448`.
 
 ### A larger flexible pool: `kernel.flexibleMemorySize`
 
@@ -66,8 +67,8 @@ included, libc's own heap and shared-memory objects draw from) is 448 MiB unless
 }
 ```
 
-What my console showed (firmware 10.01, measured in PS5_Proton, PPSA99170, a title
-on this foundation):
+What my console showed (a PS5 Pro, firmware 10.01; measured in PS5_Proton, PPSA99170,
+a title on this foundation, where a line names no other title):
 
 - **1 GiB is the most.** At 1073741824 klog reports `FMEM size: 0x40000000` for the
   title and every process it starts, and the title started with 1,037,041,664 bytes
@@ -80,12 +81,21 @@ on this foundation):
   writes into the executable's process parameters had no effect with a size in it,
   whether its pointers were relocated or stored in the file (PS5_Vulkan branch
   `experiment/flexible-memory`).
+- **A title made by the generator gets it.** The generator's `param.json` for
+  PPSA99130, on that title's build: klog `FMEM size: 0x40000000`, `DMEM size:
+  0x2dc000000`, and the starter passed, 300 frames at 119.9 fps, ending by itself.
+- **The frames were the same.** In PS5_RetroArch (PPSA99169), Dolphin running a
+  GameCube game left 351 MiB of flexible memory free at 448 MiB and 927 MiB at
+  1 GiB, at the same 300 frames every 10 s; the PS2 core left 393 MiB and 969 MiB,
+  at the same 600 frames every 10 s, with no frame over 21 ms either way.
 
-Leave it out unless the title runs short of flexible memory: the platform layer
-already keeps the heap, JIT code and guest memory in direct memory
-(`platform-layer.md`), and every title that asks for more gives up direct memory
-for it. A title with many processes, or with large shared-memory or executable
-mappings, is the case for it; measure free flexible memory before and after
+The generator asks for 1 GiB, so a new title starts with the most flexible memory
+the console grants: what plain `mmap`, libc's heap and every view of a
+shared-memory object are charged to. The platform layer already
+keeps the heap, JIT code and guest memory in direct memory (`platform-layer.md`),
+so a title that needs all 12 GiB of direct memory, and not the flexible memory, is
+the case for `--flexible-memory 448`, or for removing the key from an existing
+title's `param.json`. Measure free flexible memory before and after
 (`sceKernelAvailableFlexibleMemorySize`).
 
 **Title ids in use** (the generator refuses them): PPSA99002 ProsperoLight, 99008

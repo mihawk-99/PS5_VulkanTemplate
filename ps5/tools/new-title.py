@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """PS5 Vulkan Template - make a new PS5 homebrew title on this foundation.
 
-    ps5/tools/new-title.py DIRECTORY --title-id PPSA12345 --name "My Title" [--refresh 60] [--force]
+    ps5/tools/new-title.py DIRECTORY --title-id PPSA12345 --name "My Title" [--refresh 60] [--flexible-memory 448] [--force]
     ps5/tools/new-title.py DIRECTORY --title-id PPSA12345 --name "My Title" --ui DESIGN
 
 The new title is this repository's foundation with one program: the base class
@@ -17,6 +17,12 @@ The title id is PPSA and five digits, unique on the console: the ids my titles
 use are refused. The name is what the home screen shows: up to 40 letters,
 digits, spaces, '.', '_' or '-'. --refresh 60 leaves out param.json's
 high-frame-rate bits (the default asks for 119.88 Hz).
+
+The title asks for 1 GiB of flexible memory, the most the console grants, in
+param.json's kernel.flexibleMemorySize: the kernel's default is 448 MiB, and the
+576 MiB more comes out of the title's 12 GiB of direct memory. --flexible-memory 448
+leaves the request out, for a title that wants all of its direct memory
+(skills/ps5-homebrew/references/title-packaging.md).
 
 --ui DESIGN starts from the UI module instead of the 3D starter: the program is
 the UI starter (examples/uiscreen/), and its screen is a copy of one of the UI
@@ -69,9 +75,9 @@ UI_ONLY = re.compile(r"^ps5/(ui(/|$)|licenses/GPL-3\.0\.txt$)")
 STARTERS = {False: ["examples/starter", "shaders/glsl/starter"], True: ["examples/uiscreen"]}
 
 
-def param_json(title_id, name, refresh):
+def param_json(title_id, name, refresh, flexible_mib):
     label = re.sub(r"[^A-Z0-9]", "", name.upper())[:16].ljust(16, "0")
-    return {
+    param = {
         "ageLevel": {"default": 0},
         "applicationCategoryType": 0,
         "applicationDrmType": "free",
@@ -99,6 +105,12 @@ def param_json(title_id, name, refresh):
         "titleId": title_id,
         "versionFileUri": "",
     }
+    # The flexible pool, read from here at every launch: 1 GiB is the most the
+    # console accepts (klog: 2097152 to 1073741824), and it is taken from direct
+    # memory (title-packaging.md). Without the key the kernel gives 448 MiB.
+    if flexible_mib == 1024:
+        param["kernel"] = {"flexibleMemorySize": 1024 << 20}
+    return dict(sorted(param.items()))
 
 
 def icon(path, name):
@@ -217,6 +229,8 @@ def main():
     parser.add_argument("--title-id", required=True)
     parser.add_argument("--name", required=True)
     parser.add_argument("--refresh", type=int, choices=(60, 120), default=120)
+    parser.add_argument("--flexible-memory", type=int, choices=(448, 1024), default=1024, metavar="MIB",
+                        help="1024 (the default) asks param.json for 1 GiB; 448 keeps the kernel's default")
     parser.add_argument("--force", action="store_true", help="accept a title id from the taken list")
     parser.add_argument("--ui", metavar="DESIGN", help="start from the UI kit's design DESIGN ('list' names them)")
     args = parser.parse_args()
@@ -278,7 +292,7 @@ def main():
 
     # Its identity
     (target / "ps5/sce_sys").mkdir(parents=True, exist_ok=True)
-    (target / "ps5/sce_sys/param.json").write_text(json.dumps(param_json(args.title_id, args.name, args.refresh), indent=2) + "\n")
+    (target / "ps5/sce_sys/param.json").write_text(json.dumps(param_json(args.title_id, args.name, args.refresh, args.flexible_memory), indent=2) + "\n")
     icon(target / "ps5/sce_sys/icon0.png", args.name)
 
     # Its assets: the overlay's font and the starter's model, fetched or made at build time

@@ -11,7 +11,7 @@ in every other.
 From PS5_VulkanTemplate's folder:
 
 ```bash
-python3 ps5/tools/new-title.py ../PS5_MyTitle --title-id PPSA99121 --name "My Title" [--refresh 60]
+python3 ps5/tools/new-title.py ../PS5_MyTitle --title-id PPSA99121 --name "My Title" [--refresh 60] [--flexible-memory 448]
 cd ../PS5_MyTitle
 ps5/tools/build.sh && ps5/tools/deploy.sh && ps5/tools/run.sh
 ```
@@ -27,6 +27,10 @@ ps5/tools/build.sh && ps5/tools/deploy.sh && ps5/tools/run.sh
   `.`, `_` or `-`. It is also klog's prefix (`[My Title] ...`).
 - **`--refresh 60`** leaves out the high-frame-rate bits in `param.json`. The default
   asks for 119.88 Hz (`title-packaging.md`).
+- **`--flexible-memory 448`** leaves `kernel.flexibleMemorySize` out of `param.json`,
+  so the title has the kernel's 448 MiB of flexible memory. The default asks for
+  1 GiB, the most the console grants, which comes out of the title's direct memory
+  (576 MiB of its 12 GiB; `title-packaging.md`).
 - **`--ui <design>`** makes a title whose face is one of the UI kit's designs (`--ui
   list`): its program is the UI starter and its screen a copy of the design in
   `examples/<id>/kit/screen.cpp`. Such a title carries the GPL-3.0 UI module and also
