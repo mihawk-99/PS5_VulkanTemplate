@@ -40,7 +40,7 @@ The consumer's build script pins the fork by full revision. PS5_RetroArch's core
 all do it through `tools/core-fork.sh`:
 
 ```bash
-revision=4598458e115f108a6e2211eb0763eb22ab383d4c  # ../PS5_Azahar main   (tools/build-azahar.sh)
+revision=949a18778c7837c4eb17022a537bb1999517129a  # ../PS5_Azahar main   (tools/build-azahar.sh)
 core_fork_checkout PS5_Azahar "$revision" submodules
 ```
 

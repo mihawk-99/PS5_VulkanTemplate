@@ -54,11 +54,11 @@ source "$vulkan/tools/radv-link.sh"
 radv_link_recipe "$vulkan" "$sdk" "$archive" || exit 2
 # localeconv in the C locale, '.' the decimal point (the console's gives none, and
 # tinygltf's JSON parser then read 0.62 as 0): the platform layer's since SDK fork
-# fa69d00 (tools/setup-sdk.sh's pin is never older), bound by PS5_Vulkan's recipe
+# 6b63a2a (tools/setup-sdk.sh's pin is never older), bound by PS5_Vulkan's recipe
 # since its 6a6dfa6. With an older recipe the title binds it here, kept local as
 # the recipe keeps its bound names. The symbol listing is read whole before it
 # is searched: piped into grep -q under pipefail, llvm-nm's SIGPIPE made the
-# found symbol a miss about half the time once the archive grew (SDK adc8dd7).
+# found symbol a miss about half the time once the archive grew (SDK 611893f).
 platform_has_localeconv=false
 grep -q " T ps5_localeconv$" <<<"$("$sdk/bin/llvm-nm" --defined-only "$sdk/target/lib/libps5platform.a" 2>/dev/null)" &&
     platform_has_localeconv=true

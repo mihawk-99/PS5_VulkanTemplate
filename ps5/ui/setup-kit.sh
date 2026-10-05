@@ -15,8 +15,8 @@ set -euo pipefail
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 kit="$root/.deps/hui"
 fork="${PS5_VKHOMEBREWUI:-$root/../PS5_VKHomebrewUI}"
-# 4451c26: the Vulkan backend, with import_texture (a program's own image)
-revision=4451c261ac8631c698291ee765a37456f25bc22c
+# 2188642: the Vulkan backend, with import_texture (a program's own image)
+revision=2188642afbcc8d84d36149124f3d9e39dc1b1a05
 
 # What is exported, beside the revision: a change to the list exports again
 stamp="$revision src assets/fonts assets/audio third_party/fonts"

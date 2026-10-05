@@ -17,7 +17,7 @@ A sample goes in the menu only once it has been proven on the console: it starts
 draws what the host reference draws, holds its frame rate, and ends cleanly. Until
 then test runs reach it and the menu does not (`src/samples.cpp`, the second field).
 
-All sixteen are proven, last on 2026-10-03 with RADV 15a5e99 and SDK fork adc8dd7, in
+All sixteen are proven, last on 2026-10-03 with RADV 12d0391 and SDK fork 611893f, in
 two launches of the title (the second a reopen, with the same figures), their settings
 windows in the title's default theme: a test run of 300 frames each, at 3840x2160 on
 the 119.88 Hz display. Each held 119.9 fps after
@@ -58,8 +58,8 @@ PS5_VKHomebrewUI. The module is GPL-3.0-or-later and built only when `ps5/ui/` i
 there; a title made without `--ui` has none of it. `uioverlay` is in the Samples menu,
 the gallery is the start screen's Designs, and test runs reach all three.
 
-They were proven on 2026-10-03 with RADV 15a5e99, SDK fork adc8dd7 and
-PS5_VKHomebrewUI 4451c26, in the same launches as a full run of the sixteen samples
+They were proven on 2026-10-03 with RADV 12d0391, SDK fork 611893f and
+PS5_VKHomebrewUI 2188642, in the same launches as a full run of the sixteen samples
 above and the title's own screens (`start`, `launcher`, `themes`: 43 programs a
 launch, 43 passes in each of two launches): each held 119.9 fps at 3840x2160, drew
 within 3.3 levels of the host's picture (the screens within 1.6), opened the
@@ -100,8 +100,8 @@ The title builds against my PS5 stack, checked out beside this repository:
 [PS5_Vulkan](https://github.com/mihawk-99/PS5_Vulkan) (its RADV release archive, its
 link recipe, its native tool and `libc.prx`), the Mesa fork it builds RADV from, and
 my [payload SDK fork](https://github.com/mihawk-99/PS5_PayloadSDK), which
-`tools/setup-sdk.sh` installs into `.deps/` at the revision it pins (adc8dd7, which
-adds the platform layer's `/data` client; a pin is never older than fa69d00, the first
+`tools/setup-sdk.sh` installs into `.deps/` at the revision it pins (611893f, which
+adds the platform layer's `/data` client; a pin is never older than 6b63a2a, the first
 with its C-locale `localeconv`). The assets need Python with numpy and Pillow, and download their
 CC0 sources once (into `build/ps5/downloads/`, checked against pinned hashes).
 
@@ -155,7 +155,7 @@ host's. The suite earns its place: its first console run drew three samples blac
 where the host drew them in colour. The console's `localeconv()` reports an empty
 decimal point, and tinygltf's JSON parser, which builds numbers for `strtod` from it,
 read every glTF material colour of 0.62 as 0. The fix went where such gaps go, into
-the shared platform layer (SDK fork fa69d00) and PS5_Vulkan's link recipe, for every
+the shared platform layer (SDK fork 6b63a2a) and PS5_Vulkan's link recipe, for every
 title that links them.
 
 ## How the port works

@@ -88,7 +88,7 @@ UI samples on the console. Never patch `.deps/hui`: it is re-exported from the p
 ## Pitfalls already paid for
 
 - `VkRenderer::draw(cmd, w, h)` hid `Renderer::draw(list)` until a using-declaration
-  brought it back (4451c26): call `kit.renderer.draw(list)` freely.
+  brought it back (2188642): call `kit.renderer.draw(list)` freely.
 - A design file copied into a program must stay outside the program's namespace:
   `new-title.py --ui` puts it in `kit/`, which `ps5/ui/ui.cmake` compiles unwrapped,
   and renames its namespace (`hui::screen`) so it cannot meet the kit's copy.
