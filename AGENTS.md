@@ -50,6 +50,7 @@ comes up, and the reference files it names.
 
 | Skill | Read it before |
 | --- | --- |
+| [`skills/ps5-agent-native`](skills/ps5-agent-native/SKILL.md) | designing or restructuring any code, test, tool or document. Agents write all of my code, so everything is designed for the agent's loop (inspect, hypothesize, change, build, deploy, collect evidence, compare): code an agent can change from one place, checks that end in a verdict, a console that answers questions |
 | [`skills/ps5-homebrew`](skills/ps5-homebrew/SKILL.md) | starting or building a title, linking RADV, packaging, the display, pad, audio, memory, threads, files, deciding which project a fix belongs in. References: `new-title.md`, `stack.md`, `vulkan-on-radv.md`, `platform-contracts.md`, `platform-layer.md`, `title-packaging.md`, `toolchain.md`, `runtime-surface.md`, `driver-work.md`, `ui-kit.md` |
 | [`skills/ps5-console`](skills/ps5-console/SKILL.md) | anything that touches the console: deploying, launching, klog, stopping a run, crashes, measuring, regression runs. References: `console-tools.md`, `test-runs.md`, `crash-reading.md` |
 | [`skills/ps5-porting`](skills/ps5-porting/SKILL.md) | bringing existing software over: forks and pins, cross-building, memory and JIT, files, loading code without `dlopen`. References: `forks.md`, `memory-and-jit.md`, `files-and-io.md`, `loading-code.md` |
@@ -452,7 +453,9 @@ Titles made earlier keep their copy of the foundation; carry a fix into one by h
   `build/`, `dist/`, `klog/`, `.deps/`, screenshots of games, or anything rule 4 names.
 - **Code**: match the file you are in. Upstream's files and the C++ PS5 sources use
   tabs and Sascha Willems' brace style; `ps5/src/platform.c`/`.h` use three spaces;
-  comments say why, not what. New files carry the
+  comments say why, not what. What new code looks like (flat, explicit state and
+  ownership, the contract beside it, a check that ends in a verdict) is
+  `skills/ps5-agent-native`. New files carry the
   copyright and licence header the neighbouring files carry (MIT here).
 - **Docs**: in the first person of the maintainer ("I"), never "the user" or "the
   owner"; numbers that change stay in the document that owns them, and others point

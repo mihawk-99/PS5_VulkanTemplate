@@ -26,12 +26,16 @@ in the platform layer or in a project that already met it. Reuse them.
 4. **Replace the platform code, not the program.** Keep the PS5 changes behind
    `__PROSPERO__` (the compiler defines it), in as few files as possible, the way
    upstream keeps its other platforms. Where a gap is the console's (libc, memory,
-   threads), the answer goes in the platform layer, not in the fork.
+   threads), the answer goes in the platform layer, not in the fork. Upstream's
+   files keep upstream's shape; the PS5 files of a port are written for the agent
+   (skill `ps5-agent-native`): flat functions, explicit state, the contract and the
+   measurement that shaped it beside the code.
 5. **Bring it up on the console's skeleton**: klog capture, splash, display, pad,
    audio, the shell exit, as PS5_VulkanTemplate's PS5 layer does them (`ps5/src/`;
-   `ps5-homebrew` skill), then the program's main loop.
+   `ps5-homebrew` skill), then the program's main loop. klog and a test hook come
+   first, so every later failure leaves a record and every later run ends itself.
 6. **Prove each step on the console** (`ps5-console` skill), and keep the run's
-   numbers.
+   numbers. Each failure found becomes a check that runs from then on.
 
 ## What usually needs replacing
 
@@ -65,6 +69,12 @@ in the platform layer or in a project that already met it. Reuse them.
 - **Defaults are the best picture that holds full speed** in the games tested (the
   highest internal resolution that keeps 100%), recorded with the measurement behind
   them.
+- **Machine code is read through tools, never by eye.** A crash address, a JIT's
+  output or a guest program's code is symbolized, disassembled or dumped in decoded
+  form before the agent reasons about it (`ps5-agent-native`, "Write in the
+  representation with the most meaning"). Hand-written assembly stays at the JIT's
+  boundaries (entry and exit stubs, saving and restoring state), each piece checked
+  against a C version of the same job.
 - **Track upstream.** A fork that drifts behind upstream loses its fixes. Merge
   upstream regularly, and port upstream's features into a libretro fork rather than
   leaving it behind (LRPS2 follows PCSX2 this way).

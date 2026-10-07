@@ -47,6 +47,23 @@ grow the class. Every sample is a class on the same base, so a technique (shadow
 deferred lighting, bloom, compute, mesh shaders, ray queries...) copies in as it
 stands. What each part is for: `references/new-title.md`.
 
+## Writing a title's code
+
+Agents write it, so it is designed for the agent's loop, not for a human reader:
+skill `ps5-agent-native`. For a title that means:
+
+- **The base class is upstream's shape; nothing is layered on it.** A program is one
+  class on `VulkanExampleBase`. What it grows (a renderer's passes, a game's state, a
+  file format) goes in flat structs and functions with predictable names and the
+  contract beside them, not in further classes deriving from one another.
+- **The test run is the check.** A title keeps its test hook, its frame budget and its
+  host reference working, so `ps5/tools/run.sh` gives a verdict on every change
+  (`ps5-console`). A behaviour the run cannot see gets a marker line or a counter in
+  klog before anyone guesses at it.
+- **Logic that does not need the console builds and runs on the PC too** (the host
+  reference already builds the whole program for Linux), so its loop takes seconds,
+  not a deploy.
+
 ## Rules that cost runs to learn
 
 1. **A title never calls `exit()` and never returns from `_start`.** It asks the
@@ -70,6 +87,7 @@ stands. What each part is for: `references/new-title.md`.
    commit message or a release note is a claim until a run backs it, and the run is
    reported at the same detail whether it passed or failed.
 
+How code, tests and tools are designed for the agent's loop is `ps5-agent-native`.
 Running, watching, stopping and debugging titles on the console has its own skill,
 `ps5-console`. Bringing existing software (an engine, an emulator, a library) to
 the console is `ps5-porting`. Publishing a release is `ps5-release`.

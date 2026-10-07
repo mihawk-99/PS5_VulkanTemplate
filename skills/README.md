@@ -8,6 +8,7 @@ everything else. They live in PS5_VulkanTemplate, beside the foundation they des
 
 | Skill | Use it to |
 | --- | --- |
+| [`ps5-agent-native/`](ps5-agent-native/SKILL.md) | design any code, test, tool or document for the agent's loop: agents write all of my code, so the loop's speed and the quality of its feedback decide everything else |
 | [`ps5-homebrew/`](ps5-homebrew/SKILL.md) | start and build a title: the stack, new titles on this repository's foundation, Vulkan on RADV, the platform layer, packaging, the toolchain, driver work |
 | [`ps5-console/`](ps5-console/SKILL.md) | run, test and debug on the console: ps5vkctl, deploying, klog, clean stops, crash reading, measuring, regression runs |
 | [`ps5-porting/`](ps5-porting/SKILL.md) | bring existing software over: forks and pins, memory and JIT, files, loading code without `dlopen` |
@@ -21,7 +22,7 @@ folder:
 
 ```bash
 mkdir -p ~/.claude/skills
-for skill in ps5-homebrew ps5-console ps5-porting ps5-release; do
+for skill in ps5-agent-native ps5-homebrew ps5-console ps5-porting ps5-release; do
     ln -sfn "$PWD/skills/$skill" ~/.claude/skills/$skill
 done
 ```
@@ -50,3 +51,6 @@ against first (PS5_Vulkan, PS5_Mesa and PS5_PayloadSDK beside this repository).
   change (CTS counts, frame rates, open gaps) stay in their owners' documents, and
   the skills point at them.
 - Anything a skill tells an agent to do must have been done on the console.
+- The skills are written for an agent that starts cold: a table that says when to
+  read what, one fact in one place, commands that can be pasted as they stand
+  (`ps5-agent-native`, "Knowledge the next agent finds").

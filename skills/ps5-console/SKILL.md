@@ -11,6 +11,24 @@ and closes titles. The address and ports live only in the ignored `.env` of
 PS5_Vulkan (and of each project with its own tools). Never print them in a reply or
 a document: mask addresses in any tool output you show.
 
+## What a run is for
+
+The agent cannot see the console: it knows what a command returns, and nothing else.
+So the console is an instrument the agent queries, and its time, often mine at the
+pad, is the scarcest part of the loop (`ps5-agent-native`).
+
+- **Decide the question before the run**, and what answer would settle it. A run
+  that cannot change the next step is not worth the console.
+- **Cheapest check first.** A host test or the host reference answers in seconds
+  what a console run answers in minutes; the console gets the questions only it can
+  answer.
+- **Observability before hypotheses.** If the last run's records do not show where
+  it went wrong, the next run adds what would show it (a marker line, a counter, a
+  state dump at the boundary), not a guess. Two runs spent on guesses mean it is time
+  to stop and instrument.
+- **Every run ends in a verdict and a small record** that a script can compare with
+  the last one ("Rules of evidence", below).
+
 ## Before every run
 
 1. **Is the console idle?** `ps5vkctl procs` must answer `count=0`. Something
@@ -91,6 +109,8 @@ checks, not a console run. `references/test-runs.md`, "Regression runs".
 - Raw captures (klog files, screenshots, dumps) are working files in ignored folders.
   What gets committed is small, machine-readable, and states what it is compared
   against.
+- A failure a run found becomes a check that runs every time after: a host test if
+  it reproduces off the console, a case in the regression battery if not.
 - Never put game names in public documents, release notes or commit-visible
   evidence: describe the core, the system and the measurement.
 
