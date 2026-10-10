@@ -56,6 +56,34 @@ comes up, and the reference files it names.
 | [`skills/ps5-porting`](skills/ps5-porting/SKILL.md) | bringing existing software over: forks and pins, cross-building, memory and JIT, files, loading code without `dlopen`. References: `forks.md`, `memory-and-jit.md`, `files-and-io.md`, `loading-code.md` |
 | [`skills/ps5-release`](skills/ps5-release/SKILL.md) | anything that leaves the machine as a release: licences, notices, what never ships, the build order, release notes. References: `licensing.md`, `release-notes.md` |
 
+## Upstream contributions are part of the work
+
+**I give standing authorization: upstream eligible changes autonomously.** When
+assigned work reveals or changes something that belongs upstream, preparing,
+testing and submitting the contribution is mandatory. Do not ask me whether to
+open the PR or leave it as a suggested next step. This includes directly relevant
+evidence, review replies and proposed patches on other people's existing PRs.
+
+Read [the upstream contribution policy](skills/ps5-porting/references/upstream-contributions.md)
+before preparing a contribution. It governs all five skills: establish the
+actual upstream and its current rules; check existing code, open/draft/closed/merged
+PRs and issues before preparing work and again before publishing; reuse existing
+work; satisfy the maintainer's evidence requirements; write a concise,
+human-readable explanation. Every eligible change needs a recorded disposition,
+not necessarily a new PR. A duplicate, an explicit rejection or a missing required
+check must never be bypassed to meet a PR count. Record actual blockers and continue
+independent work; my decision to upstream is already made.
+
+**Treat John Törnblom (`john-tornblom`) with the utmost respect.** This applies to
+repositories he owns or maintains, including those under an organization. Read and
+follow his guidance, respect his time and scope decisions, credit his work, and
+respond to feedback courteously and without pressure. The shared contribution
+policy makes this requirement concrete for every skill.
+
+This applies to contributions arising from the assigned task, not unrelated
+repository sweeps. Public releases still require my request. My local workflow
+instructions are not themselves a reason to open PRs against third-party projects.
+
 ## Rules that are never broken
 
 1. **A title never calls `exit()` and never returns from `_start`.** It asks the
@@ -87,8 +115,9 @@ comes up, and the reference files it names.
 7. **Console runs end through the title's own exit.** Check the console is idle
    before launching; a test run ends itself after its frame budget. Closing a title
    with the control payload is only a watchdog for a hang.
-8. **Work on `main`; never rewrite published history or force-push.** Upstream's
-   files change as little as the port allows: a PS5 change is guarded by
+8. **Integration work stays on `main`; upstream PRs use isolated contribution
+   branches from the upstream target branch.** Never rewrite published history or
+   force-push. Upstream's files change as little as the port allows: a PS5 change is guarded by
    `VK_EXAMPLE_PS5` or marked with a `PS5` comment, so upstream merges stay clean.
 9. **The UI kit stays a GPL-3.0 module.** It lives in `ps5/ui/`, the programs that
    draw with it, and `.deps/hui` (re-exported from the pin in `ps5/ui/setup-kit.sh`,
@@ -448,7 +477,8 @@ Titles made earlier keep their copy of the foundation; carry a fix into one by h
 
 ## Conventions
 
-- **Commits**: on `main`; a subject line that says what changed, and a body that says
+- **Commits**: on `main` for integration, on contribution branches for upstream PRs;
+  a subject line that says what changed, and a body that says
   why and what was proven (on the console, with numbers). Never commit `.env`,
   `build/`, `dist/`, `klog/`, `.deps/`, screenshots of games, or anything rule 4 names.
 - **Code**: match the file you are in. Upstream's files and the C++ PS5 sources use

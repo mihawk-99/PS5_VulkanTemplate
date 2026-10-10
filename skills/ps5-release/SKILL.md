@@ -86,6 +86,13 @@ cores, what the notices in the title folder must carry, and how to add a new par
 
 ## Publishing rules
 
+- **Upstream contributions are mandatory for eligible changes and already
+  authorized**, independently of releasing a title. Before finishing release
+  preparation, follow [the contribution policy](../ps5-porting/references/upstream-contributions.md):
+  verify existing work, submit or update eligible PRs autonomously, and record
+  actual blockers. Useful contributions to other people's directly relevant PRs
+  are authorized too. Upstream acceptance is not a prerequisite for a title
+  release unless its own release rules require it.
 - Pushing my repositories' finished work is fine. A public **release** happens when I
   ask for it.
 - Keep released artifacts in `dist/` until the read-back passes. Don't delete or

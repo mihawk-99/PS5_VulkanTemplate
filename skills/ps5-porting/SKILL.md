@@ -1,6 +1,6 @@
 ---
 name: ps5-porting
-description: Bringing existing software to my PS5 homebrew stack - a game engine, an emulator or libretro core, or a library - as a native title or as part of one (PS5_RetroArch). Covers forking and pinning, cross-building, replacing the platform code, Vulkan renderers on RADV, JITs and fastmem, threads, files, and the console's limits. Use it before and during any port.
+description: Bringing existing software to my PS5 homebrew stack - a game engine, an emulator or libretro core, or a library - as a native title or as part of one (PS5_RetroArch). Covers forking and pinning, cross-building, replacing the platform code, Vulkan renderers on RADV, JITs and fastmem, threads, files, and the console's limits. Also governs autonomous upstream contributions, duplicate checks and maintainer-ready PRs. Use it before and during any port or upstream contribution arising from my PS5 work.
 ---
 
 # Porting to the PS5
@@ -13,6 +13,14 @@ that lacks or refuses part of POSIX. Each of those has a known answer, written o
 in the platform layer or in a project that already met it. Reuse them.
 
 ## The order of work
+
+**Upstreaming eligible changes is mandatory and already authorized.** Read
+[the contribution policy](references/upstream-contributions.md) before preparing
+upstream work and before calling the task complete. Check for existing work first;
+update or assist a directly relevant PR instead of creating a duplicate. I also
+authorize useful evidence and proposed patches on other people's existing PRs.
+For repositories owned or maintained by John Törnblom (`john-tornblom`), apply the
+policy's explicit requirement of utmost respect for him, his work and his time.
 
 1. **Read the licence first.** It decides whether the port can ship and with what
    (`ps5-release` skill, `licensing.md`). A GPL-2.0-only program cannot be
@@ -36,6 +44,9 @@ in the platform layer or in a project that already met it. Reuse them.
    first, so every later failure leaves a record and every later run ends itself.
 6. **Prove each step on the console** (`ps5-console` skill), and keep the run's
    numbers. Each failure found becomes a check that runs from then on.
+7. **Complete the upstream disposition** under the contribution policy: submit or
+   update the eligible PR, reuse existing work, or record the concrete reason it
+   cannot be submitted. Keeping a fix only in my fork does not finish this step.
 
 ## What usually needs replacing
 
@@ -94,6 +105,7 @@ in the platform layer or in a project that already met it. Reuse them.
 | File | Read it when |
 | --- | --- |
 | `references/forks.md` | creating, pinning, updating or upstreaming a fork |
+| [references/upstream-contributions.md](references/upstream-contributions.md) | assessing, preparing, submitting or following up an upstream contribution; mandatory duplicate and readiness checks |
 | `references/memory-and-jit.md` | heaps, direct memory, JIT code, guest memory, fastmem, signals |
 | `references/files-and-io.md` | paths, saves, configs, write speed, directories |
 | `references/loading-code.md` | plugins, dynamic libraries, cores, static linking |

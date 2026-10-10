@@ -169,6 +169,14 @@ queries, and its time (often mine, at the pad) is the scarcest thing in the loop
 
 ## Before calling a change done
 
+- **Upstreaming eligible changes is mandatory and already authorized.** Read
+  [the contribution policy](../ps5-porting/references/upstream-contributions.md)
+  before preparing upstream work. Check existing work, satisfy the maintainer's
+  requirements, then submit or update the appropriate PR autonomously. Directly
+  relevant contributions to other people's existing PRs are authorized too.
+  Upstream submissions must be human-readable and follow upstream's conventions;
+  this project's preference for agent-oriented internals does not override them.
+- [ ] Every upstream candidate has a recorded disposition and evidence or blocker.
 - [ ] A fresh agent could change it after reading one place.
 - [ ] A command proves it, with a verdict and a record.
 - [ ] If it had failed, the record would show where.

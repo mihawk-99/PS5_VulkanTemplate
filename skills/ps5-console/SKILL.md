@@ -103,6 +103,13 @@ checks, not a console run. `references/test-runs.md`, "Regression runs".
 
 ## Rules of evidence
 
+- **Evidence for an upstream fix follows
+  [the contribution policy](../ps5-porting/references/upstream-contributions.md).**
+  Eligible contributions are mandatory and already authorized, including useful
+  evidence on other people's directly relevant PRs. Check existing work first and
+  submit autonomously when ready. Meet any hardware-before-submission requirement
+  before opening even a draft; unavailable hardware is a recorded blocker, never
+  permission to claim a host build proves console behaviour.
 - A claim is what a run showed: the command, what it returned, what it proves.
   Report failures at the same detail as successes.
 - No tolerated corruption, no accuracy traded for speed without saying so.

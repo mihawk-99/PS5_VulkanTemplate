@@ -94,6 +94,12 @@ the console is `ps5-porting`. Publishing a release is `ps5-release`.
 
 ## Standing rules
 
+- **Upstream eligible fixes autonomously; I have already authorized it.** Before
+  preparing a contribution and before calling the task complete, follow
+  [the contribution policy](../ps5-porting/references/upstream-contributions.md):
+  check existing work, meet upstream's requirements, and submit or update the
+  appropriate PR. Directly relevant contributions to other people's PRs are
+  authorized. Fixing my integration fork alone does not settle external upstreaming.
 - Keep the console's address and ports in PS5_Vulkan's ignored `.env` (every
   console tool reads it), never in a commit, a log you paste, or a
   document. Mask addresses when printing tool output.
@@ -101,8 +107,9 @@ the console is `ps5-porting`. Publishing a release is `ps5-release`.
   only exported functions, and write down only exported names and behaviour
   measured on the console.
 - Never commit, upload or ship game data, BIOS files, keys or saves.
-- Every repository keeps its work on `main`, published history is never rewritten
-  or force-pushed, and forks are pinned by revision in the consumer's build, not
+- Integration work stays on `main`; upstream PRs use isolated contribution branches
+  from the upstream target branch. Published history is never rewritten or
+  force-pushed, and forks are pinned by revision in the consumer's build, not
   applied as patch series.
 - Documentation speaks in the first person ("I"), never about "the owner" or "the
   user".

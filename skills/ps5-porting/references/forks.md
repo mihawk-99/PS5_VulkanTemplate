@@ -23,10 +23,15 @@ removed with every RPCS3 part of PS5_RetroArch (2026-10-04).
 
 ## Working in it
 
-- **All work on `main`.** No long-lived side branches. A pull request to upstream
-  goes from a short-lived branch cut from `upstream/<default>`, deleted once merged.
-  Open a pull request to someone else's repository only when the person you work
-  for asks for it.
+- **Integration work stays on `main`.** An upstream PR uses an isolated,
+  short-lived branch based on the current upstream target branch, normally its
+  default. Keep unrelated fork changes out. Delete the contribution branch once
+  merged and no longer needed.
+- **Upstream eligible changes autonomously; I have already authorized it.** Follow
+  [the contribution policy](upstream-contributions.md): check existing work before
+  preparing a contribution and immediately before publishing, meet the maintainer's
+  requirements, and submit or update the appropriate PR. Directly relevant evidence
+  and proposed patches on other people's existing PRs are authorized too.
 - **Upstream is merged in, never rebased onto.** `main` is published: never rewrite
   it or force-push.
 - **PS5 changes are marked:** behind `__PROSPERO__`, or in files of their own, with
