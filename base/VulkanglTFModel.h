@@ -264,7 +264,8 @@ namespace vkglTF
 		vkglTF::Texture emptyTexture;
 		void createEmptyTexture(VkQueue transferQueue);
 	public:
-		vks::VulkanDevice* device;
+		// PS5: null until loaded, so a model never loaded frees nothing (~Model)
+		vks::VulkanDevice* device = nullptr;
 		VkDescriptorPool descriptorPool;
 
 		struct Vertices {

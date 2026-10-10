@@ -758,6 +758,11 @@ void vkglTF::Model::createEmptyTexture(VkQueue transferQueue)
 */
 vkglTF::Model::~Model()
 {
+	// PS5: a title never exits, so a sample whose start failed (no Vulkan instance)
+	// is destroyed with its models never loaded
+	if (device == nullptr) {
+		return;
+	}
 	vkDestroyBuffer(device->logicalDevice, vertices.buffer, nullptr);
 	vkFreeMemory(device->logicalDevice, vertices.memory, nullptr);
 	vkDestroyBuffer(device->logicalDevice, indices.buffer, nullptr);

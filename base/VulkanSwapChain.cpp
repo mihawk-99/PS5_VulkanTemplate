@@ -33,6 +33,13 @@ void VulkanSwapChain::initSurface(uint32_t width, uint32_t height)
 void VulkanSwapChain::initSurface(screen_context_t screen_context, screen_window_t screen_window)
 #endif
 {
+#if defined(PS5_HOST_REFERENCE)
+	// PS5: the instance found no headless surface on this driver (createInstance)
+	if (offscreen) {
+		initOffscreen();
+		return;
+	}
+#endif
 	VkResult err = VK_SUCCESS;
 
 	// Create the os-specific surface
@@ -161,6 +168,17 @@ void VulkanSwapChain::initSurface(screen_context_t screen_context, screen_window
 		}
 	}
 
+#if defined(PS5_HOST_REFERENCE)
+	// PS5: a headless surface this device cannot present to (another driver in the
+	// instance offers headless surfaces, this one does not): offscreen images
+	if (presentQueueNodeIndex == UINT32_MAX) {
+		vkDestroySurfaceKHR(instance, surface, nullptr);
+		surface = VK_NULL_HANDLE;
+		offscreen = true;
+		initOffscreen();
+		return;
+	}
+#endif
 	// Exit if either a graphics or a presenting queue hasn't been found
 	if (graphicsQueueNodeIndex == UINT32_MAX || presentQueueNodeIndex == UINT32_MAX)  {
 		vks::tools::exitFatal("Could not find a graphics and/or presenting queue!", -1);
@@ -209,6 +227,12 @@ void VulkanSwapChain::create(uint32_t& width, uint32_t& height, bool vsync, bool
 	assert(device);
 	assert(instance);
 
+#if defined(PS5_HOST_REFERENCE)
+	if (offscreen) {
+		createOffscreen(width, height);
+		return;
+	}
+#endif
 	// Store the current swap chain handle so we can use it later on to ease up recreation
 	VkSwapchainKHR oldSwapchain = swapChain;
 
@@ -362,6 +386,12 @@ VkResult VulkanSwapChain::acquireNextImage(VkSemaphore presentCompleteSemaphore,
 }
 void VulkanSwapChain::cleanup()
 {
+#if defined(PS5_HOST_REFERENCE)
+	if (offscreen) {
+		destroyOffscreenImages();
+		return;
+	}
+#endif
 	if (swapChain != VK_NULL_HANDLE) {
 		for (auto i = 0; i < images.size(); i++) {
 			vkDestroyImageView(device, imageViews[i], nullptr);
@@ -374,6 +404,163 @@ void VulkanSwapChain::cleanup()
 	surface = VK_NULL_HANDLE;
 	swapChain = VK_NULL_HANDLE;
 }
+
+#if defined(PS5_HOST_REFERENCE)
+// PS5: offscreen images for the host reference build on a driver without headless
+// surfaces. The images are what a swapchain's would be (the preferred format, colour
+// attachment and transfer source and destination), so screenshots and the samples'
+// render passes, which end in PRESENT_SRC_KHR (legal with VK_KHR_swapchain enabled,
+// as it is), are unchanged.
+VulkanSwapChain* VulkanSwapChain::offscreenActive = nullptr;
+
+void VulkanSwapChain::initOffscreen()
+{
+	uint32_t queueCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount, nullptr);
+	std::vector<VkQueueFamilyProperties> queueProps(queueCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueCount, queueProps.data());
+	queueNodeIndex = UINT32_MAX;
+	for (uint32_t i = 0; i < queueCount; i++) {
+		if (queueProps[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+			queueNodeIndex = i;
+			break;
+		}
+	}
+	if (queueNodeIndex == UINT32_MAX) {
+		vks::tools::exitFatal("Could not find a graphics queue!", -1);
+		return;
+	}
+	const VkFormatFeatureFlags needed = VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT | VK_FORMAT_FEATURE_TRANSFER_SRC_BIT |
+		VK_FORMAT_FEATURE_TRANSFER_DST_BIT;
+	colorFormat = VK_FORMAT_UNDEFINED;
+	for (VkFormat format : { VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_A8B8G8R8_UNORM_PACK32 }) {
+		VkFormatProperties properties;
+		vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &properties);
+		if ((properties.optimalTilingFeatures & needed) == needed) {
+			colorFormat = format;
+			break;
+		}
+	}
+	if (colorFormat == VK_FORMAT_UNDEFINED) {
+		vks::tools::exitFatal("Could not find a colour format for offscreen images!", -1);
+		return;
+	}
+	colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+	std::cerr << "host reference: no headless surface on this device, rendering to offscreen images\n";
+}
+
+void VulkanSwapChain::destroyOffscreenImages()
+{
+	for (size_t i = 0; i < images.size(); i++) {
+		vkDestroyImageView(device, imageViews[i], nullptr);
+		vkDestroyImage(device, images[i], nullptr);
+		vkFreeMemory(device, offscreenMemory[i], nullptr);
+	}
+	images.clear();
+	imageViews.clear();
+	offscreenMemory.clear();
+}
+
+void VulkanSwapChain::createOffscreen(uint32_t width, uint32_t height)
+{
+	// Like a resized swapchain, the old images go once the device is idle
+	vkDeviceWaitIdle(device);
+	destroyOffscreenImages();
+	vkGetDeviceQueue(device, queueNodeIndex, 0, &offscreenQueue);
+	VkPhysicalDeviceMemoryProperties memoryProperties;
+	vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+	imageCount = 3;
+	offscreenNext = 0;
+	images.resize(imageCount);
+	imageViews.resize(imageCount);
+	offscreenMemory.resize(imageCount);
+	for (uint32_t i = 0; i < imageCount; i++) {
+		VkImageCreateInfo imageCI{
+			.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+			.imageType = VK_IMAGE_TYPE_2D,
+			.format = colorFormat,
+			.extent = { width, height, 1 },
+			.mipLevels = 1,
+			.arrayLayers = 1,
+			.samples = VK_SAMPLE_COUNT_1_BIT,
+			.tiling = VK_IMAGE_TILING_OPTIMAL,
+			.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+			.sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+			.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+		};
+		VK_CHECK_RESULT(vkCreateImage(device, &imageCI, nullptr, &images[i]));
+		VkMemoryRequirements requirements;
+		vkGetImageMemoryRequirements(device, images[i], &requirements);
+		uint32_t memoryType = UINT32_MAX;
+		for (uint32_t type = 0; type < memoryProperties.memoryTypeCount; type++) {
+			if ((requirements.memoryTypeBits & (1u << type)) &&
+				(memoryProperties.memoryTypes[type].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)) {
+				memoryType = type;
+				break;
+			}
+		}
+		if (memoryType == UINT32_MAX) {
+			vks::tools::exitFatal("Could not find device-local memory for offscreen images!", -1);
+			return;
+		}
+		VkMemoryAllocateInfo allocateInfo{
+			.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+			.allocationSize = requirements.size,
+			.memoryTypeIndex = memoryType,
+		};
+		VK_CHECK_RESULT(vkAllocateMemory(device, &allocateInfo, nullptr, &offscreenMemory[i]));
+		VK_CHECK_RESULT(vkBindImageMemory(device, images[i], offscreenMemory[i], 0));
+		VkImageViewCreateInfo viewCI{
+			.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+			.image = images[i],
+			.viewType = VK_IMAGE_VIEW_TYPE_2D,
+			.format = colorFormat,
+			.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A },
+			.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 },
+		};
+		VK_CHECK_RESULT(vkCreateImageView(device, &viewCI, nullptr, &imageViews[i]));
+	}
+	// The samples acquire and present through volk's table: offscreen ones from now on
+	offscreenActive = this;
+	vkAcquireNextImageKHR = offscreenAcquire;
+	vkQueuePresentKHR = offscreenPresent;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL VulkanSwapChain::offscreenAcquire(VkDevice, VkSwapchainKHR, uint64_t, VkSemaphore semaphore,
+	VkFence fence, uint32_t* imageIndex)
+{
+	VulkanSwapChain* self = offscreenActive;
+	*imageIndex = self->offscreenNext;
+	self->offscreenNext = (self->offscreenNext + 1) % self->imageCount;
+	// A semaphore signalled by a submission covers everything submitted before it, so
+	// the image is free once it is signalled, as an acquired one would be
+	VkSubmitInfo submitInfo{
+		.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		.signalSemaphoreCount = semaphore != VK_NULL_HANDLE ? 1u : 0u,
+		.pSignalSemaphores = &semaphore,
+	};
+	return vkQueueSubmit(self->offscreenQueue, 1, &submitInfo, fence);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL VulkanSwapChain::offscreenPresent(VkQueue queue, const VkPresentInfoKHR* presentInfo)
+{
+	// Presenting waits on the frame's semaphores, which leaves them unsignalled for the next frame
+	std::vector<VkPipelineStageFlags> stages(presentInfo->waitSemaphoreCount, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+	VkSubmitInfo submitInfo{
+		.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		.waitSemaphoreCount = presentInfo->waitSemaphoreCount,
+		.pWaitSemaphores = presentInfo->pWaitSemaphores,
+		.pWaitDstStageMask = stages.data(),
+	};
+	const VkResult result = vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+	if (presentInfo->pResults != nullptr) {
+		for (uint32_t i = 0; i < presentInfo->swapchainCount; i++) {
+			presentInfo->pResults[i] = result;
+		}
+	}
+	return result;
+}
+#endif
 
 #if defined(_DIRECT2DISPLAY)
 /**

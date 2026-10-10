@@ -68,6 +68,20 @@ VkResult VulkanExampleBase::createInstance()
 			}
 		}
 	}
+#if defined(PS5_HOST_REFERENCE)
+	// PS5: a driver without headless surfaces (NVIDIA's) renders the host reference to
+	// offscreen images instead (VulkanSwapChain), and the instance asks for no surface
+	// extension it lacks
+	auto supported = [&](const char* name) {
+		return std::find(supportedInstanceExtensions.begin(), supportedInstanceExtensions.end(), name) != supportedInstanceExtensions.end();
+	};
+	if (!supported(VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME)) {
+		swapChain.offscreen = true;
+		instanceExtensions.erase(std::remove_if(instanceExtensions.begin(), instanceExtensions.end(), [&](const char* name) {
+			return !supported(name);
+		}), instanceExtensions.end());
+	}
+#endif
 
 #if (defined(VK_USE_PLATFORM_IOS_MVK) || defined(VK_USE_PLATFORM_MACOS_MVK) || defined(VK_USE_PLATFORM_METAL_EXT))
 	// SRS - When running on iOS/macOS with MoltenVK, enable VK_KHR_get_physical_device_properties2 if not already enabled by the example (required by VK_KHR_portability_subset)

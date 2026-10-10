@@ -42,6 +42,25 @@ public:
 	std::vector<VkImageView> imageViews{};
 	uint32_t queueNodeIndex{ UINT32_MAX };
 	uint32_t imageCount{ 0 };
+#if defined(PS5_HOST_REFERENCE)
+	// PS5: the host reference build on a driver without headless surfaces (NVIDIA's)
+	// renders into a ring of offscreen images instead. Acquiring an image takes the
+	// next one, and presenting only waits for the frame; both stand in for the WSI
+	// commands through volk, so every sample runs unchanged (ps5/README.md).
+	bool offscreen{ false };
+private:
+	VkQueue offscreenQueue{ VK_NULL_HANDLE };
+	std::vector<VkDeviceMemory> offscreenMemory{};
+	uint32_t offscreenNext{ 0 };
+	static VulkanSwapChain* offscreenActive;
+	void initOffscreen();
+	void createOffscreen(uint32_t width, uint32_t height);
+	void destroyOffscreenImages();
+	static VKAPI_ATTR VkResult VKAPI_CALL offscreenAcquire(VkDevice device, VkSwapchainKHR swapchain, uint64_t timeout,
+		VkSemaphore semaphore, VkFence fence, uint32_t* imageIndex);
+	static VKAPI_ATTR VkResult VKAPI_CALL offscreenPresent(VkQueue queue, const VkPresentInfoKHR* presentInfo);
+public:
+#endif
 
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
 	void initSurface(void* platformHandle, void* platformWindow);

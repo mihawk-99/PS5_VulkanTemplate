@@ -370,7 +370,8 @@ card's repeated frames, full-range colour). Both are in
 **The host reference** (`ps5/tools/host-reference.sh [ids]`, `--save` to keep them as
 `ps5/reference/`) builds the same code for Linux with a headless surface and libc++
 18.1.8 (as the console's SDK; libstdc++'s random distributions differ) and runs the
-same test on the PC's driver. A difference only the console shows is RADV's or the
+same test on the PC's driver. A driver without headless surfaces (NVIDIA's) gets
+offscreen images instead. A difference only the console shows is RADV's or the
 platform's to explain; one the PC shows too is the program's or the asset's.
 
 **Without klog** (klogsrv not running): `run.sh` follows the title's own

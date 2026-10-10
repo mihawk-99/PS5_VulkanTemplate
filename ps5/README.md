@@ -143,7 +143,10 @@ points scatter, by 4.4).
 
 **The host reference.** `ps5/tools/host-reference.sh [samples]` builds the same code for
 Linux, with a headless surface instead of the console's display and no pad, and runs a
-test run on the PC's Vulkan driver. Its pictures, in `klog/host-<time>/`, are what the
+test run on the PC's Vulkan driver. A driver that offers no headless surface, NVIDIA's
+among them, gets a ring of offscreen images instead, with the same format and uses as
+a swapchain's. The samples acquire and present through volk as before, and the run's
+log says `rendering to offscreen images`. Its pictures, in `klog/host-<time>/`, are what the
 console's should look like: a difference that the host does not show is RADV's to
 explain, one that it shows too is the sample's or the asset's. `--save` keeps them,
 at 480x270, as `reference/<id>.png`, which `check-run.py` compares a 300-frame run's
